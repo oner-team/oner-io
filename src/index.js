@@ -1,0 +1,1 @@
+module.exports = window.NattyDB = require('./natty-db');
