@@ -3,9 +3,16 @@ var gulp = require('gulp');
 // https://github.com/shama/webpack-stream
 var webpack = require('webpack-stream');
 
+// https://www.npmjs.com/package/gulp-rename/
+var rename = require("gulp-rename");
+
+// https://www.npmjs.com/package/gulp-uglify/
+var uglify = require('gulp-uglify');
+
 // 打包
 gulp.task('pack', function() {
-    return gulp.src('src/index.js').pipe(webpack({
+    return gulp.src('src/index.js')
+        .pipe(webpack({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
@@ -23,7 +30,16 @@ gulp.task('pack', function() {
                 }
             ]
         }
-    })).pipe(gulp.dest('dist/'));
+    })).pipe(gulp.dest('./dist'));
+});
+
+gulp.task('min', function (done) {
+    gulp.src('dist/*.js')
+        .pipe(uglify())
+        .pipe(rename(function (path) {
+            path.basename += '-min';
+        }))
+        .pipe(gulp.dest('./dist'))
 });
 
 // gulp 和 karma 的整合
