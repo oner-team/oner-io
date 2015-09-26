@@ -9,15 +9,24 @@ var rename = require("gulp-rename");
 // https://www.npmjs.com/package/gulp-uglify/
 var uglify = require('gulp-uglify');
 
-// 打包
-gulp.task('pack', function() {
-    return gulp.src('src/index.js')
-        .pipe(webpack({
+// https://www.npmjs.com/package/del
+var del = require('del');
+
+// http://browsersync.io/
+var browserSync = require('browser-sync');
+
+// pack natty-db.js and test.js
+gulp.task('pack', ['del'], function() {
+    return gulp.src('src/index.js').pipe(webpack({
+        entry: {
+            'natty-db': './src/index.js', // NOTE 不写`./`会报错
+            test: './test/global.spec.js'
+        },
         output: {
             // 不要配置path，会报错
             //path: 'dist',
-            filename: 'natty-db.js',
-            sourceMapFilename: 'natty-db.js.map'
+            filename: '[name].js',
+            sourceMapFilename: '[name].js.map'
         },
         // 这个配置要和 output.sourceMapFilename 一起使用
         devtool: '#source-map',
@@ -27,40 +36,43 @@ gulp.task('pack', function() {
                     test: /\.js$/,
                     exclude: /node_modules/,
                     loader: 'babel-loader?stage=1'
+                },{
+                    test: /test\/[a-zA-Z0-9]+\.spec\.js/,
+                    loaders: ['mocha', 'babel-loader?stage=1'] // mocha必须写在babel之前 没想通
                 }
             ]
         }
     })).pipe(gulp.dest('./dist'));
 });
 
-gulp.task('min', function (done) {
-    gulp.src('dist/*.js')
-        .pipe(uglify())
-        .pipe(rename(function (path) {
-            path.basename += '-min';
-        }))
-        .pipe(gulp.dest('./dist'))
+gulp.task('del', function (done) {
+    del(['dist']).then(function () {
+        done();
+    });
 });
 
-// gulp 和 karma 的整合
-// karma 官方说根本不需要专门为 gulp 开发插件，因为 karma 的 publick API 足够简单，
-// 使用者完全可以直接调用，官方也给出了整合的 demo：
-// https://github.com/karma-runner/gulp-karma
-var KarmaServer = require('karma').Server;
-gulp.task('test', function (done) {
-    new KarmaServer({
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }, done).start();
+gulp.task('min', function () {
+    return gulp.src('dist/*.js').pipe(uglify()).pipe(rename(function (path) {
+        path.basename += '.min';
+    })).pipe(gulp.dest('./dist'));
 });
 
-// 默认执行打包
-gulp.task('default', ['pack', 'test']);
+gulp.task('reload', ['pack'], function () {
+    browserSync.reload();
+});
 
 // 启动监听
-gulp.task('watch', function () {
+gulp.task('watch', ['pack'], function () {
+
+    browserSync({
+        server: {
+            baseDir: './'
+        },
+        notify: false
+    });
+
     gulp.watch([
         'src/**/*.js',
         'test/**/*.js'
-    ], ['pack']);
+    ], ['reload']);
 });
