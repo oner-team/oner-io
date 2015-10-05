@@ -7,7 +7,7 @@ const ExpectAction = require('./expect-action');
 
 let ajax = require('../src/ajax');
 
-describe('ajax', function () {
+describe('./ajax', function () {
     describe('browser detects', function () {
         let xhr = new XMLHttpRequest();
 
@@ -29,7 +29,7 @@ describe('ajax', function () {
 
         it('accept text', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/post/json',
+                url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
                 query: {
                     'return-text': 1
@@ -43,7 +43,7 @@ describe('ajax', function () {
 
         it('accept json', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/post/json',
+                url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
                 query: {
                     'return-json': 1
@@ -58,7 +58,7 @@ describe('ajax', function () {
 
         it('accept script', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/post/script',
+                url: 'http://localhost:8001/api/return-script',
                 method: 'POST',
                 query: {
                     'return-script': 1
@@ -92,7 +92,7 @@ describe('ajax', function () {
             ea.expect(['success', 'complete']);
 
             ajax({
-                url: 'http://localhost:8001/api/post/json',
+                url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
                 query: {
                     'return-json-success': 1
@@ -115,7 +115,7 @@ describe('ajax', function () {
 
             ajax({
                 log: true,
-                url: 'http://localhost:8001/api/post/json',
+                url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
                 query: {
                     'cross-domain-with-disabled-header': 1
@@ -140,7 +140,7 @@ describe('ajax', function () {
 
             ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/post/500',
+                url: 'http://localhost:8001/api/500',
                 method: 'POST',
                 accept: 'json',
                 error: function (status, xhr) {
@@ -160,7 +160,7 @@ describe('ajax', function () {
 
             ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/post/404',
+                url: 'http://localhost:8001/api/404',
                 method: 'POST',
                 accept: 'json',
                 error: function (status, xhr) {
@@ -180,7 +180,7 @@ describe('ajax', function () {
 
             var toAbort = ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/post/abort',
+                url: 'http://localhost:8001/api/abort',
                 method: 'POST',
                 abort: function () {
                     ea.do('abort');

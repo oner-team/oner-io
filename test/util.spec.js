@@ -4,7 +4,7 @@ var expect = require('expect.js');
 
 var {appendQueryString, isAbsoluteUrl} = require('../src/util');
 
-describe('util', function () {
+describe('./util', function () {
     describe('appendQueryString', function () {
         it("appendQueryString('./p', {}, fales)", function () {
             expect(appendQueryString('./p', {}, false).indexOf('./p?noCache=')).to.be(0);
