@@ -41,6 +41,10 @@ gulp.task('pack', ['del'], function() {
                     loaders: ['mocha', 'babel-loader?stage=1'] // mocha必须写在babel之前 没想通
                 }
             ]
+        },
+        externals:  {
+            rsvp: 'commonjs rsvp' //
+            //rsvp: 'var RSVP'
         }
     })).pipe(gulp.dest('./dist'));
 });

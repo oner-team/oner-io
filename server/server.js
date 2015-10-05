@@ -12,6 +12,7 @@ app.all('/api/:test', function (req, res) {
     });
 
     switch (req.params.test) {
+        // simple test
         case '500':
             res.status(500).json({error: '500'});
             break;
@@ -35,9 +36,29 @@ app.all('/api/:test', function (req, res) {
         case 'return-xml':
             res.send('<div>xml</div>');
             break;
-        case 'return-text':
+
+        // return standard data structure
+        case 'order-create':
+            res.json({
+                success: true,
+                content: {
+                    id: 1
+                }
+            });
+            break;
+
+        // return non-standard data structure
+        case 'order-create-non-standard':
+            res.json({
+                hasError: false,
+                content: {
+                    id: 1
+                }
+            });
+            break;
         default :
             res.send('text');
+            break;
     }
 
 });

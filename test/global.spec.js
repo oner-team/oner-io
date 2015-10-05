@@ -6,7 +6,7 @@ const NattyDB = require('../src/natty-db');
 
 const urlPrefix = 'http://localhost:8001/';
 
-describe('NattyDB', () => {
+describe('NattyDB', function() {
 
     describe('static',function() {
 
@@ -69,7 +69,7 @@ describe('NattyDB', () => {
             expect(Order.pay.config.mock).to.be(!!location.search.match(/\bm=1\b/));
         });
 
-        it('`jsonp` option', function () {
+        it('`jsonp` option', () => {
             let Order = DBC.create('Order', {
                 pay: {
                     url: 'path'
@@ -108,6 +108,82 @@ describe('NattyDB', () => {
             expect(Order.close.config.url).to.be('http://foo.com/path');
             expect(Order.update.config.url).to.be('https://foo.com/path');
         });
+
+
+    });
+
+    describe('ajax', function() {
+        let DBC = new NattyDB.Context({
+            urlPrefix: urlPrefix,
+            mock: false
+        });
+
+        beforeEach('reset', function () {
+            DBC.context = {};
+        })
+
+        it('play with standard data structure', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create',
+                    method: 'POST'
+                }
+            });
+            Order.create().then(function(data) {
+                try{
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('play with non-standard data structure by `fit`', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create-non-standard',
+                    method: 'POST',
+                    fit: function (response) {
+                        return {
+                            success: !response.hasError,
+                            content: response.content
+                        };
+                    }
+                }
+            });
+            Order.create().then(function(data) {
+                try{
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('process data', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create',
+                    method: 'POST',
+                    process: function (response) {
+                        return {
+                            orderId: response.id
+                        };
+                    }
+                }
+            });
+            Order.create().then(function(data) {
+                try{
+                    expect(data.orderId).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
     });
 });
 

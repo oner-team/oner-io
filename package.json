@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "browser-sync": "~2.9.6",
+    "chai": "^3.3.0",
     "del": "^2.0.1",
     "expect.js": "~0.3.1",
     "express": "^4.13.3",
@@ -26,7 +27,7 @@
   },
   "scripts": {
     "start": "gulp watch",
-    "build": "gulp pack && gulp min && gulp test"
+    "build": "gulp pack && gulp min"
   },
   "license": "MIT"
 }

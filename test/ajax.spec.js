@@ -29,13 +29,13 @@ describe('./ajax', function () {
 
         it('accept text', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/return-json',
+                url: 'http://localhost:8001/api/return-text',
                 method: 'POST',
-                query: {
+                data: {
                     'return-text': 1
                 },
                 success: function (res, xhr) {
-                    expect(res).to.be(JSON.stringify({tool: 'natty-db'}));
+                    expect(res).to.be('text');
                     done();
                 }
             });
@@ -45,7 +45,7 @@ describe('./ajax', function () {
             ajax({
                 url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
-                query: {
+                data: {
                     'return-json': 1
                 },
                 accept: 'json',
@@ -60,7 +60,7 @@ describe('./ajax', function () {
             ajax({
                 url: 'http://localhost:8001/api/return-script',
                 method: 'POST',
-                query: {
+                data: {
                     'return-script': 1
                 },
                 accept: 'script',
@@ -94,7 +94,7 @@ describe('./ajax', function () {
             ajax({
                 url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
-                query: {
+                data: {
                     'return-json-success': 1
                 },
                 success: function (res, xhr) {
@@ -117,7 +117,7 @@ describe('./ajax', function () {
                 log: true,
                 url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
-                query: {
+                data: {
                     'cross-domain-with-disabled-header': 1
                 },
                 // 使用不合法的Header来触发跨域失败
