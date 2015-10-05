@@ -54,10 +54,6 @@ let appendQueryString = (url, obj, cache) => {
     }
 }
 
-const FUNCTION = 'function';
-let runAsFn = (v) => {
-    return typeof v === FUNCTION ? v() : v;
-};
 
 const absoluteUrlReg = /^(https?:)?\/\//;
 let isAbsoluteUrl = (url) => {
@@ -69,11 +65,21 @@ let isBoolean = (v) => {
     return typeof v === BOOLEAN;
 }
 
+const FUNCTION = 'function';
+let isFunction = (v) => {
+    return typeof v === FUNCTION;
+}
+
+let runAsFn = (v) => {
+    return isFunction(v) ? v() : v;
+};
+
 module.exports = {
     extend: redo(extend),
     appendQueryString,
-    noop: function (v) {return v;},
-    runAsFn,
+    noop(v) {return v;},
     isAbsoluteUrl,
-    isBoolean
+    isBoolean,
+    isFunction,
+    runAsFn
 };
