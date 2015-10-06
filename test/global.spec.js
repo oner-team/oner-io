@@ -6,6 +6,9 @@ const NattyDB = require('../src/natty-db');
 
 const urlPrefix = 'http://localhost:8001/';
 
+// IE11+
+const isIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
+
 describe('NattyDB', function() {
 
     describe('static',function() {
@@ -177,6 +180,65 @@ describe('NattyDB', function() {
             Order.create().then(function(data) {
                 try{
                     expect(data.orderId).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('error by requesting cross-domain with disabled header', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    log: true,
+                    url: urlPrefix + 'api/order-create',
+                    method: 'POST',
+                    header: {foo: 'foo'}
+                }
+            });
+            Order.create().then(function () {
+                // can not go here
+            }, function(error) {
+                try{
+                    expect(error.status).to.be(0);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('error by 500', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/500',
+                    method: 'POST'
+                }
+            });
+            Order.create().then(function () {
+               // can not go here
+            }, function(error) {
+                try{
+                    expect(error.status).to.be(500);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('error by 404', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/404',
+                    method: 'POST'
+                }
+            });
+            Order.create().then(function () {
+                // can not go here
+            }, function(error) {
+                try{
+                    expect(error.status).to.be(404);
                     done();
                 } catch(e) {
                     done(new Error(e.message));

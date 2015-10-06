@@ -114,7 +114,7 @@ describe('./ajax', function () {
             ea.expect(['error', 'complete']);
 
             ajax({
-                log: true,
+                //log: true,
                 url: 'http://localhost:8001/api/return-json',
                 method: 'POST',
                 data: {
@@ -192,8 +192,10 @@ describe('./ajax', function () {
             });
             setTimeout(function () {
                 toAbort.abort();
-            }, 1000);
+            }, 100);
         });
+
+
     });
 });
 
