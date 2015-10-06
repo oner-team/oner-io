@@ -24,6 +24,11 @@ app.all('/api/:test', function (req, res) {
                 res.send('abort');
             }, 10000);
             break;
+        case 'timeout':
+            setTimeout(function () {
+                res.send('timeout');
+            }, 10000);
+            break;
         case 'return-script':
             res.send('window.__test__ = 1;');
             break;

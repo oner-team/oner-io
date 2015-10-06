@@ -2,7 +2,7 @@
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl} = require('../src/util');
+var {appendQueryString, isAbsoluteUrl, isNumber} = require('../src/util');
 
 describe('./util', function () {
     describe('appendQueryString', function () {
@@ -32,5 +32,13 @@ describe('./util', function () {
         it('`path//path` should not be a absolute url', function () {
             expect(isAbsoluteUrl('//path')).to.be(true);
         });
+    });
+    describe('isNumber', function () {
+        it('NaN', function () {
+            expect(isNumber(NaN)).to.be(false);
+        });
+        it('1', function () {
+            expect(isNumber(1)).to.be(true);
+        })
     });
 });

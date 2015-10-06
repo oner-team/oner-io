@@ -43,8 +43,8 @@ gulp.task('pack', ['del'], function() {
             ]
         },
         externals:  {
-            rsvp: 'commonjs rsvp' //
-            //rsvp: 'var RSVP'
+            //rsvp: 'commonjs rsvp' // modules.export = require('rsvp');
+            rsvp: 'var RSVP' // modules.export = RSVP;
         }
     })).pipe(gulp.dest('./dist'));
 });
