@@ -66,7 +66,6 @@ let acceptToRequestHeader = {
 //    return responseHeaderToAccept[mime] || TEXT;
 //}
 
-
 // 判断是否跨域
 let originA = doc.createElement('a');
 originA.href = window.location.href;
@@ -104,21 +103,6 @@ let setHeaders = (xhr, options) => {
 //      404: 触发load loadend 不触发error
 let setEvents = (xhr, options) => {
 
-    //xhr.addEventListener("progress", function (e) {
-    //    options.log && console.log(e, xhr);
-    //
-    //    if (e.lengthComputable) {
-    //        var percentComplete = e.loaded / e.total;
-    //        options.log && console.warn('progress', percentComplete);
-    //    } else {
-    //        // Unable to compute progress information since the total size is unknown
-    //    }
-    //});
-    //xhr.addEventListener("loadstart", function (e) {
-    //    options.log && console.warn('loadstart');
-    //    options.log && console.log(e, xhr);
-    //});
-
     // readyState value:
     //      0: UNSET 未初始化
     //      1: OPENED
@@ -126,7 +110,7 @@ let setEvents = (xhr, options) => {
     //      3: LOADING
     //      4: DONE 此时触发load事件
     xhr.addEventListener("readystatechange", function (e) {
-        options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status);
+        options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
             if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                 //let mime = xhr.getResponseHeader('Content-Type');
@@ -137,8 +121,7 @@ let setEvents = (xhr, options) => {
                         try {
                             data = JSON.parse(data);
                         } catch (e) {
-                            console.error(data);
-                            throw new Error('parse json error');
+                            console.warn('The response can NOT be parsed to JSON object.', data);
                         }
                         break;
                     case SCRIPT:
@@ -154,65 +137,28 @@ let setEvents = (xhr, options) => {
                 }
                 options.success(data, xhr);
             } else {
-                if (typeof options.error === 'function') {
-                    options.error(xhr.status, xhr);
-                } else {
-
-                }
-
+                // 如果是取消 则不需要触发error
+                !xhr.__ignoreError && options.error(xhr.status, xhr);
             }
-            options.complete(xhr);
         }
     });
 
-    // 跨域请求被拒绝时：会触发`error + loadend`事件 不会触发`load`事件 此时 chrome中xhr.status是0
-    // 404时：不触发`error`事件
-    //xhr.addEventListener("error", function (e) {
-    //    options.log && console.log('error', xhr);
-    //    //options.error(xhr);
+    //xhr.addEventListener('error', function () {
+    //    console.log('errorrrrr');
     //});
     //
-    //xhr.addEventListener("load", function (e) {
-    //    options.log && console.log('load', xhr);
-    //    //options.complete(xhr);
+    //xhr.addEventListener('load', function () {
+    //    console.log('looooooad');
     //});
 
-    //xhr.addEventListener("abort", function (e) {
-    //    options.log && console.warn('abort');
-    //    options.log && console.log(e, xhr);
-    //});
-    //xhr.addEventListener("timeout", function (e) {
-    //    options.log && console.warn('timeout');
-    //    options.log && console.log(e, xhr);
-    //});
+    xhr.addEventListener('abort', function () {
+        options.abort(xhr.status, xhr);
+    });
 
-    //xhr.addEventListener('readystatechange', function () {
-    //    options.log && console.log('readystatechange: readyState', xhr.readyState, xhr.status);
-    //    if (xhr.readyState === 4) {
-    //        options.log && console.log('status', xhr.status);
-                    //var result, dataType;
-                    //
-                    //if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
-                    //    var mime = xhr.getResponseHeader('content-type');
-                    //    dataType = mimeTypes[mime] || 'text';
-                    //    result = xhr.responseText;
-                    //
-                    //    try {
-                    //        if (dataType === 'json') {
-                    //            result = JSON.parse(result);
-                    //        }
-                    //
-                    //        success(result, xhr, settings);
-                    //        return;
-                    //    } catch (e) {
-                    //
-                    //    }
-                    //}
-                    //
-                    //error(null, 'error', xhr, settings);
-                    //return;
-        //}
-    //}, false);
+    xhr.addEventListener('loadend', function () {
+        options.complete(xhr.status, xhr);
+        delete xhr.__ignoreError;
+    });
 }
 
 let ajax = (options) => {
@@ -223,7 +169,7 @@ let ajax = (options) => {
 
     setEvents(xhr, options);
 
-    xhr.open(options.method, appendQueryString(options.url, options.query, options.cache));
+    xhr.open(options.method, appendQueryString(options.url, options.data, options.cache));
 
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
@@ -235,7 +181,12 @@ let ajax = (options) => {
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
     xhr.send(options.method === 'GET' ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
 
-    return xhr;
+    return {
+        abort: function () {
+            xhr.__ignoreError = true;
+            xhr.abort();
+        }
+    };
 }
 
 
