@@ -3,7 +3,7 @@
 const RSVP = require('rsvp');
 const ajax = require('./ajax');
 const jsonp = require('./jsonp');
-const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction} = require('./util');
+const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber} = require('./util');
 
 RSVP.on('error', function(reason) {
     console.assert('rsvp error:\n' + reason);
@@ -51,6 +51,10 @@ class DB {
 
         config.API = options.API;
 
+        config.header = options.header;
+
+        config.log = options.log;
+
 
         // 处理数据
         config.process = options.process || noop;
@@ -83,25 +87,23 @@ class DB {
             config.jsonp = TRUE;
         }
 
-        config.query = config.query || {};
+        config.data = config.data || {};
 
         if (config.mock) {
-            config.query.m = '1';
+            config.data.m = '1';
         }
-        config.query['__' + t.name + '.' + config.API + '__'] = '';
+        config.data['__' + t.name + '.' + config.API + '__'] = '';
 
-
-        config.retry = options.retry || 0;
 
         // 关键回调函数
         config.fit = isFunction(options.fit) ? options.fit : noop;
         config.process = isFunction(options.process) ? options.process : noop;
-        config.error = isFunction(options.error) ? options.error : noop;
 
         // 默认`0`表示没有超时处理
-        config.timeout = options.timeout || 0;
+        config.timeout = isNumber(options.timeout) ? options.timeout : 0;
 
-
+        // 默认不执行重试
+        config.retry = isNumber(options.retry) ? options.retry : 0;
 
         // TODO 代理功能
         // TODO once缓存
@@ -113,8 +115,8 @@ class DB {
         let t = this;
         let config = t.processAPIOptions(options);
 
-        let fn = (query) => {
-            config.query = extend({}, config.query, query);
+        let fn = (data) => {
+            config.data = extend({}, config.data, data);
             return t.request(config);
         };
 
@@ -134,42 +136,100 @@ class DB {
     
     request(config) {
         let t = this;
-        return new RSVP.Promise((resolve, reject) => {
-            if (config.once && t.cache[config.API]) {
-                resolve(t.cache[config.API]);
-            } else {
-                ajax({
-                    url: config.url,
-                    method: config.method,
-                    data: config.query,
+        config.pending = true;
 
-                    // 强制约定json
-                    accept: 'json',
-                    success(response, xhr) {
-                        response = config.fit(response);
+        let defer = RSVP.defer();
 
-                        // TODO 非标准格式数据的处理
-                        if (response.success) {
-                            // 数据处理
-                            let responseData = config.process(response.content);
+        if (config.once && t.cache[config.API]) {
+            defer.resolve(t.cache[config.API]);
+            config.pending = false;
+        } else if (config.jsonp) {
+            t.sendJSONP(config, defer);
+        } else {
+            t.sendAjax(config, defer);
+        }
 
-                            // 记入缓存
-                            config.once && (t.cache[config.API] = responseData);
-                            resolve(responseData);
-                        } else {
-                            // TODO error的格式约定
-                            reject(response.error);
-                        }
-                    },
-                    error(status, xhr) {
+        // 超时处理
+        if (0 !== config.timeout) {
+            setTimeout(() => {
+                if (config.pending) {
+                    defer.reject({
+                        timeout: true,
+                        message: 'Timeout By ' + config.timeout + 'ms.'
+                    });
+                }
+            }, config.timeout);
+        }
 
-                    },
-                    complete(status, xhr) {
+        return defer.promise;
+    }
 
-                    }
+    sendAjax(config, defer) {
+        let t = this;
+
+        ajax({
+            log: config.log,
+            url: config.url,
+            method: config.method,
+            data: config.data,
+            header: config.header,
+
+            // 强制约定json
+            accept: 'json',
+            success(response, xhr) {
+                response = config.fit(response);
+
+                // TODO 非标准格式数据的处理
+                if (response.success) {
+                    // 数据处理
+                    let responseData = config.process(response.content);
+
+                    // 记入缓存
+                    config.once && (t.cache[config.API] = responseData);
+                    defer.resolve(responseData);
+                } else {
+                    // TODO error的格式约定
+                    response.error = response.error || {};
+
+                    // TODO 设计友好的错误提示数据
+                    //response.error.NattyDBMessage = {
+                    //    code: 1,
+                    //    tip: '`{response}.success` is false'
+                    //};
+                    defer.reject(response.error || {});
+                }
+            },
+            error(status, xhr) {
+
+                let message;
+                let flag;
+                switch (status) {
+                    case 404:
+                        message = 'Not Found';
+                        break;
+                    case 500:
+                        message = 'Internal Server Error';
+                        break;
+                    // TODO 是否要补充其他明确的服务端错误
+                    default:
+                        message = 'Unknown Server Error';
+                        break;
+                }
+
+                defer.reject({
+                    NattyDBMessage: '`status` is ' + status,
+                    status,
+                    message
                 });
+            },
+            complete(status, xhr) {
+                config.pending = false;
             }
         });
+    }
+
+    sendJSONP(config, defer) {
+
     }
 }
 
@@ -185,22 +245,23 @@ class DB {
  * 创建一个DB
  *     let User = DBC.create('User', {
  *         getPhone: {
- *             selfSync: true,
  *             url:     'xxx',
  *             mock:    false,
  *             mockUrl: 'path',
- *             once:    false,
+ *
  *             method:  'GET',     // GET|POST
  *             accept:  'json',    // text|json|script|xml
  *             data:   {},         // 固定参数
- *             jsonp:   false,     // true|false|j{id}
+ *             header:  {},        // 非jsonp时才生效
  *
- *             retry:   0,
+ *             jsonp:   false,     // true|false|j{id}
  *
  *             fit:     fn,
  *             process: fn,
- *             error:   fn,
  *
+ *             once:    false,
+ *             retry:   0,
+ *             selfSync: true,
  *             timeout: 5000,       // 如果超时了，会触发error
  *
  *             log: true
@@ -218,8 +279,11 @@ class DB {
  *         if (error.status == 500) {} // ajax方法才有error.status
  *         if (error.status == 0)      // ajax方法才有error.status 0表示不确定的错误 可能是跨域时使用了非法Header
  *         if (error.timeout) {
- *             console.log(error.msg)
+ *             console.log(error.message)
  *         }
+ *
+ *         // 服务器端返回的错误
+ *         if (error.code == 10001) {}
  *     });
  *
  *     NattyDB.addAccept('hbs', function(text){

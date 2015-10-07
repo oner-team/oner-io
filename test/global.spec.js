@@ -190,7 +190,7 @@ describe('NattyDB', function() {
         it('error by requesting cross-domain with disabled header', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    log: true,
+                    //log: true,
                     url: urlPrefix + 'api/order-create',
                     method: 'POST',
                     header: {foo: 'foo'}
@@ -201,6 +201,27 @@ describe('NattyDB', function() {
             }, function(error) {
                 try{
                     expect(error.status).to.be(0);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('error by timeout', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    log: true,
+                    url: urlPrefix + 'api/timeout',
+                    method: 'POST',
+                    timeout: 300
+                }
+            });
+            Order.create().then(function () {
+                // can not go here
+            }, function(error) {
+                try{
+                    expect(error.timeout).to.be(true);
                     done();
                 } catch(e) {
                     done(new Error(e.message));

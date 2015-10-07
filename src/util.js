@@ -74,6 +74,11 @@ let runAsFn = (v) => {
     return isFunction(v) ? v() : v;
 };
 
+const NUMBER = 'number';
+let isNumber = (v) => {
+    return !isNaN(v) && typeof v === NUMBER;
+}
+
 module.exports = {
     extend: redo(extend),
     appendQueryString,
@@ -81,5 +86,6 @@ module.exports = {
     isAbsoluteUrl,
     isBoolean,
     isFunction,
+    isNumber,
     runAsFn
 };

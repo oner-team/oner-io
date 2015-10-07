@@ -52,6 +52,17 @@ app.all('/api/:test', function (req, res) {
             });
             break;
 
+        // return standard error structure
+        case 'return-error':
+            res.json({
+                success: false,
+                error: {
+                    code: 1,
+                    message: 'Demo Server Error'
+                }
+            });
+            break;
+
         // return non-standard data structure
         case 'order-create-non-standard':
             res.json({
@@ -61,6 +72,7 @@ app.all('/api/:test', function (req, res) {
                 }
             });
             break;
+
         default :
             res.send('text');
             break;
