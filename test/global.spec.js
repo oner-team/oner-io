@@ -268,7 +268,38 @@ describe('NattyDB', function() {
         });
 
     });
+
+    describe('jsonp', function () {
+        let DBC = new NattyDB.Context({
+            urlPrefix: urlPrefix,
+            mock: false
+        });
+
+        beforeEach('reset', function () {
+            DBC.context = {};
+        });
+
+        it.only('jsonp url set', function () {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create',
+                    jsonp: true
+                }
+            });
+            Order.create().then(function(data) {
+                //try{
+                //    expect(data.id).to.be(1);
+                //    done();
+                //} catch(e) {
+                //    done(new Error(e.message));
+                //}
+            });
+        });
+    });
 });
 
 require('./util.spec');
 require('./ajax.spec');
+
+
+

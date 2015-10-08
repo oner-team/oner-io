@@ -79,7 +79,13 @@ class DB {
 
         config.url = config.mock ? config.mockUrl : t.getFullUrl(options.url);
 
-        config.jsonp = isBoolean(options.jsonp) ? options.jsonp : FALSE;
+        if (!Array.isArray(options.jsonp)) {
+            config.jsonp = isBoolean(options.jsonp) ? options.jsonp : FALSE;
+        } else {
+            config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
+            // 这个参数只用于jsonp
+            config.jsonpQueryString = options.jsonp[1];
+        }
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
@@ -88,6 +94,8 @@ class DB {
         }
 
         config.data = config.data || {};
+
+
 
         if (config.mock) {
             config.data.m = '1';
@@ -133,7 +141,12 @@ class DB {
         if (!url) return EMPTY;
         return (this.urlPrefix && !isAbsoluteUrl(url)) ? this.urlPrefix + url : url;
     }
-    
+
+    /**
+     * 发起请求
+     * @param config {Object} 请求配置
+     * @returns {*|r.promise|Function|promise}
+     */
     request(config) {
         let t = this;
         config.pending = true;
@@ -164,6 +177,11 @@ class DB {
         return defer.promise;
     }
 
+    /**
+     * 发起Ajax请求
+     * @param config {Object} ajax请求配置
+     * @param defer {Object} RSVP.defer()的对象
+     */
     sendAjax(config, defer) {
         let t = this;
 
@@ -214,10 +232,11 @@ class DB {
                     default:
                         message = 'Unknown Server Error';
                         break;
+
                 }
 
                 defer.reject({
-                    NattyDBMessage: '`status` is ' + status,
+                    //NattyDBMessage: '`status` is ' + status,
                     status,
                     message
                 });
@@ -229,7 +248,15 @@ class DB {
     }
 
     sendJSONP(config, defer) {
-
+        jsonp({
+            url: config.url,
+            data: config.data,
+            cache: config.cache,
+            queryString: config.jsonpQueryString,
+            success() {},
+            error() {},
+            complete() {}
+        });
     }
 }
 

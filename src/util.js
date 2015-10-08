@@ -4,7 +4,7 @@
  * @param  {Object} supplier
  * @return {Object} 扩展后的receiver对象
  */
-function extend(receiver = {}, supplier = {}) {
+let extend = (receiver = {}, supplier = {}) => {
     for (let key in supplier) {
         if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
             receiver[key] = supplier[key];
@@ -22,7 +22,7 @@ function extend(receiver = {}, supplier = {}) {
  *      add = redo(add);
  *      add(1,2,3) => 6
  */
-function redo(fn) {
+let redo =(fn) => {
     return function () {
         var args = arguments;
         var ret = fn(args[0], args[1]);
@@ -33,13 +33,19 @@ function redo(fn) {
     }
 }
 
+const random = Math.random;
+const floor = Math.floor;
+let makeRandom = () => {
+    return floor(random() * 9e9);
+}
+
 // 给URL追加查询字符串
 let escape = encodeURIComponent;
 let appendQueryString = (url, obj, cache) => {
     let kv = [];
 
     // 是否追加noCache参数
-    !cache && kv.push('noCache=' + Math.floor(Math.random() * 9e9));
+    !cache && kv.push('noCache=' + makeRandom());
 
     for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -81,6 +87,7 @@ let isNumber = (v) => {
 
 module.exports = {
     extend: redo(extend),
+    makeRandom,
     appendQueryString,
     noop(v) {return v;},
     isAbsoluteUrl,

@@ -20,22 +20,6 @@ const TEXT = 'text';
 const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了字母`O`
 
 
-let defaultOptions = {
-    url: '.',
-    method: 'GET',
-    accept: TEXT,
-    data: null,
-    header: {},
-    withCredentials: false,
-    cache: true,
-    success: noop,
-    error: noop,
-    complete: noop,
-    abort: noop,
-    log: false
-};
-
-
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
@@ -160,6 +144,21 @@ let setEvents = (xhr, options) => {
         delete xhr.__ignoreError;
     });
 }
+
+let defaultOptions = {
+    url: '',
+    method: 'GET',
+    accept: TEXT,
+    data: null,
+    header: {},
+    withCredentials: false,
+    cache: true,
+    success: noop,
+    error: noop,
+    complete: noop,
+    abort: noop,
+    log: false
+};
 
 let ajax = (options) => {
 
