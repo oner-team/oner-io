@@ -15,7 +15,9 @@ let defaultOptions = {
     error: noop,
     complete: noop,
     log: false,
-    queryString: 'callback=jsonp'
+    callbackQuery: {
+        callback: 'jsonp{id}'
+    }
 };
 
 let jsonp = (options) => {

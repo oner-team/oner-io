@@ -30,7 +30,7 @@ describe('./util', function () {
             expect(isAbsoluteUrl('//path')).to.be(true);
         });
         it('`path//path` should not be a absolute url', function () {
-            expect(isAbsoluteUrl('//path')).to.be(true);
+            expect(isAbsoluteUrl('foo//path')).to.be(false);
         });
     });
     describe('isNumber', function () {

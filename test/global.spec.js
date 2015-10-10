@@ -4,7 +4,7 @@
 const expect = require('expect.js');
 const NattyDB = require('../src/natty-db');
 
-const urlPrefix = 'http://localhost:8001/';
+const urlPrefix = 'http://10.2.67.104:8001/';
 
 // IE11+
 const isIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
@@ -133,7 +133,7 @@ describe('NattyDB', function() {
                 }
             });
             Order.create().then(function(data) {
-                try{
+                try {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
@@ -156,7 +156,7 @@ describe('NattyDB', function() {
                 }
             });
             Order.create().then(function(data) {
-                try{
+                try {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
@@ -178,7 +178,7 @@ describe('NattyDB', function() {
                 }
             });
             Order.create().then(function(data) {
-                try{
+                try {
                     expect(data.orderId).to.be(1);
                     done();
                 } catch(e) {
@@ -199,7 +199,7 @@ describe('NattyDB', function() {
             Order.create().then(function () {
                 // can not go here
             }, function(error) {
-                try{
+                try {
                     expect(error.status).to.be(0);
                     done();
                 } catch(e) {
@@ -211,7 +211,7 @@ describe('NattyDB', function() {
         it('error by timeout', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    log: true,
+                    //log: true,
                     url: urlPrefix + 'api/timeout',
                     method: 'POST',
                     timeout: 300
@@ -220,7 +220,7 @@ describe('NattyDB', function() {
             Order.create().then(function () {
                 // can not go here
             }, function(error) {
-                try{
+                try {
                     expect(error.timeout).to.be(true);
                     done();
                 } catch(e) {
@@ -232,6 +232,7 @@ describe('NattyDB', function() {
         it('error by 500', function (done) {
             let Order = DBC.create('Order', {
                 create: {
+                    //log: true,
                     url: urlPrefix + 'api/500',
                     method: 'POST'
                 }
@@ -239,7 +240,7 @@ describe('NattyDB', function() {
             Order.create().then(function () {
                // can not go here
             }, function(error) {
-                try{
+                try {
                     expect(error.status).to.be(500);
                     done();
                 } catch(e) {
@@ -258,7 +259,7 @@ describe('NattyDB', function() {
             Order.create().then(function () {
                 // can not go here
             }, function(error) {
-                try{
+                try {
                     expect(error.status).to.be(404);
                     done();
                 } catch(e) {
@@ -279,22 +280,52 @@ describe('NattyDB', function() {
             DBC.context = {};
         });
 
-        it.only('jsonp url set', function () {
+        it('check default jsonpCallbackQuery', function () {
             let Order = DBC.create('Order', {
                 create: {
                     url: urlPrefix + 'api/order-create',
                     jsonp: true
                 }
             });
-            Order.create().then(function(data) {
-                //try{
-                //    expect(data.id).to.be(1);
-                //    done();
-                //} catch(e) {
-                //    done(new Error(e.message));
-                //}
+
+            expect(Order.create.config.jsonpCallbackQuery).to.be(undefined);
+        });
+
+        it('check custom jsonpCallbackQuery', function () {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create',
+                    jsonp: [true, 'cb', 'j{id}']
+                }
+            });
+
+            expect(Order.create.config.jsonp).to.be(true);
+            expect(Order.create.config.jsonpCallbackQuery).to.eql({
+                cb: 'j{id}'
             });
         });
+
+        it('auto detect jsonp option', function () {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create.jsonp'
+                }
+            });
+
+            expect(Order.create.config.jsonp).to.be(true);
+        });
+
+        it('jsonp request test', function () {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: urlPrefix + 'api/order-create',
+                    jsonp: true
+                }
+            });
+
+            expect(Order.create.config.jsonpCallbackQuery).to.be(undefined);
+        });
+
     });
 });
 

@@ -79,22 +79,29 @@ class DB {
 
         config.url = config.mock ? config.mockUrl : t.getFullUrl(options.url);
 
-        if (!Array.isArray(options.jsonp)) {
-            config.jsonp = isBoolean(options.jsonp) ? options.jsonp : FALSE;
-        } else {
+
+        if (isBoolean(options.jsonp)) {
+            config.jsonp = options.jsonp;
+        }
+
+        // 按照[boolean, callbackKeyWord, callbackFunctionName]格式处理
+        else if (Array.isArray(options.jsonp)) {
             config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
             // 这个参数只用于jsonp
-            config.jsonpQueryString = options.jsonp[1];
+            if (config.jsonp) {
+                config.jsonpCallbackQuery = {
+                    [options.jsonp[1] || 'callback']: options.jsonp[2] || 'jsonp{id}'
+                };
+            }
         }
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
-        if (config.url.match(/\.jsonp(\?.*)?$/)) {
-            config.jsonp = TRUE;
+        else {
+            config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
         }
 
         config.data = config.data || {};
-
 
 
         if (config.mock) {
@@ -149,6 +156,8 @@ class DB {
      */
     request(config) {
         let t = this;
+        let xhr;
+
         config.pending = true;
 
         let defer = RSVP.defer();
@@ -159,13 +168,14 @@ class DB {
         } else if (config.jsonp) {
             t.sendJSONP(config, defer);
         } else {
-            t.sendAjax(config, defer);
+            xhr = t.sendAjax(config, defer);
         }
 
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
                 if (config.pending) {
+                    xhr && xhr.abort();
                     defer.reject({
                         timeout: true,
                         message: 'Timeout By ' + config.timeout + 'ms.'
@@ -185,7 +195,7 @@ class DB {
     sendAjax(config, defer) {
         let t = this;
 
-        ajax({
+        return ajax({
             log: config.log,
             url: config.url,
             method: config.method,
@@ -207,13 +217,8 @@ class DB {
                     defer.resolve(responseData);
                 } else {
                     // TODO error的格式约定
-                    response.error = response.error || {};
-
                     // TODO 设计友好的错误提示数据
-                    //response.error.NattyDBMessage = {
-                    //    code: 1,
-                    //    tip: '`{response}.success` is false'
-                    //};
+                    // NOTE response是只读的对象
                     defer.reject(response.error || {});
                 }
             },
@@ -252,7 +257,7 @@ class DB {
             url: config.url,
             data: config.data,
             cache: config.cache,
-            queryString: config.jsonpQueryString,
+            callbackQuery: config.jsonpCallbackQuery,
             success() {},
             error() {},
             complete() {}

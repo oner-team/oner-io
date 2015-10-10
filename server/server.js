@@ -26,7 +26,12 @@ app.all('/api/:test', function (req, res) {
             break;
         case 'timeout':
             setTimeout(function () {
-                res.send('timeout');
+                res.json({
+                    success: false,
+                    error: {
+                        msg: 'timeout'
+                    }
+                });
             }, 10000);
             break;
         case 'return-script':
@@ -72,8 +77,7 @@ app.all('/api/:test', function (req, res) {
                 }
             });
             break;
-
-        default :
+        default:
             res.send('text');
             break;
     }

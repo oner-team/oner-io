@@ -13,12 +13,12 @@ const {extend, appendQueryString, noop} = require('./util');
 const doc = document;
 
 const NULL = null;
+const GET = 'GET';
 const SCRIPT = 'script';
 const XML = 'xml';
 const HTML = 'html';
 const TEXT = 'text';
 const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了字母`O`
-
 
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
@@ -26,7 +26,8 @@ const TEXT_HTML = 'text/html';
 // minetype的简写映射
 // TODO 考虑是否优化
 let acceptToRequestHeader = {
-    script: 'text/javascript, application/javascript, application/x-javascript', //  IIS returns "application/x-javascript"
+    // IIS returns `application/x-javascript`
+    script: 'text/javascript, application/javascript, application/x-javascript',
     json:   APPLICATION_JSON,
     xml:    'application/xml, text/xml',
     html:   TEXT_HTML,
@@ -88,22 +89,22 @@ let setHeaders = (xhr, options) => {
 let setEvents = (xhr, options) => {
 
     // readyState value:
-    //      0: UNSET 未初始化
-    //      1: OPENED
-    //      2: HEADERS_RECEIVED
-    //      3: LOADING
-    //      4: DONE 此时触发load事件
+    //   0: UNSET 未初始化
+    //   1: OPENED
+    //   2: HEADERS_RECEIVED
+    //   3: LOADING
+    //   4: DONE 此时触发load事件
     xhr.addEventListener("readystatechange", function (e) {
         options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
+            // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
             if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                 //let mime = xhr.getResponseHeader('Content-Type');
-
                 let data = xhr.responseText;
                 switch (options.accept) {
                     case JS0N:
                         try {
-                            data = JSON.parse(data);
+                            data = JSON.parse(data)
                         } catch (e) {
                             console.warn('The response can NOT be parsed to JSON object.', data);
                         }
@@ -114,15 +115,15 @@ let setEvents = (xhr, options) => {
                     case XML:
                         data = xhr.responseXML;
                         break;
-                    case HTML:
-                    case TEXT:
+                    //case HTML:
+                    //case TEXT:
                     default:
                         break;
                 }
                 options.success(data, xhr);
             } else {
-                // 如果是取消 则不需要触发error
-                !xhr.__ignoreError && options.error(xhr.status, xhr);
+                // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
+                !xhr.__aborted && options.error(xhr.status, xhr);
             }
         }
     });
@@ -135,19 +136,21 @@ let setEvents = (xhr, options) => {
     //    console.log('looooooad');
     //});
 
-    xhr.addEventListener('abort', function () {
+    xhr.addEventListener('abort', () => {
+        options.log && console.log('abort');
         options.abort(xhr.status, xhr);
     });
 
-    xhr.addEventListener('loadend', function () {
+    xhr.addEventListener('loadend', () => {
+        options.log && console.log('loadend');
         options.complete(xhr.status, xhr);
-        delete xhr.__ignoreError;
+        delete xhr.__aborted;
     });
 }
 
 let defaultOptions = {
     url: '',
-    method: 'GET',
+    method: GET,
     accept: TEXT,
     data: null,
     header: {},
@@ -178,14 +181,18 @@ let ajax = (options) => {
     setHeaders(xhr, options);
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-    xhr.send(options.method === 'GET' ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
+    xhr.send(options.method === GET ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
 
-    return {
-        abort: function () {
-            xhr.__ignoreError = true;
-            xhr.abort();
-        }
+    let originAbort = xhr.abort;
+
+    // 重写`abort`方法
+    xhr.abort = () => {
+        xhr.__aborted = true;
+        // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
+        originAbort.call(xhr);
     };
+
+    return xhr;
 }
 
 
