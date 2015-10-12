@@ -1,8 +1,10 @@
+"use strict";
+const {host} = require('./config');
 
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl, isNumber} = require('../src/util');
+var {appendQueryString, isAbsoluteUrl, isNumber, loadScript} = require('../src/util');
 
 describe('./util', function () {
     describe('appendQueryString', function () {
@@ -40,5 +42,24 @@ describe('./util', function () {
         it('1', function () {
             expect(isNumber(1)).to.be(true);
         })
+    });
+    describe('loadScript', function () {
+        it('load error', function (done) {
+            let script = loadScript(host + 'error-url', (e) => {
+                expect(e.target.src).to.be(host + 'error-url');
+                done();
+            });
+        });
+        it('`script` tag should have onload event', function (done) {
+            let script = document.createElement('script');
+            script.onload = function () {
+                expect(__test__).to.be(1);
+                window.__test__ = null;
+                done();
+            };
+            script.src = host + 'api/return-script';
+            let head = document.getElementsByTagName('head')[0];
+            head.insertBefore(script, head.firstChild);
+        });
     });
 });

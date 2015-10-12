@@ -4,14 +4,34 @@
 const expect = require('expect.js');
 const ExpectAction = require('./expect-action');
 
+const {host} = require('./config');
+
 
 let ajax = require('../src/ajax');
 
 describe('./ajax', function () {
-    describe('browser detects', function () {
+
+    describe('dependent events', function () {
         let xhr = new XMLHttpRequest();
 
-        let methods = ['loadstart', 'load', 'loadend', 'progress', 'error', 'readystatechange', 'timeout', 'abort'];
+        let methods = ['loadend', 'readystatechange', 'abort'];
+
+        methods.forEach(function (method) {
+            it('support `' + method + '` event',function() {
+                expect(xhr).to.have.property('on' + method);
+            });
+        });
+
+        // http://enable-cors.org/index.html
+        it('support `CORS`', function () {
+            expect(xhr).to.have.property('withCredentials');
+        });
+    });
+
+    describe('browser detects：NOT used in NattyDB', function () {
+        let xhr = new XMLHttpRequest();
+
+        let methods = ['loadstart', 'load', 'progress', 'error', 'timeout'];
 
         methods.forEach(function (method) {
             it('support `' + method + '` event',function() {
@@ -29,7 +49,7 @@ describe('./ajax', function () {
 
         it('accept text', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/return-text',
+                url: host + 'api/return-text',
                 method: 'POST',
                 data: {
                     'return-text': 1
@@ -43,7 +63,7 @@ describe('./ajax', function () {
 
         it('accept json', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/return-json',
+                url: host + 'api/return-json',
                 method: 'POST',
                 data: {
                     'return-json': 1
@@ -58,7 +78,7 @@ describe('./ajax', function () {
 
         it('accept script', function (done) {
             ajax({
-                url: 'http://localhost:8001/api/return-script',
+                url: host + 'api/return-script',
                 method: 'POST',
                 data: {
                     'return-script': 1
@@ -66,7 +86,7 @@ describe('./ajax', function () {
                 accept: 'script',
                 success: function (res, xhr) {
                     expect(__test__).to.be(1);
-                    window.__test__ = 0;
+                    window.__test__ = null;
                     done();
                 }
             });
@@ -92,7 +112,7 @@ describe('./ajax', function () {
             ea.expect(['success', 'complete']);
 
             ajax({
-                url: 'http://localhost:8001/api/return-json',
+                url: host + 'api/return-json',
                 method: 'POST',
                 data: {
                     'return-json-success': 1
@@ -115,7 +135,7 @@ describe('./ajax', function () {
 
             ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/return-json',
+                url: host + 'api/return-json',
                 method: 'POST',
                 data: {
                     'cross-domain-with-disabled-header': 1
@@ -140,7 +160,7 @@ describe('./ajax', function () {
 
             ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/500',
+                url: host + 'api/500',
                 method: 'POST',
                 accept: 'json',
                 error: function (status, xhr) {
@@ -160,7 +180,7 @@ describe('./ajax', function () {
 
             ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/404',
+                url: host + 'api/404',
                 method: 'POST',
                 accept: 'json',
                 error: function (status, xhr) {
@@ -180,7 +200,7 @@ describe('./ajax', function () {
 
             var toAbort = ajax({
                 //log: true,
-                url: 'http://localhost:8001/api/abort',
+                url: host + 'api/abort',
                 method: 'POST',
                 abort: function () {
                     ea.do('abort');

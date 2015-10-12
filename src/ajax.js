@@ -32,7 +32,7 @@ let acceptToRequestHeader = {
     xml:    'application/xml, text/xml',
     html:   TEXT_HTML,
     text:   'text/plain'
-}
+};
 
 //let responseHeaderToAccept = {
 //    'application/javascript': SCRIPT,
@@ -58,7 +58,7 @@ let isCrossDomain = (url) => {
     let requestA = doc.createElement('a');
     requestA.href = url;
     return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
-}
+};
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
@@ -79,7 +79,7 @@ let setHeaders = (xhr, options) => {
     if (options.method === 'POST' && !options.header['Content-Type']) {
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     }
-}
+};
 
 // 绑定事件
 // NOTE 还得继续使用readystatechange事件
@@ -131,7 +131,7 @@ let setEvents = (xhr, options) => {
     //xhr.addEventListener('error', function () {
     //    console.log('errorrrrr');
     //});
-    //
+
     //xhr.addEventListener('load', function () {
     //    console.log('looooooad');
     //});
@@ -146,7 +146,7 @@ let setEvents = (xhr, options) => {
         options.complete(xhr.status, xhr);
         delete xhr.__aborted;
     });
-}
+};
 
 let defaultOptions = {
     url: '',
@@ -194,6 +194,5 @@ let ajax = (options) => {
 
     return xhr;
 }
-
 
 module.exports = ajax;

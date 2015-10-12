@@ -46,6 +46,23 @@ app.all('/api/:test', function (req, res) {
         case 'return-xml':
             res.send('<div>xml</div>');
             break;
+        case 'jsonp-order-create':
+            res.jsonp({
+                success: true,
+                content: {
+                    id: 1
+                }
+            });
+            break;
+        case 'jsonp-order-create-error':
+            res.jsonp({
+                success: false,
+                error: {
+                    code: 1,
+                    message: 'Permission Denied'
+                }
+            });
+            break;
 
         // return standard data structure
         case 'order-create':

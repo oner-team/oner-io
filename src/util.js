@@ -1,3 +1,8 @@
+const doc = document;
+
+let noop = (v) => {
+    return v;
+};
 /**
  * 对象扩展
  * @param  {Object} receiver
@@ -85,11 +90,41 @@ let isNumber = (v) => {
     return !isNaN(v) && typeof v === NUMBER;
 }
 
+const SCRIPT = 'script';
+let head;
+let loadScript = (url, errorCB = noop) => {
+    let done = false;
+    let script = doc.createElement(SCRIPT);
+    script.src = url;
+    script.async = true;
+
+    script.onerror = (e) => {
+        errorCB(e);
+    }
+
+    // 不兼容IE 不需要`onreadystatechange`
+    script.onload = () => {
+        if (!done) {
+            done = true;
+
+            script.onload = null;
+            if (script && script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+            script = null;
+        }
+    };
+    head = head || doc.getElementsByTagName('head')[0];
+    head.insertBefore(script, head.firstChild);
+    return script;
+}
+
 module.exports = {
     extend: redo(extend),
     makeRandom,
     appendQueryString,
-    noop(v) {return v;},
+    loadScript,
+    noop,
     isAbsoluteUrl,
     isBoolean,
     isFunction,

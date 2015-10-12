@@ -38,8 +38,6 @@ class DB {
 
     /**
      * 处理API的配置
-     * @param name
-     * @param API
      * @param options
      */
     processAPIOptions(options) {
@@ -151,8 +149,8 @@ class DB {
 
     /**
      * 发起请求
-     * @param config {Object} 请求配置
-     * @returns {*|r.promise|Function|promise}
+     * @param config {Object} 已经处理完善的请求配置
+     * @returns {Object} RSVP.defer()
      */
     request(config) {
         let t = this;
@@ -188,6 +186,33 @@ class DB {
     }
 
     /**
+     * 处理结构化的响应数据
+     * @param config
+     * @param response
+     * @param defer
+     */
+    processResponse(config, response, defer) {
+        // 非标准格式数据的预处理
+        response = config.fit(response);
+
+        if (response.success) {
+            // 数据处理
+            let responseData = config.process(response.content);
+
+            // 记入缓存
+            config.once && (t.cache[config.API] = responseData);
+            defer.resolve(responseData);
+        } else {
+            // TODO error的格式约定
+            // TODO 测试
+            // NOTE response是只读的对象!!!
+            defer.reject(extend({
+                message: 'Server Process Failed (NattyDB Default Message)'
+            }, response.error));
+        }
+    }
+
+    /**
      * 发起Ajax请求
      * @param config {Object} ajax请求配置
      * @param defer {Object} RSVP.defer()的对象
@@ -205,22 +230,7 @@ class DB {
             // 强制约定json
             accept: 'json',
             success(response, xhr) {
-                response = config.fit(response);
-
-                // TODO 非标准格式数据的处理
-                if (response.success) {
-                    // 数据处理
-                    let responseData = config.process(response.content);
-
-                    // 记入缓存
-                    config.once && (t.cache[config.API] = responseData);
-                    defer.resolve(responseData);
-                } else {
-                    // TODO error的格式约定
-                    // TODO 设计友好的错误提示数据
-                    // NOTE response是只读的对象
-                    defer.reject(response.error || {});
-                }
+                t.processResponse(config, response, defer);
             },
             error(status, xhr) {
 
@@ -237,11 +247,9 @@ class DB {
                     default:
                         message = 'Unknown Server Error';
                         break;
-
                 }
 
                 defer.reject({
-                    //NattyDBMessage: '`status` is ' + status,
                     status,
                     message
                 });
@@ -253,14 +261,24 @@ class DB {
     }
 
     sendJSONP(config, defer) {
+        let t = this;
+
         jsonp({
             url: config.url,
             data: config.data,
             cache: config.cache,
             callbackQuery: config.jsonpCallbackQuery,
-            success() {},
-            error() {},
-            complete() {}
+            success(response) {
+                t.processResponse(config, response, defer);
+            },
+            error(e) {
+                defer.reject({
+                    message: 'Not Accessable JSONP URL `' + e.target.src + '`'
+                });
+            },
+            complete() {
+                config.pending = false;
+            }
         });
     }
 }
@@ -269,11 +287,17 @@ class DB {
 // 设计说明：
 //  1 jsonp不是"数据类型" 但很多人沟通时不经意使用"数据类型"这个词 因为jQuery/zepto的配置就是使用`dataType: 'jsonp'`
 
-
-
 /**
+ * 关键词
+ *     语意化的
+ *     清爽的
+ *     功能增强的
+ *     底层隔离的
+ *
  * 创建一个上下文
- *     let DBC = new NattyDB.Context();
+ *     let DBC = new NattyDB.Context({
+ *
+ *     });
  * 创建一个DB
  *     let User = DBC.create('User', {
  *         getPhone: {
@@ -286,7 +310,8 @@ class DB {
  *             data:   {},         // 固定参数
  *             header:  {},        // 非jsonp时才生效
  *
- *             jsonp:   false,     // true|false|j{id}
+ *             jsonp:   false,     // true
+ *             jsonp:   [true, 'cb', 'j{id}'], // 自定义jsonp的query string
  *
  *             fit:     fn,
  *             process: fn,
@@ -345,7 +370,6 @@ class Context {
         }
         return t.context[name] = new DB(name, APIs, t);
     }
-
 }
 
 let NattyDB = {

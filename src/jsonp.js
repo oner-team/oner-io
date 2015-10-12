@@ -1,9 +1,11 @@
-const {appendQueryString, noop, extend, makeRandom} = require('./util');
+const {appendQueryString, noop, extend, makeRandom, loadScript} = require('./util');
 const win = window;
 const doc = document;
 const random = Math.random;
 
-let createTag = function () {
+let head = null;
+
+let createScriptTag = function () {
     return doc.createElement('script');
 }
 
@@ -22,12 +24,25 @@ let defaultOptions = {
 
 let jsonp = (options) => {
     options = extend({}, defaultOptions, options);
-    console.log(options);
 
+    let callbackName;
+    for (let i in options.callbackQuery) {
+        callbackName = options.callbackQuery[i] = options.callbackQuery[i].replace(/\{id\}/, makeRandom());
+    }
 
+    // 成功回调
+    win[callbackName] = (data) => {
+        win[callbackName] = null;
+        options.success(data);
+        options.complete();
+    };
 
-    //let url = appendQueryString(options.url, options.data, options.cache);
-    //let callbackKey =
+    // 加载脚本
+    let url = appendQueryString(options.url, options.callbackQuery, true);
+    let script = loadScript(url, (e) => {
+        options.error(e);
+        options.complete();
+    });
 }
 
 module.exports = jsonp;

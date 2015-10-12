@@ -1,15 +1,14 @@
 "use strict";
+const {host} = require('./config');
 
 // https://github.com/Automattic/expect.js
 const expect = require('expect.js');
 const NattyDB = require('../src/natty-db');
 
-const urlPrefix = 'http://10.2.67.104:8001/';
-
 // IE11+
 const isIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
 
-describe('NattyDB', function() {
+describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
     describe('static',function() {
 
@@ -21,7 +20,7 @@ describe('NattyDB', function() {
     describe('api config', function () {
 
         let DBC = new NattyDB.Context({
-            urlPrefix: urlPrefix,
+            urlPrefix: host,
             mock: false
         });
 
@@ -106,7 +105,7 @@ describe('NattyDB', function() {
                 }
             });
 
-            expect(Order.pay.config.url).to.equal(urlPrefix + 'path');
+            expect(Order.pay.config.url).to.equal(host + 'path');
             expect(Order.create.config.url).to.be('//foo.com/path');
             expect(Order.close.config.url).to.be('http://foo.com/path');
             expect(Order.update.config.url).to.be('https://foo.com/path');
@@ -117,7 +116,7 @@ describe('NattyDB', function() {
 
     describe('ajax', function() {
         let DBC = new NattyDB.Context({
-            urlPrefix: urlPrefix,
+            urlPrefix: host,
             mock: false
         });
 
@@ -128,7 +127,7 @@ describe('NattyDB', function() {
         it('play with standard data structure', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/order-create',
                     method: 'POST'
                 }
             });
@@ -145,7 +144,7 @@ describe('NattyDB', function() {
         it('play with non-standard data structure by `fit`', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create-non-standard',
+                    url: host + 'api/order-create-non-standard',
                     method: 'POST',
                     fit: function (response) {
                         return {
@@ -168,7 +167,7 @@ describe('NattyDB', function() {
         it('process data', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/order-create',
                     method: 'POST',
                     process: function (response) {
                         return {
@@ -191,7 +190,7 @@ describe('NattyDB', function() {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/order-create',
                     method: 'POST',
                     header: {foo: 'foo'}
                 }
@@ -212,7 +211,7 @@ describe('NattyDB', function() {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
-                    url: urlPrefix + 'api/timeout',
+                    url: host + 'api/timeout',
                     method: 'POST',
                     timeout: 300
                 }
@@ -233,7 +232,7 @@ describe('NattyDB', function() {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
-                    url: urlPrefix + 'api/500',
+                    url: host + 'api/500',
                     method: 'POST'
                 }
             });
@@ -252,7 +251,7 @@ describe('NattyDB', function() {
         it('error by 404', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/404',
+                    url: host + 'api/404',
                     method: 'POST'
                 }
             });
@@ -272,7 +271,7 @@ describe('NattyDB', function() {
 
     describe('jsonp', function () {
         let DBC = new NattyDB.Context({
-            urlPrefix: urlPrefix,
+            urlPrefix: host,
             mock: false
         });
 
@@ -283,7 +282,7 @@ describe('NattyDB', function() {
         it('check default jsonpCallbackQuery', function () {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/order-create',
                     jsonp: true
                 }
             });
@@ -294,7 +293,7 @@ describe('NattyDB', function() {
         it('check custom jsonpCallbackQuery', function () {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/order-create',
                     jsonp: [true, 'cb', 'j{id}']
                 }
             });
@@ -308,24 +307,71 @@ describe('NattyDB', function() {
         it('auto detect jsonp option', function () {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create.jsonp'
+                    url: host + 'api/order-create.jsonp'
                 }
             });
 
             expect(Order.create.config.jsonp).to.be(true);
         });
 
-        it('jsonp request test', function () {
+        it('jsonp response.success is true', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: urlPrefix + 'api/order-create',
+                    url: host + 'api/jsonp-order-create',
                     jsonp: true
                 }
             });
 
-            expect(Order.create.config.jsonpCallbackQuery).to.be(undefined);
+            Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
         });
 
+        it('jsonp response.success is false ', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/jsonp-order-create-error',
+                    jsonp: true
+                }
+            });
+
+            Order.create().then(function (data) {
+                // can not go here
+            }, function (error) {
+                try {
+                    expect(error).to.have.property('message');
+                    done();
+                } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        // jsonp无法使用状态吗识别出具体的404、500等错误，都统一成`无法连接`的错误信息
+        it('jsonp with error url', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'error-url',
+                    jsonp: true
+                }
+            });
+
+            Order.create().then(function (data) {
+                // can not go here
+            }, function (error) {
+                try {
+                    expect(error.message).to.contain('Not Accessable JSONP URL');
+                    done();
+                } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
     });
 });
 
