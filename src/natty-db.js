@@ -87,11 +87,12 @@ class DB {
             config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
             // 这个参数只用于jsonp
             if (config.jsonp) {
-                config.jsonpCallbackQuery = {
-                    [options.jsonp[1] || 'callback']: options.jsonp[2] || 'jsonp{id}'
-                };
+                config.jsonpFlag = options.jsonp[1];
+                config.jsonpCallbackName = options.jsonp[2];
             }
         }
+
+
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
@@ -154,7 +155,7 @@ class DB {
      */
     request(config) {
         let t = this;
-        let xhr;
+        let requester;
 
         config.pending = true;
 
@@ -164,16 +165,16 @@ class DB {
             defer.resolve(t.cache[config.API]);
             config.pending = false;
         } else if (config.jsonp) {
-            t.sendJSONP(config, defer);
+            requester = t.sendJSONP(config, defer);
         } else {
-            xhr = t.sendAjax(config, defer);
+            requester = t.sendAjax(config, defer);
         }
 
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
                 if (config.pending) {
-                    xhr && xhr.abort();
+                    requester.abort();
                     defer.reject({
                         timeout: true,
                         message: 'Timeout By ' + config.timeout + 'ms.'
@@ -262,12 +263,13 @@ class DB {
 
     sendJSONP(config, defer) {
         let t = this;
-
-        jsonp({
+        return jsonp({
+            log: config.log,
             url: config.url,
             data: config.data,
             cache: config.cache,
-            callbackQuery: config.jsonpCallbackQuery,
+            flag: config.jsonpFlag,
+            callbackName: config.jsonpCallbackName,
             success(response) {
                 t.processResponse(config, response, defer);
             },
@@ -301,25 +303,25 @@ class DB {
  * 创建一个DB
  *     let User = DBC.create('User', {
  *         getPhone: {
- *             url:     'xxx',
- *             mock:    false,
+ *             url: 'xxx',
+ *             mock: false,
  *             mockUrl: 'path',
  *
- *             method:  'GET',     // GET|POST
- *             accept:  'json',    // text|json|script|xml
- *             data:   {},         // 固定参数
- *             header:  {},        // 非jsonp时才生效
+ *             method: 'GET', // GET|POST
+ *             accept: 'json', // text|json|script|xml
+ *             data: {},  // 固定参数
+ *             header: {}, // 非jsonp时才生效
  *
- *             jsonp:   false,     // true
- *             jsonp:   [true, 'cb', 'j{id}'], // 自定义jsonp的query string
+ *             jsonp: false, // true
+ *             jsonp: [true, 'cb', 'j{id}'], // 自定义jsonp的query string
  *
- *             fit:     fn,
+ *             fit: fn,
  *             process: fn,
  *
- *             once:    false,
- *             retry:   0,
+ *             once: false,
+ *             retry: 0,
  *             selfSync: true,
- *             timeout: 5000,       // 如果超时了，会触发error
+ *             timeout: 5000, // 如果超时了，会触发error
  *
  *             log: true
  *         }

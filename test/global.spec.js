@@ -299,9 +299,8 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
 
             expect(Order.create.config.jsonp).to.be(true);
-            expect(Order.create.config.jsonpCallbackQuery).to.eql({
-                cb: 'j{id}'
-            });
+            expect(Order.create.config.jsonpFlag).to.be('cb');
+            expect(Order.create.config.jsonpCallbackName).to.be('j{id}');
         });
 
         it('auto detect jsonp option', function () {
@@ -317,6 +316,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         it('jsonp response.success is true', function (done) {
             let Order = DBC.create('Order', {
                 create: {
+                    //log: true,
                     url: host + 'api/jsonp-order-create',
                     jsonp: true
                 }
@@ -335,6 +335,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         it('jsonp response.success is false ', function (done) {
             let Order = DBC.create('Order', {
                 create: {
+                    //log: true,
                     url: host + 'api/jsonp-order-create-error',
                     jsonp: true
                 }
@@ -368,6 +369,27 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                     expect(error.message).to.contain('Not Accessable JSONP URL');
                     done();
                 } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('jsonp timeout', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    //log: true,
+                    url: host + 'api/jsonp-timeout',
+                    jsonp: true,
+                    timeout: 300
+                }
+            });
+            Order.create().then(function () {
+                // can not go here
+            }, function(error) {
+                try {
+                    expect(error.timeout).to.be(true);
+                    done();
+                } catch(e) {
                     done(new Error(e.message));
                 }
             });

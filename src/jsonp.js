@@ -1,12 +1,35 @@
-const {appendQueryString, noop, extend, makeRandom, loadScript} = require('./util');
+const {appendQueryString, noop, extend, makeRandom} = require('./util');
 const win = window;
 const doc = document;
 const random = Math.random;
+const NULL = null;
+const SCRIPT = 'script';
 
-let head = null;
+let removeScript = (script) => {
+    script.onload = NULL;
+    script.parentNode.removeChild(script);
+    script = NULL;
+};
+let head = NULL;
+let insertScript = (url, errorCB = noop, options = {}) => {
+    let script = doc.createElement(SCRIPT);
+    script.src = url;
+    script.async = true;
 
-let createScriptTag = function () {
-    return doc.createElement('script');
+    script.onerror = (e) => {
+        errorCB(e);
+    };
+
+    // `onload`只做一件事 即删除`script`标签
+    // 不兼容IE 不需要`onreadystatechange`
+    script.onload = () => {
+        options.log && console.log('jsonp onload');
+        removeScript(script);
+        script = NULL;
+    };
+    head = head || doc.getElementsByTagName('head')[0];
+    head.insertBefore(script, head.firstChild);
+    return script;
 }
 
 let defaultOptions = {
@@ -17,32 +40,43 @@ let defaultOptions = {
     error: noop,
     complete: noop,
     log: false,
-    callbackQuery: {
-        callback: 'jsonp{id}'
-    }
+    flag: 'callback',
+    callbackName: 'jsonp{id}'
 };
 
 let jsonp = (options) => {
     options = extend({}, defaultOptions, options);
 
-    let callbackName;
-    for (let i in options.callbackQuery) {
-        callbackName = options.callbackQuery[i] = options.callbackQuery[i].replace(/\{id\}/, makeRandom());
-    }
+    let callbackName = options.callbackName.replace(/\{id\}/, makeRandom());
 
     // 成功回调
     win[callbackName] = (data) => {
-        win[callbackName] = null;
+        win[callbackName] = NULL;
         options.success(data);
         options.complete();
     };
 
     // 加载脚本
-    let url = appendQueryString(options.url, options.callbackQuery, true);
-    let script = loadScript(url, (e) => {
+    let url = appendQueryString(options.url, {
+        [options.flag]: callbackName
+    }, true);
+    let script = insertScript(url, (e) => {
         options.error(e);
         options.complete();
-    });
+    }, options);
+    
+    return {
+        abort() {
+            options.log && console.log('jsonp abort');
+
+            win[callbackName] = () => {
+                win[callbackName] = NULL;
+            };
+            script.onload = noop;
+            removeScript(script);
+            script = NULL;
+        }
+    };
 }
 
 module.exports = jsonp;

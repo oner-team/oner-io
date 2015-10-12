@@ -11,7 +11,7 @@ let ajax = require('../src/ajax');
 
 describe('./ajax', function () {
 
-    describe('dependent events', function () {
+    describe('dependent detects', function () {
         let xhr = new XMLHttpRequest();
 
         let methods = ['loadend', 'readystatechange', 'abort'];
@@ -25,6 +25,18 @@ describe('./ajax', function () {
         // http://enable-cors.org/index.html
         it('support `CORS`', function () {
             expect(xhr).to.have.property('withCredentials');
+        });
+
+        it('`script` tag should have onload event', function (done) {
+            let script = document.createElement('script');
+            script.onload = function () {
+                expect(__test__).to.be(1);
+                window.__test__ = null;
+                done();
+            };
+            script.src = host + 'api/return-script';
+            let head = document.getElementsByTagName('head')[0];
+            head.insertBefore(script, head.firstChild);
         });
     });
 
@@ -198,7 +210,7 @@ describe('./ajax', function () {
 
             ea.expect(['abort', 'complete']);
 
-            var toAbort = ajax({
+            var xhr = ajax({
                 //log: true,
                 url: host + 'api/abort',
                 method: 'POST',
@@ -211,7 +223,29 @@ describe('./ajax', function () {
                 }
             });
             setTimeout(function () {
-                toAbort.abort();
+                xhr.abort();
+            }, 100);
+        });
+
+        it('calling `abort` after `complete` event should be ignored', function (done) {
+
+            ea.expect(['success', 'complete']);
+
+            var xhr = ajax({
+                //log: true,
+                url: host + 'api/return-json',
+                method: 'POST',
+                success: function () {
+                    ea.do('success');
+                },
+                complete: function () {
+                    ea.do('complete');
+                    done();
+                }
+            });
+            setTimeout(function () {
+                //
+                xhr.abort();
             }, 100);
         });
 

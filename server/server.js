@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 
 app.all('/api/:test', function (req, res) {
-    console.log(req.params);
+
     res.set({
         "Access-Control-Allow-Origin": "*",
         //"Access-Control-Allow-Headers": "Content-Type,Content-Length,Authorization,Accept,X-Requested-With",
@@ -62,6 +62,16 @@ app.all('/api/:test', function (req, res) {
                     message: 'Permission Denied'
                 }
             });
+            break;
+        case 'jsonp-timeout':
+            setTimeout(function () {
+                res.jsonp({
+                    success: true,
+                    content: {
+                        id: 1
+                    }
+                });
+            }, 10000);
             break;
 
         // return standard data structure
