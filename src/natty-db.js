@@ -174,6 +174,7 @@ class DB {
         if (0 !== config.timeout) {
             setTimeout(() => {
                 if (config.pending) {
+                    // 取消请求
                     requester.abort();
                     defer.reject({
                         timeout: true,
@@ -215,8 +216,9 @@ class DB {
 
     /**
      * 发起Ajax请求
-     * @param config {Object} ajax请求配置
+     * @param config {Object} 请求配置
      * @param defer {Object} RSVP.defer()的对象
+     * @returns {Object} xhr对象实例
      */
     sendAjax(config, defer) {
         let t = this;
@@ -261,6 +263,12 @@ class DB {
         });
     }
 
+    /**
+     * 发起jsonp请求
+     * @param config {Object} 请求配置
+     * @param defer {Object} RSVP.defer()的对象
+     * @returns {Object} 带有abort方法的对象
+     */
     sendJSONP(config, defer) {
         let t = this;
         return jsonp({

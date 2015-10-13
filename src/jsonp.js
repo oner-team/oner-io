@@ -56,10 +56,12 @@ let jsonp = (options) => {
         options.complete();
     };
 
-    // 加载脚本
+    // 生成`url`
     let url = appendQueryString(options.url, {
         [options.flag]: callbackName
     }, true);
+
+    // 插入脚本 + 错误回调
     let script = insertScript(url, (e) => {
         options.error(e);
         options.complete();
@@ -69,10 +71,11 @@ let jsonp = (options) => {
         abort() {
             options.log && console.log('jsonp abort');
 
+            // 覆盖成功回调为无数据处理版本
             win[callbackName] = () => {
                 win[callbackName] = NULL;
             };
-            script.onload = noop;
+            script.onload = NULL;
             removeScript(script);
             script = NULL;
         }
