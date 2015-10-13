@@ -267,6 +267,26 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
+        it('resolving after retry', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/retry-success',
+                    method: 'GET',
+                    retry: 2
+                }
+            });
+            Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            }, function() {
+                // can not go here
+            });
+        });
+
         it('rejecting after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
