@@ -100,13 +100,13 @@ class DB {
             config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
         }
 
-        config.data = config.data || {};
+        config.data = options.data || {};
 
 
         if (config.mock) {
             config.data.m = '1';
         }
-        config.data['__' + t.name + '.' + config.API + '__'] = '';
+        config.data['dbapi'] = t.name + '.' + config.API;
 
 
         // 关键回调函数
@@ -128,13 +128,35 @@ class DB {
     createAPI(options) {
         let t = this;
         let config = t.processAPIOptions(options);
-
         let fn = (data) => {
-            config.data = extend({}, config.data, data);
-            return t.request(config);
+            // `data`是在请求发生时必须实时的创建
+            data = extend({}, config.data, data);
+
+            if (config.retry === 0) {
+                return t.request(data, config);
+            } else {
+                let defer = RSVP.defer();
+                let retryTime = 0;
+                let tryFn = () => {
+                    t.request(retryTime ? extend(data, {retry: retryTime}) : data, config).then((data) => {
+                        defer.resolve(data);
+                    }, (error) => {
+                        if (retryTime === config.retry) {
+                            defer.reject(error);
+                        } else {
+                            retryTime++;
+                            tryFn();
+                        }
+                    });
+                };
+
+                tryFn();
+                return defer.promise;
+            }
         };
 
         fn.config = config;
+
 
         return fn;
     }
@@ -153,7 +175,7 @@ class DB {
      * @param config {Object} 已经处理完善的请求配置
      * @returns {Object} RSVP.defer()
      */
-    request(config) {
+    request(data, config) {
         let t = this;
         let requester;
 
@@ -165,9 +187,9 @@ class DB {
             defer.resolve(t.cache[config.API]);
             config.pending = false;
         } else if (config.jsonp) {
-            requester = t.sendJSONP(config, defer);
+            requester = t.sendJSONP(data, config, defer);
         } else {
-            requester = t.sendAjax(config, defer);
+            requester = t.sendAjax(data, config, defer);
         }
 
         // 超时处理
@@ -220,14 +242,14 @@ class DB {
      * @param defer {Object} RSVP.defer()的对象
      * @returns {Object} xhr对象实例
      */
-    sendAjax(config, defer) {
+    sendAjax(data, config, defer) {
         let t = this;
 
         return ajax({
             log: config.log,
             url: config.url,
             method: config.method,
-            data: config.data,
+            data: data,
             header: config.header,
 
             // 强制约定json
@@ -269,12 +291,12 @@ class DB {
      * @param defer {Object} RSVP.defer()的对象
      * @returns {Object} 带有abort方法的对象
      */
-    sendJSONP(config, defer) {
+    sendJSONP(data, config, defer) {
         let t = this;
         return jsonp({
             log: config.log,
             url: config.url,
-            data: config.data,
+            data: data,
             cache: config.cache,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,

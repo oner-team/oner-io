@@ -1,6 +1,8 @@
 var express = require('express');
 var app = express();
 
+var retryTime = 0;
+
 app.all('/api/:test', function (req, res) {
 
     res.set({
@@ -101,6 +103,21 @@ app.all('/api/:test', function (req, res) {
                 hasError: false,
                 content: {
                     id: 1
+                }
+            });
+            break;
+        // return non-standard data structure
+        case 'retry-error':
+            //if (req.query.restart === '1') {
+            //    retryTime = 0;
+            //} else {
+            //    retryTime++;
+            //}
+            res.json({
+                success: false,
+                error: {
+                    code: 1,
+                    message: 'Demo Server Error'
                 }
             });
             break;
