@@ -129,29 +129,13 @@ class DB {
         let t = this;
         let config = t.processAPIOptions(options);
         let fn = (data) => {
-            // `data`是在请求发生时必须实时的创建
+            // `data`必须在请求发生时实时创建
             data = extend({}, config.data, data);
 
             if (config.retry === 0) {
                 return t.request(data, config);
             } else {
-                let defer = RSVP.defer();
-                let retryTime = 0;
-                let tryFn = () => {
-                    t.request(retryTime ? extend(data, {retry: retryTime}) : data, config).then((data) => {
-                        defer.resolve(data);
-                    }, (error) => {
-                        if (retryTime === config.retry) {
-                            defer.reject(error);
-                        } else {
-                            retryTime++;
-                            tryFn();
-                        }
-                    });
-                };
-
-                tryFn();
-                return defer.promise;
+                return t.tryRequest(data, config);
             }
         };
 
@@ -206,6 +190,29 @@ class DB {
             }, config.timeout);
         }
 
+        return defer.promise;
+    }
+
+    tryRequest(data, config) {
+        let t = this;
+
+        // retry的实现
+        let defer = RSVP.defer();
+        let retryTime = 0;
+        let tryFn = () => {
+            t.request(retryTime ? extend(data, {retry: retryTime}) : data, config).then((data) => {
+                defer.resolve(data);
+            }, (error) => {
+                if (retryTime === config.retry) {
+                    defer.reject(error);
+                } else {
+                    retryTime++;
+                    tryFn();
+                }
+            });
+        };
+
+        tryFn();
         return defer.promise;
     }
 
