@@ -56,6 +56,8 @@ class DB {
         // 标记是否正在等待请求返回
         config.pending = false;
 
+        // 是否相对自身同步
+        config.selfSync = isBoolean(options.selfSync) ? options.selfSync : FALSE;
 
         // 处理数据
         config.process = options.process || noop;
@@ -134,6 +136,10 @@ class DB {
 
         // api函数体
         let fn = (data) => {
+
+            // TODO ...
+            if (config.selfSync && config.pending) return;
+
             // `data`必须在请求发生时实时创建
             data = extend({}, config.data, data);
 

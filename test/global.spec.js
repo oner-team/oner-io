@@ -229,6 +229,28 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
+        it('pending status checking', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    //log: true,
+                    url: host + 'api/timeout',
+                    method: 'POST',
+                    timeout: 300
+                }
+            });
+            Order.create().then(function () {
+                // can not go here
+            }, function(error) {
+                try {
+                     expect(Order.create.config.pending).to.be(false);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+            expect(Order.create.config.pending).to.be(true);
+        });
+
         it('error by 500', function (done) {
             let Order = DBC.create('Order', {
                 create: {
