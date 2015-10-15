@@ -41,6 +41,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(Order).to.be.a('object');
             expect(Order.pay).to.be.a('function');
             expect(Order.create).to.be.a('function');
+
         });
 
         it('`mock` option', function () {

@@ -53,6 +53,9 @@ class DB {
 
         config.log = options.log;
 
+        // 标记是否正在等待请求返回
+        config.pending = false;
+
 
         // 处理数据
         config.process = options.process || noop;
@@ -128,6 +131,8 @@ class DB {
     createAPI(options) {
         let t = this;
         let config = t.processAPIOptions(options);
+
+        // api函数体
         let fn = (data) => {
             // `data`必须在请求发生时实时创建
             data = extend({}, config.data, data);
@@ -140,7 +145,6 @@ class DB {
         };
 
         fn.config = config;
-
 
         return fn;
     }
@@ -156,6 +160,7 @@ class DB {
 
     /**
      * 发起请求
+     * @param data {Object} 发送的数据
      * @param config {Object} 已经处理完善的请求配置
      * @returns {Object} RSVP.defer()
      */
@@ -193,13 +198,18 @@ class DB {
         return defer.promise;
     }
 
+    /**
+     * 重试功能的实现
+     * @param data {Object} 发送的数据
+     * @param config
+     * @returns {Object} RSVP.defer()
+     */
     tryRequest(data, config) {
         let t = this;
 
-        // retry的实现
         let defer = RSVP.defer();
         let retryTime = 0;
-        let tryFn = () => {
+        let request = () => {
             t.request(retryTime ? extend(data, {retry: retryTime}) : data, config).then((data) => {
                 defer.resolve(data);
             }, (error) => {
@@ -207,12 +217,12 @@ class DB {
                     defer.reject(error);
                 } else {
                     retryTime++;
-                    tryFn();
+                    request();
                 }
             });
         };
 
-        tryFn();
+        request();
         return defer.promise;
     }
 
