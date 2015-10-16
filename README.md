@@ -7,6 +7,11 @@ A standalone and natty little data fetching tool for mobile project that no long
 $ npm start
 ```
 
+## TODO
+
+* loop support
+
+
 ## Credits
 
 (The MIT License)
