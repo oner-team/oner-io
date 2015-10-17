@@ -178,7 +178,6 @@ class DB {
 
         // `data`必须在请求发生时实时创建
         data = extend({}, config.data, runAsFn(data, {
-            config,
             retryTime
         }));
 
@@ -421,6 +420,11 @@ class DB {
  *
  *         // 服务器端返回的错误
  *         if (error.code == 10001) {}
+ *     });
+ *
+ *     // 动态参数也可以是函数
+ *     User.getPhone(function() {
+ *         return {}
  *     });
  *
  *     NattyDB.addAccept('hbs', function(text){

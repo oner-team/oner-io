@@ -290,7 +290,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        // TODO jsonp
         it('resolving after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
@@ -316,7 +315,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        // TODO jsonp
         it('rejecting after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
@@ -337,7 +335,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        
+
 
     });
 
@@ -466,6 +464,9 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                 }
             });
         });
+
+        it('jsonp resolving after retry');
+        it('jsonp rejecting after retry');
     });
 });
 
