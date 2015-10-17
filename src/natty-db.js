@@ -3,7 +3,9 @@
 const RSVP = require('rsvp');
 const ajax = require('./ajax');
 const jsonp = require('./jsonp');
-const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber} = require('./util');
+const util = require('./util');
+
+const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber} = util;
 
 RSVP.on('error', function(reason) {
     console.assert('rsvp error:\n' + reason);
@@ -97,8 +99,6 @@ class DB {
             }
         }
 
-
-
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
         else {
@@ -111,7 +111,7 @@ class DB {
         if (config.mock) {
             config.data.m = '1';
         }
-        config.data['dbapi'] = t.name + '.' + config.API;
+        config.data['request'] = t.name + '.' + config.API;
 
 
         // 关键回调函数
@@ -138,10 +138,11 @@ class DB {
         let fn = (data) => {
 
             // TODO ...
-            if (config.selfSync && config.pending) return;
-
-            // `data`必须在请求发生时实时创建
-            data = extend({}, config.data, data);
+            if (config.selfSync && config.pending) {
+                return {
+                    then: noop
+                };
+            }
 
             if (config.retry === 0) {
                 return t.request(data, config);
@@ -168,12 +169,23 @@ class DB {
      * 发起请求
      * @param data {Object} 发送的数据
      * @param config {Object} 已经处理完善的请求配置
+     * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
+     *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} RSVP.defer()
      */
-    request(data, config) {
+    request(data, config, retryTime) {
         let t = this;
+
+        // `data`必须在请求发生时实时创建
+        data = extend({}, config.data, runAsFn(data, {
+            config,
+            retryTime
+        }));
+
+        // 根据`config`的差别 请求对象分为`ajax`和`jsonp`两种
         let requester;
 
+        // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
         config.pending = true;
 
         let defer = RSVP.defer();
@@ -181,10 +193,12 @@ class DB {
         if (config.once && t.cache[config.API]) {
             defer.resolve(t.cache[config.API]);
             config.pending = false;
+            console.log('cache: pending:', config.pending);
+
         } else if (config.jsonp) {
-            requester = t.sendJSONP(data, config, defer);
+            requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
-            requester = t.sendAjax(data, config, defer);
+            requester = t.sendAjax(data, config, defer, retryTime);
         }
 
         // 超时处理
@@ -216,7 +230,7 @@ class DB {
         let defer = RSVP.defer();
         let retryTime = 0;
         let request = () => {
-            t.request(retryTime ? extend(data, {retry: retryTime}) : data, config).then((data) => {
+            t.request(data, config, retryTime).then((data) => {
                 defer.resolve(data);
             }, (error) => {
                 if (retryTime === config.retry) {
@@ -263,9 +277,11 @@ class DB {
      * 发起Ajax请求
      * @param config {Object} 请求配置
      * @param defer {Object} RSVP.defer()的对象
+     * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
+     *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} xhr对象实例
      */
-    sendAjax(data, config, defer) {
+    sendAjax(data, config, defer, retryTime) {
         let t = this;
 
         return ajax({
@@ -277,10 +293,10 @@ class DB {
 
             // 强制约定json
             accept: 'json',
-            success(response, xhr) {
+            success(response/*, xhr*/) {
                 t.processResponse(config, response, defer);
             },
-            error(status, xhr) {
+            error(status/*, xhr*/) {
 
                 let message;
                 let flag;
@@ -302,8 +318,12 @@ class DB {
                     message
                 });
             },
-            complete(status, xhr) {
-                config.pending = false;
+            complete(/*status, xhr*/) {
+                if (retryTime === undefined || retryTime === config.retry) {
+                    config.pending = false;
+                }
+                console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
+
             }
         });
     }
@@ -312,9 +332,11 @@ class DB {
      * 发起jsonp请求
      * @param config {Object} 请求配置
      * @param defer {Object} RSVP.defer()的对象
+     * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
+     *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} 带有abort方法的对象
      */
-    sendJSONP(data, config, defer) {
+    sendJSONP(data, config, defer, retryTime) {
         let t = this;
         return jsonp({
             log: config.log,
@@ -332,7 +354,10 @@ class DB {
                 });
             },
             complete() {
-                config.pending = false;
+                if (retryTime === undefined || retryTime === config.retry) {
+                    config.pending = false;
+                }
+                console.log('complete: pending:', config.pending);
             }
         });
     }
@@ -429,7 +454,8 @@ class Context {
 
 let NattyDB = {
     version: '1.0.0',
-    Context
+    Context,
+    util
 };
 
 if (typeof define !== "undefined" && define !== null && define.amd) {

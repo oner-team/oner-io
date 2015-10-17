@@ -126,11 +126,7 @@ app.all('/api/:test', function (req, res) {
             });
             break;
         case 'retry-error':
-            //if (req.query.restart === '1') {
-            //    retryTime = 0;
-            //} else {
-            //    retryTime++;
-            //}
+
             res.json({
                 success: false,
                 error: {

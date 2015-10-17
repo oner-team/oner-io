@@ -81,8 +81,8 @@ let isFunction = (v) => {
     return typeof v === FUNCTION;
 }
 
-let runAsFn = (v) => {
-    return isFunction(v) ? v() : v;
+let runAsFn = (v, options) => {
+    return isFunction(v) ? v(options) : v;
 };
 
 const NUMBER = 'number';
