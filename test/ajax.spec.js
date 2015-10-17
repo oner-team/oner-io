@@ -46,15 +46,11 @@ describe('./ajax', function () {
         let methods = ['loadstart', 'load', 'progress', 'error', 'timeout'];
 
         methods.forEach(function (method) {
-            it('support `' + method + '` event',function() {
-                expect(xhr).to.have.property('on' + method);
-            });
+            it('support `' + method + '` event: ' + ('on' + method in xhr));
         });
 
         // http://enable-cors.org/index.html
-        it('support `CORS`', function () {
-            expect(xhr).to.have.property('withCredentials');
-        });
+        it('support `CORS`: ' + ('withCredentials' in xhr));
     });
 
     describe('post', function () {

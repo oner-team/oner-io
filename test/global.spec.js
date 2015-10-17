@@ -335,6 +335,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
+        it('selfSync test');
 
 
     });
@@ -467,6 +468,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
         it('jsonp resolving after retry');
         it('jsonp rejecting after retry');
+        it('selfSync test');
     });
 });
 
