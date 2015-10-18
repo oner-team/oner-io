@@ -29,12 +29,12 @@ app.all('/api/:test', function (req, res) {
         case 'timeout':
             setTimeout(function () {
                 res.json({
-                    success: false,
-                    error: {
-                        msg: 'timeout'
+                    success: true,
+                    content: {
+                        id: 1
                     }
                 });
-            }, 10000);
+            }, 1000);
             break;
         case 'return-script':
             res.send('window.__test__ = 1;');
@@ -73,7 +73,7 @@ app.all('/api/:test', function (req, res) {
                         id: 1
                     }
                 });
-            }, 10000);
+            }, 1000);
             break;
 
         // return standard data structure
@@ -89,6 +89,17 @@ app.all('/api/:test', function (req, res) {
         // return standard error structure
         case 'return-error':
             res.json({
+                success: false,
+                error: {
+                    code: 1,
+                    message: 'Demo Server Error'
+                }
+            });
+            break;
+
+        // return standard error structure
+        case 'jsonp-error':
+            res.jsonp({
                 success: false,
                 error: {
                     code: 1,
@@ -125,9 +136,18 @@ app.all('/api/:test', function (req, res) {
                 }
             });
             break;
-        case 'retry-error':
-
-            res.json({
+        case 'jsonp-retry-success':
+            if (req.query.retry == '1') {
+                retryTime = 1;
+            } else {
+                retryTime++;
+            }
+            res.jsonp(retryTime === 2 ? {
+                success: true,
+                content: {
+                    id: 1
+                }
+            } : {
                 success: false,
                 error: {
                     code: 1,
@@ -135,6 +155,7 @@ app.all('/api/:test', function (req, res) {
                 }
             });
             break;
+
         default:
             res.send('text');
             break;

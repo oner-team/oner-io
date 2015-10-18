@@ -57,9 +57,9 @@ let jsonp = (options) => {
     };
 
     // 生成`url`
-    let url = appendQueryString(options.url, {
+    let url = appendQueryString(options.url, extend({
         [options.flag]: callbackName
-    }, true);
+    }, options.data), true);
 
     // 插入脚本 + 错误回调
     let script = insertScript(url, (e) => {

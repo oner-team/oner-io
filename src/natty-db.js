@@ -21,6 +21,17 @@ const EMPTY = '';
 const TRUE = true;
 const FALSE = false;
 
+const linkablefFn = function () {
+    return this;
+};
+
+// 伪造的`promise`对象
+// NOTE 伪造的promise对象要保证支持链式调用
+let dummyPromise = {
+    dummy: true
+};
+dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = linkablefFn;
+
 class DB {
     // TODO 检查参数合法性
     constructor(name, APIs, context) {
@@ -58,8 +69,8 @@ class DB {
         // 标记是否正在等待请求返回
         config.pending = false;
 
-        // 是否相对自身同步
-        config.selfSync = isBoolean(options.selfSync) ? options.selfSync : FALSE;
+        // 是否忽略自身的并发请求
+        config.ignoreSelfConcurrent = isBoolean(options.ignoreSelfConcurrent) ? options.ignoreSelfConcurrent : FALSE;
 
         // 处理数据
         config.process = options.process || noop;
@@ -137,11 +148,9 @@ class DB {
         // api函数体
         let fn = (data) => {
 
-            // TODO ...
-            if (config.selfSync && config.pending) {
-                return {
-                    then: noop
-                };
+            // 是否忽略自身的并发请求
+            if (config.ignoreSelfConcurrent && config.pending) {
+                return dummyPromise;
             }
 
             if (config.retry === 0) {
@@ -192,8 +201,6 @@ class DB {
         if (config.once && t.cache[config.API]) {
             defer.resolve(t.cache[config.API]);
             config.pending = false;
-            console.log('cache: pending:', config.pending);
-
         } else if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
@@ -321,8 +328,7 @@ class DB {
                 if (retryTime === undefined || retryTime === config.retry) {
                     config.pending = false;
                 }
-                console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
-
+                //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
             }
         });
     }
@@ -356,7 +362,7 @@ class DB {
                 if (retryTime === undefined || retryTime === config.retry) {
                     config.pending = false;
                 }
-                console.log('complete: pending:', config.pending);
+                //console.log('complete: pending:', config.pending);
             }
         });
     }
@@ -397,7 +403,7 @@ class DB {
  *
  *             once: false,
  *             retry: 0,
- *             selfSync: true,
+ *             ignoreSelfConcurrent: true,
  *             timeout: 5000, // 如果超时了，会触发error
  *
  *             log: true

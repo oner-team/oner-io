@@ -1,5 +1,6 @@
 "use strict";
 const {host} = require('./config');
+const ExpectAction = require('./expect-action');
 
 // https://github.com/Automattic/expect.js
 const expect = require('expect.js');
@@ -318,8 +319,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         it('rejecting after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: host + 'api/retry-error',
-                    method: 'GET',
+                    url: host + 'api/return-error',
                     retry: 1
                 }
             });
@@ -335,9 +335,33 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        it('selfSync test');
+        it('ignore seft concurrent', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/timeout', // 请求延迟返回的接口
+                    ignoreSelfConcurrent: true
+                }
+            });
 
+            // 连发两次请求，第二次应该被忽略
+            Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
 
+            // 第一次请求未完成之前 第二次请求返回的是一个伪造的promise对象
+            let dummyPromise = Order.create();
+            expect(dummyPromise).to.have.property('dummy');
+
+            // 伪造的promise对象要保证支持链式调用
+            expect(dummyPromise.then()).to.be(dummyPromise);
+            expect(dummyPromise.then().catch()).to.be(dummyPromise);
+            expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
+        });
     });
 
     describe('jsonp', function () {
@@ -466,9 +490,79 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        it('jsonp resolving after retry');
-        it('jsonp rejecting after retry');
-        it('selfSync test');
+        it('resolving after retry', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/jsonp-retry-success',
+                    jsonp: true,
+                    retry: 2
+                }
+            });
+
+            Order.create(function (obj) {
+                return {
+                    retry: obj.retryTime
+                };
+            }).then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            }, function() {
+                // can not go here
+            });
+        });
+
+        it('rejecting after retry', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/jsonp-error',
+                    jsonp: true,
+                    retry: 1
+                }
+            });
+            Order.create().then(function (data) {
+                // can not go here
+            }, function(error) {
+                try {
+                    expect(error.code).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('ignore self concurrent', function () {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/jsonp-timeout', // 请求延迟返回的接口
+                    jsonp: true,
+                    ignoreSelfConcurrent: true
+                }
+            });
+
+            // 连发两次请求，第二次应该被忽略
+            Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch (e) {
+                    done(new Error(e.message));
+                }
+            });
+
+            // 第一次请求未完成之前 第二次请求返回的是一个伪造的promise对象
+            let dummyPromise = Order.create();
+            expect(dummyPromise).to.have.property('dummy');
+
+            // 伪造的promise对象要保证支持链式调用
+            expect(dummyPromise.then()).to.be(dummyPromise);
+            expect(dummyPromise.then().catch()).to.be(dummyPromise);
+            expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
+        });
     });
 });
 
