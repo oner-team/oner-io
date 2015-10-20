@@ -157,7 +157,12 @@ app.all('/api/:test', function (req, res) {
             break;
 
         default:
-            res.send('text');
+            res.json({
+                success: true,
+                content: {
+                    id: 1
+                }
+            });
             break;
     }
 

@@ -362,6 +362,32 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(dummyPromise.then().catch()).to.be(dummyPromise);
             expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
+
+        it.only('loop', function (done) {
+            let Taxi = DBC.create('Taxi', {
+                getDriverNum: {
+                    url: host + 'api/return-success'
+                }
+            });
+
+            let time = 0;
+
+            // 开始轮询
+            Taxi.getDriverNum.startLoop({
+                data: {},
+                duration: 200,
+                process: function(data) {
+                    time++;
+                }
+            });
+            
+            setTimeout(function () {
+                expect(time).to.be.above(4);
+                // 停止轮询
+                Taxi.getDriverNum.stopLoop();
+                done();
+            }, 1000);
+        });
     });
 
     describe('jsonp', function () {

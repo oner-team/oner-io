@@ -146,7 +146,7 @@ class DB {
         let config = t.processAPIOptions(options);
 
         // api函数体
-        let fn = (data) => {
+        let api = (data) => {
 
             // 是否忽略自身的并发请求
             if (config.ignoreSelfConcurrent && config.pending) {
@@ -160,9 +160,40 @@ class DB {
             }
         };
 
-        fn.config = config;
+        api.config = config;
+        t.addLoopSupport(api);
 
-        return fn;
+        return api;
+    }
+
+    /**
+     * 创建轮询支持
+     * @param api {Function} 需要轮询的函数
+     */
+    addLoopSupport(api) {
+        // 开启轮询
+        api.startLoop = (options) => {
+            if (!options.duration || !isNumber(options.duration)) {
+                throw new Error('illegal `duration` value for `startLoop` method.');
+                return api;
+            }
+
+            let sleepAndRequest = () => {
+                api._loopTimer = setTimeout(() => {
+                    api(options.data).then(options.process, noop);
+                    sleepAndRequest();
+                }, options.duration);
+            };
+
+            // NOTE 轮询过程中是不响应服务器端错误的 所以第二个参数是`noop`
+            api(options.data).then(options.process, noop);
+            sleepAndRequest();
+        };
+        // 停止轮询
+        api.stopLoop = () => {
+            clearTimeout(api._loopTimer);
+            api._loopTimer = null;
+        };
     }
 
     /**
@@ -375,13 +406,18 @@ class DB {
 /**
  * 关键词
  *     语意化的
- *     清爽的
+ *     优雅的
  *     功能增强的
  *     底层隔离的
  *
  * 创建一个上下文
  *     let DBC = new NattyDB.Context({
- *
+ *          urlPrefix: 'xxx',
+ *          mock: false,
+ *          data: {
+ *              token: 'xxx
+ *          },
+ *          timeout: 30000
  *     });
  * 创建一个DB
  *     let User = DBC.create('User', {
@@ -394,6 +430,7 @@ class DB {
  *             accept: 'json', // text|json|script|xml
  *             data: {},  // 固定参数
  *             header: {}, // 非jsonp时才生效
+ *             timeout: 5000, // 如果超时了，会触发error
  *
  *             jsonp: false, // true
  *             jsonp: [true, 'cb', 'j{id}'], // 自定义jsonp的query string
@@ -404,7 +441,7 @@ class DB {
  *             once: false,
  *             retry: 0,
  *             ignoreSelfConcurrent: true,
- *             timeout: 5000, // 如果超时了，会触发error
+ *             长轮询: true, // TODO
  *
  *             log: true
  *         }
@@ -431,8 +468,32 @@ class DB {
  *     // 动态参数也可以是函数
  *     User.getPhone(function() {
  *         return {}
+ *     }).then(function(){
+ *         // 成功回调
  *     });
  *
+ *     // 发起轮询
+ *     // NOTE 轮询过程中是不响应服务器端错误的
+ *     Driver.getDistance.startLoop({
+ *         // 轮询发送的请求数据
+ *         data: {},
+ *         // 轮询发送的请求数据也支持函数
+ *         data: function() {
+ *             return {};
+ *         },
+ *
+ *         // 间隔时间
+ *         duration: 5000,
+ *
+ *         // 轮询的响应回调
+ *         process: function(data) {}
+ *     });
+ *
+ *     // 停止轮询
+ *     // NOTE 关闭轮询的唯一方法就是stopLoop方法
+ *     Driver.getDistance.stopLoop();
+ *
+ *     // 暂不支持
  *     NattyDB.addAccept('hbs', function(text){
  *         return Handlebars.compile(text);
  *     });
