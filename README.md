@@ -7,6 +7,13 @@ A standalone and natty little data fetching tool for mobile project that no long
 $ npm start
 ```
 
+and
+
+```bash
+$ node server/server.js
+```
+
+
 ## TODO
 
 * loop support
