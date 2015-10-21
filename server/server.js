@@ -45,6 +45,9 @@ app.all('/api/:test', function (req, res) {
         case 'return-html':
             res.send('<div>html</div>');
             break;
+        case 'return-text':
+            res.send('text');
+            break;
         case 'return-xml':
             res.send('<div>xml</div>');
             break;

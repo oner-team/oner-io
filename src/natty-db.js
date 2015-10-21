@@ -21,7 +21,7 @@ const EMPTY = '';
 const TRUE = true;
 const FALSE = false;
 
-const linkablefFn = function () {
+const linkablefFn = () => {
     return this;
 };
 
@@ -515,6 +515,7 @@ class Context {
     create(name, APIs) {
         let t = this;
         // 禁止创建重名的DB实例
+        // TODO 允许重复的DB名称
         if (t.context[name]) {
             console.warn('DB: "' + name + '" is existed! ');
             return;

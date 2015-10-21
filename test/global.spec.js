@@ -215,7 +215,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                     //log: true,
                     url: host + 'api/timeout',
                     method: 'POST',
-                    timeout: 300
+                    timeout: 100
                 }
             });
             Order.create().then(function () {
@@ -236,7 +236,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                     //log: true,
                     url: host + 'api/timeout',
                     method: 'POST',
-                    timeout: 300
+                    timeout: 100
                 }
             });
             Order.create().then(function () {
@@ -363,7 +363,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
 
-        it.only('loop', function (done) {
+        it('loop', function (done) {
             let Taxi = DBC.create('Taxi', {
                 getDriverNum: {
                     url: host + 'api/return-success'
