@@ -5,7 +5,7 @@ const ajax = require('./ajax');
 const jsonp = require('./jsonp');
 const util = require('./util');
 
-const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber} = util;
+const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
 
 RSVP.on('error', function(reason) {
     console.assert('rsvp error:\n' + reason);
@@ -21,16 +21,69 @@ const EMPTY = '';
 const TRUE = true;
 const FALSE = false;
 
-const linkablefFn = () => {
-    return this;
-};
-
 // 伪造的`promise`对象
-// NOTE 伪造的promise对象要保证支持链式调用
+// NOTE 伪造的promise对象要支持链式调用 保证和`new RSVP.Promise()`返回的对象行为一致
+//      dummyPromise.then().catch().finally()
 let dummyPromise = {
     dummy: true
 };
-dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = linkablefFn;
+dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
+    // NOTE 这里用了剪头函数 不能用`return this`
+    return dummyPromise;
+};
+
+// 全局默认配置
+// NOTE 全局配置中不包含`url`和`mockUrl`, 因为无意义
+const defaultGlobalConfig = {
+    // 接收的数据格式
+    // eg: text|json|script|xml
+    // TODO 非json格式的验证
+    accept: 'json',
+
+    // 默认参数
+    data: {},
+
+    // 预处理回调
+    fit: noop,
+
+    // 自定义header, 只针对ajax有效
+    header: {},
+
+    // 是否忽律自身的并发请求
+    ignoreSelfConcurrent: FALSE,
+
+    // 有两种格式配置`jsonp`的值
+    // {Boolean}
+    // {Array} [boolean, callbackKeyWord, callbackFunctionName]
+    //     eg: [true, 'cb', 'j{id}']
+    jsonp: FALSE,
+
+    // 是否开启log信息
+    log: FALSE,
+
+    // 非GET方式对JSONP无效
+    method: 'GET',
+
+    // 是否开启mock模式
+    mock: FALSE,
+
+    // 是否缓存数据
+    once: FALSE,
+
+    // 成功回调
+    process: noop,
+
+    // 默认不执行重试
+    retry: 0,
+
+    // 0表示不启动超时处理
+    timeout: 0,
+
+    // 全局url前缀
+    urlPrefix: EMPTY
+};
+
+let runtimeGlobalConfig = {};
 
 class DB {
     // TODO 检查参数合法性
@@ -40,7 +93,6 @@ class DB {
 
         t.cache = {};
         t.name = name;
-        t.urlPrefix = context.urlPrefix;
         for (let API in APIs) {
             t[API] = t.createAPI(extend({
                 DBName: name,
@@ -51,39 +103,39 @@ class DB {
 
     /**
      * 处理API的配置
-     * @param options
+     * @param options {Object}
      */
     processAPIOptions(options) {
         let t = this;
 
-        let config = {};
+        let config = extend({}, t.context, options);
 
         //config.DBName = options.DBName;
 
-        config.API = options.API;
-
-        config.header = options.header;
-
-        config.log = options.log;
+        //config.API = options.API;
+        //
+        //config.header = options.header;
+        //
+        //config.log = options.log;
 
         // 标记是否正在等待请求返回
         config.pending = false;
 
         // 是否忽略自身的并发请求
-        config.ignoreSelfConcurrent = isBoolean(options.ignoreSelfConcurrent) ? options.ignoreSelfConcurrent : FALSE;
+        //config.ignoreSelfConcurrent = isBoolean(options.ignoreSelfConcurrent) ? options.ignoreSelfConcurrent : FALSE;
 
         // 处理数据
-        config.process = options.process || noop;
+        //config.process = options.process || noop;
 
         // 是否是全局只获取一次
-        config.once = isBoolean(options.once) ? options.once : FALSE;
+        //config.once = isBoolean(options.once) ? options.once : FALSE;
 
         // `mock`取值优先级 API > context > global
-        config.mock = isBoolean(options.mock) ? options.mock :
-                      isBoolean(t.context.mock) ? t.context.mock : isGlobalMock;
+        //config.mock = isBoolean(options.mock) ? options.mock :
+        //              isBoolean(t.context.mock) ? t.context.mock : isGlobalMock;
 
 
-        config.method = options.method || 'GET';
+        //config.method = options.method || 'GET';
 
         // dip平台不支持GET以外的类型
         // TODO 是否拿出去
@@ -101,7 +153,7 @@ class DB {
         }
 
         // 按照[boolean, callbackKeyWord, callbackFunctionName]格式处理
-        else if (Array.isArray(options.jsonp)) {
+        else if (isArray(options.jsonp)) {
             config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
             // 这个参数只用于jsonp
             if (config.jsonp) {
@@ -116,7 +168,7 @@ class DB {
             config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
         }
 
-        config.data = options.data || {};
+        //config.data = options.data || {};
 
 
         if (config.mock) {
@@ -126,14 +178,14 @@ class DB {
 
 
         // 关键回调函数
-        config.fit = isFunction(options.fit) ? options.fit : noop;
-        config.process = isFunction(options.process) ? options.process : noop;
+        //config.fit = isFunction(options.fit) ? options.fit : noop;
+        //config.process = isFunction(options.process) ? options.process : noop;
 
         // 默认`0`表示没有超时处理
-        config.timeout = isNumber(options.timeout) ? options.timeout : 0;
+        //config.timeout = isNumber(options.timeout) ? options.timeout : 0;
 
         // 默认不执行重试
-        config.retry = isNumber(options.retry) ? options.retry : 0;
+        //config.retry = isNumber(options.retry) ? options.retry : 0;
 
         // TODO 代理功能
         // TODO once缓存
@@ -198,11 +250,10 @@ class DB {
 
     /**
      * 获取正式接口的完整`url`
-     * 如果通过`DB.set('urlPrefix', 'https://xxx')`设置了全局`url`的前缀，则执行补全
      */
     getFullUrl(url) {
         if (!url) return EMPTY;
-        return (this.urlPrefix && !isAbsoluteUrl(url)) ? this.urlPrefix + url : url;
+        return (this.context.urlPrefix && !isAbsoluteUrl(url)) ? this.context.urlPrefix + url : url;
     }
 
     /**
@@ -426,13 +477,13 @@ class DB {
  *             mock: false,
  *             mockUrl: 'path',
  *
- *             method: 'GET', // GET|POST
- *             accept: 'json', // text|json|script|xml
- *             data: {},  // 固定参数
- *             header: {}, // 非jsonp时才生效
- *             timeout: 5000, // 如果超时了，会触发error
+ *             method: 'GET',                // GET|POST
+ *             accept: 'json',               // text|json|script|xml
+ *             data: {},                     // 固定参数
+ *             header: {},                   // 非jsonp时才生效
+ *             timeout: 5000,                // 如果超时了，会触发error
  *
- *             jsonp: false, // true
+ *             jsonp: false,                 // true
  *             jsonp: [true, 'cb', 'j{id}'], // 自定义jsonp的query string
  *
  *             fit: fn,
@@ -441,7 +492,6 @@ class DB {
  *             once: false,
  *             retry: 0,
  *             ignoreSelfConcurrent: true,
- *             长轮询: true, // TODO
  *
  *             log: true
  *         }
@@ -504,31 +554,46 @@ class Context {
     /**
      * @param options 一个DB实例的通用配置
      */
-    constructor(options = {}) {
+    constructor(options) {
         let t = this;
-        t.urlPrefix = options.urlPrefix || '';
-        t.mock = options.mock;
-
-        t.context = {};
+        t.config = extend({}, runtimeGlobalConfig, options);
     }
 
     create(name, APIs) {
         let t = this;
         // 禁止创建重名的DB实例
         // TODO 允许重复的DB名称
-        if (t.context[name]) {
+        if (t[name]) {
             console.warn('DB: "' + name + '" is existed! ');
             return;
         }
-        return t.context[name] = new DB(name, APIs, t);
+        return t[name] = new DB(name, APIs, t.config);
     }
 }
 
 let NattyDB = {
     version: '1.0.0',
     Context,
-    util
+    util,
+    /**
+     * 执行全局配置
+     * @param options
+     */
+    setGlobal(options) {
+        runtimeGlobalConfig = extend({}, defaultGlobalConfig, options);
+    },
+    /**
+     * 获取全局配置
+     * @param property {String} optional
+     * @returns {*}
+     */
+    getGlobal(property) {
+        return property ? runtimeGlobalConfig[property] : runtimeGlobalConfig;
+    }
 };
+
+// 内部直接将运行时的全局配置初始化到默认值
+NattyDB.setGlobal(defaultGlobalConfig);
 
 if (typeof define !== "undefined" && define !== null && define.amd) {
     define(function() {

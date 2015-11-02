@@ -11,6 +11,7 @@ let noop = (v) => {
  */
 let extend = (receiver = {}, supplier = {}) => {
     for (let key in supplier) {
+        // `supplier`中不是未定义的键 都可以执行扩展
         if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
             receiver[key] = supplier[key];
         }
@@ -90,6 +91,8 @@ let isNumber = (v) => {
     return !isNaN(v) && typeof v === NUMBER;
 }
 
+let isArray = Array.isArray;
+
 module.exports = {
     extend: redo(extend),
     makeRandom,
@@ -99,5 +102,6 @@ module.exports = {
     isBoolean,
     isFunction,
     isNumber,
+    isArray,
     runAsFn
 };

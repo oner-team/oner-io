@@ -18,15 +18,98 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         });
     });
 
-    describe('api config', function () {
 
-        let DBC = new NattyDB.Context({
-            urlPrefix: host,
-            mock: false
+
+    describe('global setting',function() {
+        let defaultGlobalConfig = NattyDB.getGlobal();
+        let defaultGlobalConfigProperties = [
+            'accept',
+            'data',
+            'fit',
+            'header',
+            'ignoreSelfConcurrent',
+            'jsonp',
+            'log',
+            'method',
+            'mock',
+            'once',
+            'process',
+            'retry',
+            'timeout',
+            'urlPrefix'
+        ];
+
+        let resetNattyDBGlobalConfig = function () {
+            NattyDB.setGlobal(defaultGlobalConfig);
+        };
+
+        beforeEach(function () {
+            resetNattyDBGlobalConfig();
         });
 
+        it('check default global config properties: `NattyDB.getGlobal()`',function() {
+            defaultGlobalConfigProperties.forEach(function (property) {
+                expect(defaultGlobalConfig).to.have.key(property);
+            });
+        });
+
+        it('check `NattyDB.getGlobal("property")`', function () {
+            expect(NattyDB.getGlobal('jsonp')).to.be(false);
+        });
+
+        it('check `NattyDB.setGlobal(obj)`', function () {
+            NattyDB.setGlobal({
+                data: {
+                    '_csrf_token': 1
+                }
+            });
+            expect(NattyDB.getGlobal('data')).to.eql({
+                '_csrf_token': 1
+            });
+            // 还原
+            NattyDB.setGlobal({data: {}});
+        });
+
+        it('Context instance would inherit and extend the global config', function () {
+            let urlPrefix = 'http://test.com/api';
+            let DBC = new NattyDB.Context({
+                urlPrefix: urlPrefix
+            });
+
+            // 继承了所有的全局配置
+            defaultGlobalConfigProperties.forEach(function (property) {
+                expect(DBC.config).to.have.key(property);
+            });
+            // 也扩展了全局配置
+            expect(DBC.config.urlPrefix).to.be(urlPrefix);
+        });
+
+        it('Context instance would inherit and extend the global config', function () {
+            let urlPrefix = 'http://test.com/api';
+            NattyDB.setGlobal({
+                urlPrefix: urlPrefix
+            });
+
+            let DBC = new NattyDB.Context();
+            let Order = DBC.create('Order', {
+                create: {}
+            });
+            console.log(Order.create.config);
+            expect(Order.create.config.urlPrefix).to.be(urlPrefix);
+        });
+
+    });
+
+
+    describe('api config', function () {
+
+        let DBC;
+
         beforeEach('reset NattyDB context', function () {
-            DBC.context = {};
+            DBC = new NattyDB.Context({
+                urlPrefix: host,
+                mock: false
+            });
         });
 
         it('both object and function can be used as api\'s config', function () {
@@ -117,13 +200,13 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
     });
 
     describe('ajax', function() {
-        let DBC = new NattyDB.Context({
-            urlPrefix: host,
-            mock: false
-        });
+        let DBC;
 
         beforeEach('reset', function () {
-            DBC.context = {};
+            DBC = new NattyDB.Context({
+                urlPrefix: host,
+                mock: false
+            });
         })
 
         it('play with standard data structure', function (done) {
@@ -391,13 +474,13 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
     });
 
     describe('jsonp', function () {
-        let DBC = new NattyDB.Context({
-            urlPrefix: host,
-            mock: false
-        });
+        let DBC;
 
         beforeEach('reset', function () {
-            DBC.context = {};
+            DBC = new NattyDB.Context({
+                urlPrefix: host,
+                mock: false
+            });
         });
 
         it('check default jsonpCallbackQuery', function () {
