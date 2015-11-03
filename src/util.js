@@ -72,6 +72,11 @@ let isAbsoluteUrl = (url) => {
     return !!url.match(absoluteUrlReg);
 }
 
+const relativeUrlReg = /^[\.\/]/;
+let isRelativeUrl = (url) => {
+    return !!url.match(relativeUrlReg);
+}
+
 const BOOLEAN = 'boolean';
 let isBoolean = (v) => {
     return typeof v === BOOLEAN;
@@ -99,6 +104,7 @@ module.exports = {
     appendQueryString,
     noop,
     isAbsoluteUrl,
+    isRelativeUrl,
     isBoolean,
     isFunction,
     isNumber,

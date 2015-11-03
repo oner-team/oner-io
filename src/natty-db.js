@@ -5,7 +5,7 @@ const ajax = require('./ajax');
 const jsonp = require('./jsonp');
 const util = require('./util');
 
-const {extend, runAsFn, isAbsoluteUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
+const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
 
 RSVP.on('error', function(reason) {
     console.assert('rsvp error:\n' + reason);
@@ -35,10 +35,6 @@ dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
 // 全局默认配置
 // NOTE 全局配置中不包含`url`和`mockUrl`, 因为无意义
 const defaultGlobalConfig = {
-    // 接收的数据格式
-    // eg: text|json|script|xml
-    // TODO 非json格式的验证
-    accept: 'json',
 
     // 默认参数
     data: {},
@@ -54,8 +50,7 @@ const defaultGlobalConfig = {
 
     // 有两种格式配置`jsonp`的值
     // {Boolean}
-    // {Array} [boolean, callbackKeyWord, callbackFunctionName]
-    //     eg: [true, 'cb', 'j{id}']
+    // {Array} eg: [true, 'cb', 'j{id}']
     jsonp: FALSE,
 
     // 是否开启log信息
@@ -253,7 +248,7 @@ class DB {
      */
     getFullUrl(url) {
         if (!url) return EMPTY;
-        return (this.context.urlPrefix && !isAbsoluteUrl(url)) ? this.context.urlPrefix + url : url;
+        return (this.context.urlPrefix && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context.urlPrefix + url : url;
     }
 
     /**
@@ -478,7 +473,6 @@ class DB {
  *             mockUrl: 'path',
  *
  *             method: 'GET',                // GET|POST
- *             accept: 'json',               // text|json|script|xml
  *             data: {},                     // 固定参数
  *             header: {},                   // 非jsonp时才生效
  *             timeout: 5000,                // 如果超时了，会触发error

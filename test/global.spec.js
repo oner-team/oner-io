@@ -18,12 +18,9 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         });
     });
 
-
-
     describe('global setting',function() {
         let defaultGlobalConfig = NattyDB.getGlobal();
         let defaultGlobalConfigProperties = [
-            'accept',
             'data',
             'fit',
             'header',
@@ -97,7 +94,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             console.log(Order.create.config);
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
-
     });
 
 
@@ -125,7 +121,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(Order).to.be.a('object');
             expect(Order.pay).to.be.a('function');
             expect(Order.create).to.be.a('function');
-
         });
 
         it('`mock` option', function () {
@@ -176,24 +171,36 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
         it('auto `urlPrefix`', function () {
             let Order = DBC.create('Order', {
-                pay: {
+                method1: {
                     url: 'path'
                 },
-                create: {
+                method2: {
                     url: '//foo.com/path'
                 },
-                close: {
+                method3: {
                     url: 'http://foo.com/path'
                 },
-                update: {
+                method4: {
                     url: 'https://foo.com/path'
+                },
+                method5: {
+                    url: './path'
+                },
+                method6: {
+                    url: '../path'
+                },
+                method7: {
+                    url: '/path'
                 }
             });
 
-            expect(Order.pay.config.url).to.equal(host + 'path');
-            expect(Order.create.config.url).to.be('//foo.com/path');
-            expect(Order.close.config.url).to.be('http://foo.com/path');
-            expect(Order.update.config.url).to.be('https://foo.com/path');
+            expect(Order.method1.config.url).to.equal(host + 'path');
+            expect(Order.method2.config.url).to.be('//foo.com/path');
+            expect(Order.method3.config.url).to.be('http://foo.com/path');
+            expect(Order.method4.config.url).to.be('https://foo.com/path');
+            expect(Order.method5.config.url).to.be('./path');
+            expect(Order.method6.config.url).to.be('../path');
+            expect(Order.method7.config.url).to.be('/path');
         });
 
 
