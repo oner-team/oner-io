@@ -91,7 +91,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             let Order = DBC.create('Order', {
                 create: {}
             });
-            console.log(Order.create.config);
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
     });
@@ -202,8 +201,27 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(Order.method6.config.url).to.be('../path');
             expect(Order.method7.config.url).to.be('/path');
         });
+    });
+
+    describe("DBC.create", function () {
+        let DBC = new NattyDB.Context();
+        DBC.create('Order', {
+            create: {}
+        });
 
 
+
+        DBC.create('User', {
+            getPhone: {}
+        });
+        it('structure for DBC', function () {
+            expect(DBC).to.have.keys(['Order', 'User', 'config']);
+        });
+
+        // crete相同的DB
+        DBC.create('Order', {
+            create: {}
+        });
     });
 
     describe('ajax', function() {
@@ -219,7 +237,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         it('play with standard data structure', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: host + 'api/order-create',
+                    url: 'api/order-create',
                     method: 'POST'
                 }
             });
@@ -333,7 +351,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                     expect(Order.create.config.pending).to.be(false);
+                    expect(Order.create.config.pending).to.be(false);
                     done();
                 } catch(e) {
                     done(new Error(e.message));
@@ -473,8 +491,10 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             
             setTimeout(function () {
                 expect(time).to.be.above(4);
+                expect(Taxi.getDriverNum.looping).to.be(true);
                 // 停止轮询
                 Taxi.getDriverNum.stopLoop();
+                expect(Taxi.getDriverNum.looping).to.be(false);
                 done();
             }, 1000);
         });

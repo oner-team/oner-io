@@ -19,13 +19,13 @@ const isGlobalMock = !!location.search.match(/\bm=1\b/);
 
 const EMPTY = '';
 const TRUE = true;
-const FALSE = false;
+const FALSE = !TRUE;
 
 // 伪造的`promise`对象
 // NOTE 伪造的promise对象要支持链式调用 保证和`new RSVP.Promise()`返回的对象行为一致
 //      dummyPromise.then().catch().finally()
 let dummyPromise = {
-    dummy: true
+    dummy: TRUE
 };
 dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
     // NOTE 这里用了剪头函数 不能用`return this`
@@ -105,32 +105,8 @@ class DB {
 
         let config = extend({}, t.context, options);
 
-        //config.DBName = options.DBName;
-
-        //config.API = options.API;
-        //
-        //config.header = options.header;
-        //
-        //config.log = options.log;
-
         // 标记是否正在等待请求返回
         config.pending = false;
-
-        // 是否忽略自身的并发请求
-        //config.ignoreSelfConcurrent = isBoolean(options.ignoreSelfConcurrent) ? options.ignoreSelfConcurrent : FALSE;
-
-        // 处理数据
-        //config.process = options.process || noop;
-
-        // 是否是全局只获取一次
-        //config.once = isBoolean(options.once) ? options.once : FALSE;
-
-        // `mock`取值优先级 API > context > global
-        //config.mock = isBoolean(options.mock) ? options.mock :
-        //              isBoolean(t.context.mock) ? t.context.mock : isGlobalMock;
-
-
-        //config.method = options.method || 'GET';
 
         // dip平台不支持GET以外的类型
         // TODO 是否拿出去
@@ -163,27 +139,12 @@ class DB {
             config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
         }
 
-        //config.data = options.data || {};
-
-
         if (config.mock) {
             config.data.m = '1';
         }
         config.data['request'] = t.name + '.' + config.API;
 
-
-        // 关键回调函数
-        //config.fit = isFunction(options.fit) ? options.fit : noop;
-        //config.process = isFunction(options.process) ? options.process : noop;
-
-        // 默认`0`表示没有超时处理
-        //config.timeout = isNumber(options.timeout) ? options.timeout : 0;
-
-        // 默认不执行重试
-        //config.retry = isNumber(options.retry) ? options.retry : 0;
-
         // TODO 代理功能
-        // TODO once缓存
 
         return config;
     }
@@ -218,6 +179,8 @@ class DB {
      * @param api {Function} 需要轮询的函数
      */
     addLoopSupport(api) {
+        let loopTimer = null;
+        api.looping = FALSE;
         // 开启轮询
         api.startLoop = (options) => {
             if (!options.duration || !isNumber(options.duration)) {
@@ -226,7 +189,8 @@ class DB {
             }
 
             let sleepAndRequest = () => {
-                api._loopTimer = setTimeout(() => {
+                api.looping = TRUE;
+                loopTimer = setTimeout(() => {
                     api(options.data).then(options.process, noop);
                     sleepAndRequest();
                 }, options.duration);
@@ -238,8 +202,9 @@ class DB {
         };
         // 停止轮询
         api.stopLoop = () => {
-            clearTimeout(api._loopTimer);
-            api._loopTimer = null;
+            clearTimeout(loopTimer);
+            api.looping = FALSE;
+            loopTimer = null;
         };
     }
 
@@ -271,7 +236,7 @@ class DB {
         let requester;
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
-        config.pending = true;
+        config.pending = TRUE;
 
         let defer = RSVP.defer();
 
@@ -291,7 +256,7 @@ class DB {
                     // 取消请求
                     requester.abort();
                     defer.reject({
-                        timeout: true,
+                        timeout: TRUE,
                         message: 'Timeout By ' + config.timeout + 'ms.'
                     });
                 }
@@ -555,8 +520,7 @@ class Context {
 
     create(name, APIs) {
         let t = this;
-        // 禁止创建重名的DB实例
-        // TODO 允许重复的DB名称
+        // NOTE 强制不允许重复的DB名称
         if (t[name]) {
             console.warn('DB: "' + name + '" is existed! ');
             return;
