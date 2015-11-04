@@ -8,7 +8,7 @@ const util = require('./util');
 const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
 
 RSVP.on('error', function(reason) {
-    console.assert('rsvp error:\n' + reason);
+    console.warn('rsvp error:\n' + reason);
 });
 
 /**
