@@ -14,11 +14,6 @@ $ node server/server.js
 ```
 
 
-## TODO
-
-* loop support
-
-
 ## Credits
 
 (The MIT License)

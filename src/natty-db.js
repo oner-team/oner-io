@@ -154,6 +154,7 @@ class DB {
         let config = t.processAPIOptions(options);
 
         // api函数体
+        // TODO data是fn时
         let api = (data) => {
 
             // 是否忽略自身的并发请求
@@ -184,7 +185,7 @@ class DB {
         // 开启轮询
         api.startLoop = (options) => {
             if (!options.duration || !isNumber(options.duration)) {
-                throw new Error('illegal `duration` value for `startLoop` method.');
+                throw new Error('Illegal `duration` value for `startLoop` method.');
                 return api;
             }
 
