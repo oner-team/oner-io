@@ -88,6 +88,12 @@ let setHeaders = (xhr, options) => {
 //      404: 触发load loadend 不触发error
 let setEvents = (xhr, options) => {
 
+    // 再高级的浏览器都有低级错误! 已经不能在相信了!
+    // MAC OSX Yosemite Safari上的低级错误: 一次`ajax`请求的`loadend`事件完成之后,
+    // 如果执行`xhr.abort()`, 居然还能触发一遍`abort`和`loadend`事件!!!
+    // `__finished`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
+    xhr.__finished = false;
+
     // readyState value:
     //   0: UNSET 未初始化
     //   1: OPENED
@@ -95,7 +101,7 @@ let setEvents = (xhr, options) => {
     //   3: LOADING
     //   4: DONE 此时触发load事件
     xhr.addEventListener("readystatechange", function (e) {
-        options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
+        //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
             // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
             if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
@@ -137,12 +143,19 @@ let setEvents = (xhr, options) => {
     //});
 
     xhr.addEventListener('abort', () => {
-        options.log && console.log('abort');
+        if (xhr.__finished) {
+            return;
+        }
+        //options.log && console.info('~abort');
         options.abort(xhr.status, xhr);
     });
 
     xhr.addEventListener('loadend', () => {
-        options.log && console.log('loadend');
+        if (xhr.__finished) {
+            return;
+        }
+        xhr.__finished = true;
+        //options.log && console.info('~loadend');
         options.complete(xhr.status, xhr);
         delete xhr.__aborted;
     });

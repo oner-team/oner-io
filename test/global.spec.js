@@ -7,7 +7,7 @@ const expect = require('expect.js');
 const NattyDB = require('../src/natty-db');
 
 // IE11+
-const isIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
+const isGoodIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
 
 describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
@@ -209,8 +209,6 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             create: {}
         });
 
-
-
         DBC.create('User', {
             getPhone: {}
         });
@@ -218,9 +216,14 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(DBC).to.have.keys(['Order', 'User', 'config']);
         });
 
-        // crete相同的DB
-        DBC.create('Order', {
-            create: {}
+        it('create existed DB should throw error', function () {
+            // crete相同的DB
+            let createExistedDB = function () {
+                DBC.create('Order', {
+                    create: {}
+                })
+            };
+            expect(createExistedDB).to.throwError();
         });
     });
 
@@ -296,7 +299,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with disabled header', function (done) {
+        it('error by requesting cross-domain with disabled header [NOTE: IE的行为不一样]', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
@@ -305,16 +308,30 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                     header: {foo: 'foo'}
                 }
             });
-            Order.create().then(function () {
-                // can not go here
-            }, function(error) {
-                try {
-                    expect(error.status).to.be(0);
-                    done();
-                } catch(e) {
-                    done(new Error(e.message));
-                }
-            });
+
+            if (isGoodIE) {
+                Order.create().then(function (data) {
+                    try {
+                        expect(data.id).to.be(1);
+                        done();
+                    } catch (e) {
+                        done(e.message);
+                    }
+                }, function(error) {
+                    // can not go here
+                });
+            } else {
+                Order.create().then(function (data) {
+                    // can not go here
+                }, function(error) {
+                    try {
+                        expect(error.status).to.be(0);
+                        done();
+                    } catch(e) {
+                        done(new Error(e.message));
+                    }
+                });
+            }
         });
 
         it('error by timeout', function (done) {
@@ -490,13 +507,15 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
             
             setTimeout(function () {
-                expect(time).to.be.above(4);
+                expect(time).to.be.above(1);
+                // 验证状态
                 expect(Taxi.getDriverNum.looping).to.be(true);
                 // 停止轮询
                 Taxi.getDriverNum.stopLoop();
+                // 验证状态
                 expect(Taxi.getDriverNum.looping).to.be(false);
                 done();
-            }, 1000);
+            }, 500);
         });
     });
 
@@ -671,7 +690,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        it('ignore self concurrent', function () {
+        it('ignore self concurrent', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/jsonp-timeout', // 请求延迟返回的接口

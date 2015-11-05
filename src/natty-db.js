@@ -202,6 +202,7 @@ class DB {
         };
         // 停止轮询
         api.stopLoop = () => {
+            //debugger
             clearTimeout(loopTimer);
             api.looping = FALSE;
             loopTimer = null;
@@ -522,7 +523,7 @@ class Context {
         let t = this;
         // NOTE 强制不允许重复的DB名称
         if (t[name]) {
-            console.warn('DB: "' + name + '" is existed! ');
+            throw new Error('DB: "' + name + '" is existed! ');
             return;
         }
         return t[name] = new DB(name, APIs, t.config);

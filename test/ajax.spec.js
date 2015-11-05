@@ -215,11 +215,11 @@ describe('./ajax', function () {
                 },
                 complete: function () {
                     ea.do('complete');
-                    done();
                 }
             });
             setTimeout(function () {
                 xhr.abort();
+                done();
             }, 100);
         });
 
@@ -228,7 +228,7 @@ describe('./ajax', function () {
             ea.expect(['success', 'complete']);
 
             var xhr = ajax({
-                //log: true,
+                log: true,
                 url: host + 'api/return-json',
                 method: 'POST',
                 success: function () {
@@ -236,13 +236,12 @@ describe('./ajax', function () {
                 },
                 complete: function () {
                     ea.do('complete');
-                    done();
                 }
             });
             setTimeout(function () {
-                //
                 xhr.abort();
-            }, 100);
+                done();
+            }, 300);
         });
 
 
