@@ -531,10 +531,12 @@ class Context {
     }
 }
 
+let VERSION;
+__BUILD_VERSION__
+
 let NattyDB = {
-    version: '1.0.0',
+    version: VERSION,
     Context,
-    util,
     /**
      * 执行全局配置
      * @param options
@@ -555,12 +557,4 @@ let NattyDB = {
 // 内部直接将运行时的全局配置初始化到默认值
 NattyDB.setGlobal(defaultGlobalConfig);
 
-if (typeof define !== "undefined" && define !== null && define.amd) {
-    define(function() {
-        return NattyDB;
-    });
-} else if (typeof module !== "undefined" && module !== null && module.exports) {
-    module.exports = NattyDB;
-} else {
-    window.NattyDB = NattyDB;
-}
+module.exports = NattyDB;

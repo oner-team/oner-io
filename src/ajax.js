@@ -7,7 +7,6 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-
 const {extend, appendQueryString, noop} = require('./util');
 
 const doc = document;

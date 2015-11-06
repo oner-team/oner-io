@@ -1,13 +1,17 @@
 "use strict";
+
 const {host} = require('./config');
 const ExpectAction = require('./expect-action');
 
 // https://github.com/Automattic/expect.js
 const expect = require('expect.js');
-const NattyDB = require('../src/natty-db');
+
+// require('natty-db')已被`webpack`映射到全局`NattyDB`对象
+const NattyDB = require('natty-db');
 
 // IE11+
 const isGoodIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
+
 
 describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
