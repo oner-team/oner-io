@@ -62,6 +62,9 @@ const defaultGlobalConfig = {
     // 是否开启mock模式
     mock: FALSE,
 
+    // 全局`mockUrl`前缀
+    mockUrlPrefix: EMPTY,
+
     // 是否缓存数据
     once: FALSE,
 
@@ -74,7 +77,7 @@ const defaultGlobalConfig = {
     // 0表示不启动超时处理
     timeout: 0,
 
-    // 全局url前缀
+    // 全局`url`前缀
     urlPrefix: EMPTY
 };
 
@@ -149,12 +152,26 @@ class DB {
         return config;
     }
 
+    /**
+     * 创建一个`api`方法
+     * @param options {Object} 一个`DB`的`api`的配置参数
+     * @returns {Function} `api`方法
+     * @note 一个`DB`对应若干个`api`函数
+     * @note 一个api的构成如下:
+     *    api.config {Object}
+     *    api.looping {Boolean}
+     *    api.startLoop {Function}
+     *    api.stopLoop {Function}
+     */
     createAPI(options) {
         let t = this;
         let config = t.processAPIOptions(options);
 
-        // api函数体
-        // TODO data是fn时
+        /**
+         * 一个`DB`的`api`的实现
+         * @param data {Object|Function}
+         * @returns {Object} Promise Object
+         */
         let api = (data) => {
 
             // 是否忽略自身的并发请求

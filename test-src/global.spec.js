@@ -33,6 +33,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             'log',
             'method',
             'mock',
+            'mockUrlPrefix',
             'once',
             'process',
             'retry',

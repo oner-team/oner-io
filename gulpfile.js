@@ -4,6 +4,7 @@ var gulp = require('gulp');
 
 // https://github.com/shama/webpack-stream
 var webpack = require('webpack');
+// 下面的模块没有`DefinePlugin`
 var webpackStream = require('webpack-stream');
 
 // https://www.npmjs.com/package/gulp-rename/
