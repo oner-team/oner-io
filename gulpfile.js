@@ -30,7 +30,7 @@ gulp.task('pack', ['del-dist'], function() {
 
             // 下面两个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 这好和`gulp`的约定完美对接
             library: 'NattyDB',
-            libraryTarget: 'var'
+            libraryTarget: 'umd'
         },
         // 这个配置要和 output.sourceMapFilename 一起使用
         devtool: '#source-map',
