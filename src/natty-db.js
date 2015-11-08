@@ -15,7 +15,7 @@ RSVP.on('error', function(reason) {
  * 如果浏览器`url`中包含`m=1`的`search`参数，则开启全局`mock`模式
  * NOTE 每个接口的私有`mock`配置优先级高于该全局值。
  */
-const isGlobalMock = !!location.search.match(/\bm=1\b/);
+//const isGlobalMock = !!location.search.match(/\bm=1\b/);
 
 const EMPTY = '';
 const TRUE = true;
@@ -62,6 +62,8 @@ const defaultGlobalConfig = {
     // 是否开启mock模式
     mock: FALSE,
 
+    mockUrl: EMPTY,
+
     // 全局`mockUrl`前缀
     mockUrlPrefix: EMPTY,
 
@@ -76,6 +78,8 @@ const defaultGlobalConfig = {
 
     // 0表示不启动超时处理
     timeout: 0,
+
+    url: EMPTY,
 
     // 全局`url`前缀
     urlPrefix: EMPTY
@@ -111,16 +115,14 @@ class DB {
         // 标记是否正在等待请求返回
         config.pending = false;
 
-        // dip平台不支持GET以外的类型
-        // TODO 是否拿出去
         if (config.mock) {
+            // dip平台不支持GET以外的类型
+            // TODO 是否拿出去
             config.method = 'GET';
+            config.mockUrl = t.getFullUrl(config.mockUrl, true);
         }
 
-        config.mockUrl = options.mockUrl || EMPTY;
-
-        config.url = config.mock ? config.mockUrl : t.getFullUrl(options.url);
-
+        config.url = t.getFullUrl(options.url);
 
         if (isBoolean(options.jsonp)) {
             config.jsonp = options.jsonp;
@@ -145,9 +147,7 @@ class DB {
         if (config.mock) {
             config.data.m = '1';
         }
-        config.data['request'] = t.name + '.' + config.API;
-
-        // TODO 代理功能
+        config.data['__'] = t.name + '.' + config.API;
 
         return config;
     }
@@ -229,10 +229,13 @@ class DB {
 
     /**
      * 获取正式接口的完整`url`
+     * @param url {String}
+     * @param isMock {Boolean} 是否是`mock`模式
      */
-    getFullUrl(url) {
+    getFullUrl(url, isMock) {
         if (!url) return EMPTY;
-        return (this.context.urlPrefix && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context.urlPrefix + url : url;
+        let prefixKey = isMock ? 'mockUrlPrefix' : 'urlPrefix';
+        return (this.context[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context[prefixKey] + url : url;
     }
 
     /**
@@ -261,7 +264,7 @@ class DB {
 
         if (config.once && t.cache[config.API]) {
             defer.resolve(t.cache[config.API]);
-            config.pending = false;
+            config.pending = FALSE;
         } else if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
@@ -353,7 +356,7 @@ class DB {
 
         return ajax({
             log: config.log,
-            url: config.url,
+            url: config.mock ? config.mockUrl : config.url,
             method: config.method,
             data: data,
             header: config.header,
@@ -387,7 +390,7 @@ class DB {
             },
             complete(/*status, xhr*/) {
                 if (retryTime === undefined || retryTime === config.retry) {
-                    config.pending = false;
+                    config.pending = FALSE;
                 }
                 //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
             }
@@ -406,7 +409,7 @@ class DB {
         let t = this;
         return jsonp({
             log: config.log,
-            url: config.url,
+            url: config.mock ? config.mockUrl : config.url,
             data: data,
             cache: config.cache,
             flag: config.jsonpFlag,
@@ -421,7 +424,7 @@ class DB {
             },
             complete() {
                 if (retryTime === undefined || retryTime === config.retry) {
-                    config.pending = false;
+                    config.pending = FALSE;
                 }
                 //console.log('complete: pending:', config.pending);
             }
@@ -537,14 +540,20 @@ class Context {
         t.config = extend({}, runtimeGlobalConfig, options);
     }
 
-    create(name, APIs) {
+    /**
+     * 创建一个`DB`
+     * @param DBName {String} `DB`的名称 不可重复
+     * @param APIs {Object} 该`DB`下的`api`配置
+     * @returns {Object} 返回创建好的`DB`实例
+     */
+    create(DBName, APIs) {
         let t = this;
         // NOTE 强制不允许重复的DB名称
-        if (t[name]) {
-            throw new Error('DB: "' + name + '" is existed! ');
+        if (t[DBName]) {
+            throw new Error('DB: "' + DBName + '" is existed! ');
             return;
         }
-        return t[name] = new DB(name, APIs, t.config);
+        return t[DBName] = new DB(DBName, APIs, t.config);
     }
 }
 

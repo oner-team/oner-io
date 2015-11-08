@@ -46,7 +46,7 @@ let makeRandom = () => {
 }
 
 // 给URL追加查询字符串
-let escape = encodeURIComponent;
+const escape = encodeURIComponent;
 let appendQueryString = (url, obj, cache) => {
     let kv = [];
 

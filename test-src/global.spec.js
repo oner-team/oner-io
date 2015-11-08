@@ -33,11 +33,13 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             'log',
             'method',
             'mock',
+            'mockUrl',
             'mockUrlPrefix',
             'once',
             'process',
             'retry',
             'timeout',
+            'url',
             'urlPrefix'
         ];
 
@@ -136,7 +138,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                     mock: false
                 },
                 close: {
-                    // 此处mock的值 context.mock > url search param
+                    // 此处mock的值等于context.mock
                 }
             });
 
@@ -145,14 +147,38 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(Order.close.config.mock).to.be(false);
         });
 
-        it('`mock` value from url search param', function () {
+        it('`mock` value from global', function () {
             let DBCWithoutMock  = new NattyDB.Context();
             let Order = DBCWithoutMock.create('Order', {
                 pay: {
+                    // 这个mock等于全局mock值
                 }
             });
 
-            expect(Order.pay.config.mock).to.be(!!location.search.match(/\bm=1\b/));
+            expect(Order.pay.config.mock).to.be(false);
+        });
+
+        it('`mockUrlPrefix` value from context', function () {
+            let DBC  = new NattyDB.Context({
+                // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
+                mock: true,
+                mockUrlPrefix:  './mock/'
+            });
+            let Order = DBC.create('Order', {
+                pay: {
+                    mockUrl: 'pay'
+                },
+                create: {
+                    mockUrl: '../create'
+                },
+                close: {
+                    mockUrl: 'https://www.demo.com/close'
+                }
+            });
+
+            expect(Order.pay.config.mockUrl).to.be('./mock/pay');
+            expect(Order.create.config.mockUrl).to.be('../create');
+            expect(Order.close.config.mockUrl).to.be('https://www.demo.com/close');
         });
 
         it('`jsonp` option', () => {
