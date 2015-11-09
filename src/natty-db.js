@@ -8,14 +8,8 @@ const util = require('./util');
 const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
 
 RSVP.on('error', function(reason) {
-    console.warn('rsvp error:\n' + reason);
+    console.warn('rsvp error:', reason);
 });
-
-/**
- * 如果浏览器`url`中包含`m=1`的`search`参数，则开启全局`mock`模式
- * NOTE 每个接口的私有`mock`配置优先级高于该全局值。
- */
-//const isGlobalMock = !!location.search.match(/\bm=1\b/);
 
 const EMPTY = '';
 const TRUE = true;
@@ -334,11 +328,13 @@ class DB {
             config.once && (t.cache[config.API] = responseData);
             defer.resolve(responseData);
         } else {
+            console.log(config);
+
             // TODO error的格式约定
             // TODO 测试
             // NOTE response是只读的对象!!!
             defer.reject(extend({
-                message: 'Server Process Failed (NattyDB Default Message)'
+                message: 'Processing Failed Within ' + config.DBName + '.' + config.API
             }, response.error));
         }
     }

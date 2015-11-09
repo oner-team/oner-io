@@ -134,11 +134,11 @@ let setEvents = (xhr, options) => {
     });
 
     //xhr.addEventListener('error', function () {
-    //    console.log('errorrrrr');
+    //    console.log('xhr event: error');
     //});
 
     //xhr.addEventListener('load', function () {
-    //    console.log('looooooad');
+    //    console.log('xhr event: load');
     //});
 
     xhr.addEventListener('abort', () => {
@@ -166,7 +166,7 @@ let defaultOptions = {
     accept: TEXT,
     data: null,
     header: {},
-    withCredentials: false,
+    //withCredentials: false, 这个值由url是否跨域决定
     cache: true,
     success: noop,
     error: noop,
@@ -185,9 +185,10 @@ let ajax = (options) => {
 
     xhr.open(options.method, appendQueryString(options.url, options.data, options.cache));
 
+    // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
-    xhr.withCredentials = options.withCredentials;
+    xhr.withCredentials = isCrossDomain(options.url);
 
     // 设置requestHeader
     setHeaders(xhr, options);

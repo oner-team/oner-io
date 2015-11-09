@@ -97,6 +97,15 @@ let isNumber = (v) => {
 }
 
 let isArray = Array.isArray;
+if (__BUILD_FALLBACK__) {
+    if (!isArray) {
+        const toString = Object.prototype.toString;
+        const ARRAY_TYPE = '[object Array]';
+        isArray = (v) => {
+            return toString.call(v) === ARRAY_TYPE;
+        };
+    }
+}
 
 module.exports = {
     extend: redo(extend),
