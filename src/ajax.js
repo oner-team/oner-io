@@ -179,7 +179,15 @@ let ajax = (options) => {
 
     options = extend({}, defaultOptions, options);
 
-    let xhr = new XMLHttpRequest();
+    let xhr;
+
+    if (!__BUILD_FALLBACK__) {
+        xhr = new XMLHttpRequest();
+    }
+
+    if (__BUILD_FALLBACK__) {
+        xhr = new XMLHttpRequest();
+    }
 
     setEvents(xhr, options);
 

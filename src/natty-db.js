@@ -15,9 +15,11 @@ const EMPTY = '';
 const TRUE = true;
 const FALSE = !TRUE;
 
-// 伪造的`promise`对象
-// NOTE 伪造的promise对象要支持链式调用 保证和`new RSVP.Promise()`返回的对象行为一致
-//      dummyPromise.then().catch().finally()
+/**
+ * 伪造的`promise`对象
+ * NOTE 伪造的promise对象要支持链式调用 保证和`new RSVP.Promise()`返回的对象行为一致
+ *      dummyPromise.then().catch().finally()
+ */
 let dummyPromise = {
     dummy: TRUE
 };
@@ -559,6 +561,9 @@ __BUILD_VERSION__
 let NattyDB = {
     version: VERSION,
     Context,
+    _util: util,
+    ajax,
+    jsonp,
     /**
      * 执行全局配置
      * @param options

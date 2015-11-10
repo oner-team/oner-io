@@ -4,7 +4,7 @@ const {host} = require('./config');
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl, isNumber, loadScript} = require('../src/util');
+var {appendQueryString, isAbsoluteUrl, isNumber, loadScript} = NattyDB._util;
 
 describe('./util', function () {
     describe('appendQueryString', function () {

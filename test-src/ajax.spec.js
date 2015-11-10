@@ -7,7 +7,7 @@ const ExpectAction = require('./expect-action');
 const {host} = require('./config');
 
 
-let ajax = require('../src/ajax');
+let {ajax} = NattyDB;
 
 describe('./ajax', function () {
 

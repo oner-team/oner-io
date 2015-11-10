@@ -6,7 +6,9 @@ var retryTime = 1;
 app.all('/api/:test', function (req, res) {
 
     res.set({
-        "Access-Control-Allow-Origin": "*",
+        // NOTE 真实的生产环境一定不要写*, 如果是*, 则浏览器端的withCredentials不能设置为true, 浏览器端的cookie就无法带到后端
+        //"Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": req.headers.origin,
         //"Access-Control-Allow-Headers": "Content-Type,Content-Length,Authorization,Accept,X-Requested-With",
         "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS",
 
