@@ -1,10 +1,10 @@
 {
   "name": "natty-db",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An awesome natty little data fetching tool for mobile project that no longer needs to use zepto. ",
   "repository": "https://github.com/Jias/natty-db.git",
   "author": "gnosaij",
-  "main": "src/index.js",
+  "main": "dist/natty-db.js",
   "files": [
     "dist",
     "src",

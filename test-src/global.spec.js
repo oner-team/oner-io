@@ -16,9 +16,8 @@ const isGoodIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.in
 describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
     describe('static',function() {
-
         it('version',function() {
-            expect(NattyDB.version).to.equal('1.0.0');
+            expect(NattyDB.version).to.equal('0.1.0');
         });
     });
 
@@ -147,6 +146,17 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             expect(Order.close.config.mock).to.be(false);
         });
 
+        it('`mock` and `method` option', function () {
+            let Order = DBC.create('Order', {
+                pay: {
+                    mock: true,
+                    method: 'POST' // 当`mock`为`true`时 `method`的配置会被纠正到`GET`
+                }
+            });
+
+            expect(Order.pay.config.method).to.be('GET');
+        });
+
         it('`mock` value from global', function () {
             let DBCWithoutMock  = new NattyDB.Context();
             let Order = DBCWithoutMock.create('Order', {
@@ -162,7 +172,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             let DBC  = new NattyDB.Context({
                 // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
                 mock: true,
-                mockUrlPrefix:  './mock/'
+                mockUrlPrefix: './mock/'
             });
             let Order = DBC.create('Order', {
                 pay: {
@@ -323,6 +333,34 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             Order.create().then(function(data) {
                 try {
                     expect(data.orderId).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it('skip process data when it is mocking ', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    mock: true,
+                    mockUrl: host + 'api/order-create',
+                    process: function (response) {
+                        console.log(this);
+
+                        if (this.mock) {
+                            return response;
+                        } else {
+                            return {
+                                orderId: response.id
+                            };
+                        }
+                    }
+                }
+            });
+            Order.create().then(function(data) {
+                try {
+                    expect(data.id).to.be(1);
                     done();
                 } catch(e) {
                     done(new Error(e.message));

@@ -5,7 +5,7 @@ const ajax = require('./ajax');
 const jsonp = require('./jsonp');
 const util = require('./util');
 
-const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isFunction, isNumber, isArray} = util;
+const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isNumber, isArray} = util;
 
 RSVP.on('error', function(reason) {
     console.warn('rsvp error:', reason);
@@ -330,10 +330,6 @@ class DB {
             config.once && (t.cache[config.API] = responseData);
             defer.resolve(responseData);
         } else {
-            console.log(config);
-
-            // TODO error的格式约定
-            // TODO 测试
             // NOTE response是只读的对象!!!
             defer.reject(extend({
                 message: 'Processing Failed Within ' + config.DBName + '.' + config.API

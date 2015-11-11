@@ -17,7 +17,7 @@ let extend = (receiver = {}, supplier = {}) => {
         }
     }
     return receiver;
-}
+};
 
 /**
  * 变换两个参数的函数到多个参数
@@ -37,13 +37,13 @@ let redo =(fn) => {
         }
         return ret;
     }
-}
+};
 
 const random = Math.random;
 const floor = Math.floor;
 let makeRandom = () => {
     return floor(random() * 9e9);
-}
+};
 
 // 给URL追加查询字符串
 const escape = encodeURIComponent;
@@ -64,28 +64,27 @@ let appendQueryString = (url, obj, cache) => {
     } else {
         return url;
     }
-}
-
+};
 
 const absoluteUrlReg = /^(https?:)?\/\//;
 let isAbsoluteUrl = (url) => {
     return !!url.match(absoluteUrlReg);
-}
+};
 
 const relativeUrlReg = /^[\.\/]/;
 let isRelativeUrl = (url) => {
     return !!url.match(relativeUrlReg);
-}
+};
 
 const BOOLEAN = 'boolean';
 let isBoolean = (v) => {
     return typeof v === BOOLEAN;
-}
+};
 
 const FUNCTION = 'function';
 let isFunction = (v) => {
     return typeof v === FUNCTION;
-}
+};
 
 let runAsFn = (v, options) => {
     return isFunction(v) ? v(options) : v;
@@ -94,7 +93,7 @@ let runAsFn = (v, options) => {
 const NUMBER = 'number';
 let isNumber = (v) => {
     return !isNaN(v) && typeof v === NUMBER;
-}
+};
 
 let isArray = Array.isArray;
 if (__BUILD_FALLBACK__) {

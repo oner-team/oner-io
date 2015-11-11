@@ -52,7 +52,7 @@ function pack(isFallback) {
         },
         externals:  {
             //rsvp: 'commonjs rsvp' // modules.export = require('rsvp');
-            rsvp: 'var RSVP' // modules.export = RSVP;
+             rsvp: 'var RSVP' // modules.export = RSVP;
         },
         plugins: [
             new webpack.DefinePlugin({
