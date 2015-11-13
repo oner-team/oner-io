@@ -9,15 +9,14 @@ const expect = require('expect.js');
 // require('natty-db')已被`webpack`映射到全局`NattyDB`对象
 const NattyDB = require('natty-db');
 
-// IE11+
-const isGoodIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
+let VERSION;
+__BUILD_VERSION__
 
-
-describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
+describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
     describe('static',function() {
-        it('version',function() {
-            expect(NattyDB.version).to.equal('0.1.0');
+        it('version v' + VERSION, function() {
+            expect(NattyDB.version).to.equal(VERSION);
         });
     });
 
@@ -246,14 +245,15 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
 
     describe("DBC.create", function () {
         let DBC = new NattyDB.Context();
-        DBC.create('Order', {
-            create: {}
-        });
 
-        DBC.create('User', {
-            getPhone: {}
-        });
         it('structure for DBC', function () {
+            DBC.create('Order', {
+                create: {}
+            });
+
+            DBC.create('User', {
+                getPhone: {}
+            });
             expect(DBC).to.have.keys(['Order', 'User', 'config']);
         });
 
@@ -276,7 +276,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
                 urlPrefix: host,
                 mock: false
             });
-        })
+        });
 
         it('play with standard data structure', function (done) {
             let Order = DBC.create('Order', {
@@ -368,39 +368,26 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with disabled header [NOTE: IE的行为不一样]', function (done) {
+        it('error by requesting cross-domain with disabled header [NOTE: IE的行已被标准化]', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
                     url: host + 'api/order-create',
                     method: 'POST',
-                    header: {foo: 'foo'}
+                    header: {foo: 'foo'} // 跨域时, 自定义的`header`将被忽略
                 }
             });
 
-            if (isGoodIE) {
-                Order.create().then(function (data) {
-                    try {
-                        expect(data.id).to.be(1);
-                        done();
-                    } catch (e) {
-                        done(e.message);
-                    }
-                }, function(error) {
-                    // can not go here
-                });
-            } else {
-                Order.create().then(function (data) {
-                    // can not go here
-                }, function(error) {
-                    try {
-                        expect(error.status).to.be(0);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
-                });
-            }
+            Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch (e) {
+                    done(e.message);
+                }
+            }, function(error) {
+                // can not go here
+            });
         });
 
         it('error by timeout', function (done) {
@@ -558,6 +545,7 @@ describe('NattyDB(Mobile ONLY Version) Unit Test', function() {
         });
 
         it('loop', function (done) {
+            this.timeout(5000);
             let Taxi = DBC.create('Taxi', {
                 getDriverNum: {
                     url: host + 'api/return-success'

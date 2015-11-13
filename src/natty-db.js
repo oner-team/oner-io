@@ -5,7 +5,11 @@ const ajax = require('./ajax');
 const jsonp = require('./jsonp');
 const util = require('./util');
 
-const {extend, runAsFn, isAbsoluteUrl, isRelativeUrl, noop, isBoolean, isNumber, isArray} = util;
+const {
+    extend, runAsFn, isAbsoluteUrl,
+    isRelativeUrl, noop, isBoolean,
+    isNumber, isArray, isCrossDomain
+} = util;
 
 RSVP.on('error', function(reason) {
     console.warn('rsvp error:', reason);
@@ -29,7 +33,6 @@ dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
 };
 
 // 全局默认配置
-// NOTE 全局配置中不包含`url`和`mockUrl`, 因为无意义
 const defaultGlobalConfig = {
 
     // 默认参数
@@ -104,6 +107,7 @@ class DB {
      * @param options {Object}
      */
     processAPIOptions(options) {
+
         let t = this;
 
         let config = extend({}, t.context, options);
@@ -119,6 +123,7 @@ class DB {
         }
 
         config.url = t.getFullUrl(options.url);
+
 
         if (isBoolean(options.jsonp)) {
             config.jsonp = options.jsonp;
@@ -140,10 +145,11 @@ class DB {
             config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
         }
 
+
         if (config.mock) {
             config.data.m = '1';
         }
-        config.data['__'] = t.name + '.' + config.API;
+        //config.data['__' + t.name + '.' + config.API + '()__'] = '';
 
         return config;
     }
@@ -524,7 +530,6 @@ class DB {
  *     });
  *
  */
-
 class Context {
     /**
      * @param options 一个DB实例的通用配置

@@ -7,10 +7,11 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-const {extend, appendQueryString, noop} = require('./util');
+const {extend, appendQueryString, noop, isCrossDomain} = require('./util');
 
 const doc = document;
 
+const UNDEFINED = undefined;
 const NULL = null;
 const GET = 'GET';
 const SCRIPT = 'script';
@@ -50,14 +51,7 @@ let acceptToRequestHeader = {
 //    return responseHeaderToAccept[mime] || TEXT;
 //}
 
-// 判断是否跨域
-let originA = doc.createElement('a');
-originA.href = window.location.href;
-let isCrossDomain = (url) => {
-    let requestA = doc.createElement('a');
-    requestA.href = url;
-    return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
-};
+
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
@@ -179,14 +173,29 @@ let ajax = (options) => {
 
     options = extend({}, defaultOptions, options);
 
-    let xhr;
 
-    if (!__BUILD_FALLBACK__) {
-        xhr = new XMLHttpRequest();
+    // 如果跨域了, 则禁止发送自定义的`header`信息
+    if (isCrossDomain(options.url)) {
+        // 重置`header`, 统一浏览器的行为.
+        // 如果在跨域时发送了自定义`header`, 则:
+        //   标准浏览器会报错: Request header field xxx is not allowed by Access-Control-Allow-Headers in preflight response.
+        //   IE浏览器不报错
+        options.header = {};
     }
 
+    // H5版本
+    // `IE10+`和标准浏览器的`XMLHttpRequest`都原生支持跨域
+    let xhr = new XMLHttpRequest();
+
+    // Web版本
     if (__BUILD_FALLBACK__) {
-        xhr = new XMLHttpRequest();
+        // `IE8/9`使用`XDomainRequest`来实现跨域, `IE10+`的`XMLHttpRequest`对象直接支持跨域
+        if (!('withCredentials' in xhr) && typeof XDomainRequest != UNDEFINED) {
+            // NOTE `XDomainRequest`仅支持`GET`和`POST`两个方法
+            // 支持的事件有: onerror, onload, onprogress, ontimeout, 注意没有`onloadend`
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/XDomainRequest
+            xhr = new XDomainRequest();
+        }
     }
 
     setEvents(xhr, options);

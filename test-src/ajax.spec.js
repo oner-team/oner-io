@@ -54,7 +54,6 @@ describe('./ajax', function () {
     });
 
     describe('post', function () {
-
         it('accept text', function (done) {
             ajax({
                 url: host + 'api/return-text',
@@ -99,12 +98,10 @@ describe('./ajax', function () {
                 }
             });
         });
-
     });
 
 
     describe('event', function () {
-
         let ea = new ExpectAction();
 
         beforeEach('reset expectEvents', function () {
@@ -135,11 +132,9 @@ describe('./ajax', function () {
             });
         });
 
-        let isIE = ~navigator.userAgent.indexOf('Edge') || ~navigator.userAgent.indexOf('MSIE');
-        // 如果是IE11 在跨域时使用了非法的Header 仍然是请求成功的
-        !isIE && it('should trigger error and complete when request the cross-domain with disabled header', function (done) {
+        it('should trigger error and complete when request the cross-domain with disabled header', function (done) {
 
-            ea.expect(['error', 'complete']);
+            ea.expect(['success', 'complete']);
 
             ajax({
                 //log: true,
@@ -151,9 +146,8 @@ describe('./ajax', function () {
                 // 使用不合法的Header来触发跨域失败
                 header: {foo: 'foo'},
                 accept: 'json',
-                error: function (status, xhr) {
-                    ea.do('error');
-                    expect(status).to.be(0);
+                success: function (status, xhr) {
+                    ea.do('success');
                 },
                 complete: function () {
                     ea.do('complete');
@@ -183,7 +177,6 @@ describe('./ajax', function () {
         });
 
         it('should trigger error and complete when 404', function (done) {
-
             ea.expect(['error', 'complete']);
 
             ajax({
@@ -224,7 +217,7 @@ describe('./ajax', function () {
         });
 
         it('calling `abort` after `complete` event should be ignored', function (done) {
-
+            this.timeout(5000);
             ea.expect(['success', 'complete']);
 
             var xhr = ajax({
@@ -241,7 +234,7 @@ describe('./ajax', function () {
             setTimeout(function () {
                 xhr.abort();
                 done();
-            }, 300);
+            }, 1000);
         });
 
 

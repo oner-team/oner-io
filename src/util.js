@@ -106,11 +106,21 @@ if (__BUILD_FALLBACK__) {
     }
 }
 
+// 判断是否跨域
+let originA = doc.createElement('a');
+originA.href = window.location.href;
+let isCrossDomain = (url) => {
+    let requestA = doc.createElement('a');
+    requestA.href = url;
+    return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
+};
+
 module.exports = {
     extend: redo(extend),
     makeRandom,
     appendQueryString,
     noop,
+    isCrossDomain,
     isAbsoluteUrl,
     isRelativeUrl,
     isBoolean,

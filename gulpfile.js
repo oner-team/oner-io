@@ -98,7 +98,12 @@ gulp.task('test-pack', ['del-test-dist'], function() {
         },
         externals:  {
             'natty-db': 'var NattyDB' // 相当于 modules.export = NattyDB;
-        }
+        },
+        plugins: [
+            new webpack.DefinePlugin({
+                __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"'
+            })
+        ]
     })).pipe(gulp.dest('./test-dist'));
 });
 

@@ -15,6 +15,7 @@
     "data, database, db, mobile-db, ajax, mobile-ajax, get, post, jsonp, query"
   ],
   "dependencies": {
+    "es5-shim": "^4.3.1",
     "rsvp": "~3.1.0"
   },
   "devDependencies": {
