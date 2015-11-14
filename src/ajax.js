@@ -10,7 +10,7 @@
 const {extend, appendQueryString, noop, isCrossDomain} = require('./util');
 
 const doc = document;
-
+const FALSE = false;
 const UNDEFINED = undefined;
 const NULL = null;
 const GET = 'GET';
@@ -51,8 +51,6 @@ let acceptToRequestHeader = {
 //    return responseHeaderToAccept[mime] || TEXT;
 //}
 
-
-
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
 let setHeaders = (xhr, options) => {
@@ -85,15 +83,9 @@ let setEvents = (xhr, options) => {
     // MAC OSX Yosemite Safari上的低级错误: 一次`ajax`请求的`loadend`事件完成之后,
     // 如果执行`xhr.abort()`, 居然还能触发一遍`abort`和`loadend`事件!!!
     // `__finished`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
-    xhr.__finished = false;
+    xhr.__finished = FALSE;
 
-    // readyState value:
-    //   0: UNSET 未初始化
-    //   1: OPENED
-    //   2: HEADERS_RECEIVED
-    //   3: LOADING
-    //   4: DONE 此时触发load事件
-    xhr.addEventListener("readystatechange", function (e) {
+    let readyStateChangeFn = (e) => {
         //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
             // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
@@ -125,7 +117,16 @@ let setEvents = (xhr, options) => {
                 !xhr.__aborted && options.error(xhr.status, xhr);
             }
         }
-    });
+    };
+
+
+    // readyState value:
+    //   0: UNSET 未初始化
+    //   1: OPENED
+    //   2: HEADERS_RECEIVED
+    //   3: LOADING
+    //   4: DONE 此时触发load事件
+    xhr.addEventListener("readystatechange", readyStateChangeFn);
 
     //xhr.addEventListener('error', function () {
     //    console.log('xhr event: error');
@@ -135,15 +136,17 @@ let setEvents = (xhr, options) => {
     //    console.log('xhr event: load');
     //});
 
-    xhr.addEventListener('abort', () => {
+    let abortFn = () => {
         if (xhr.__finished) {
             return;
         }
         //options.log && console.info('~abort');
         options.abort(xhr.status, xhr);
-    });
+    };
 
-    xhr.addEventListener('loadend', () => {
+    xhr.addEventListener('abort', abortFn);
+
+    let loadedFn = () => {
         if (xhr.__finished) {
             return;
         }
@@ -151,7 +154,9 @@ let setEvents = (xhr, options) => {
         //options.log && console.info('~loadend');
         options.complete(xhr.status, xhr);
         delete xhr.__aborted;
-    });
+    }
+
+    xhr.addEventListener('loadend', loadedFn);
 };
 
 let defaultOptions = {
@@ -166,7 +171,7 @@ let defaultOptions = {
     error: noop,
     complete: noop,
     abort: noop,
-    log: false
+    log: FALSE
 };
 
 let ajax = (options) => {
