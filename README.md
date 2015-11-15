@@ -95,6 +95,7 @@ $ node server/server.js
 
 * [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
 * [Browser support for CORS](http://enable-cors.org/client.html)
+* [XDomainRequest on MSDN](https://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx)
 
 ## Credits
 

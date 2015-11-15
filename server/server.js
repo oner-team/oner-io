@@ -12,7 +12,8 @@ app.all('/api/:test', function (req, res) {
         //"Access-Control-Allow-Headers": "Content-Type,Content-Length,Authorization,Accept,X-Requested-With",
         "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS",
 
-        "Access-Control-Allow-Credentials": true
+        "Access-Control-Allow-Credentials": true,
+        "Content-Type": "text/html"
     });
 
     switch (req.params.test) {

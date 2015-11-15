@@ -74,7 +74,7 @@ gulp.task('pack-fallback-version', ['pack-normal-version'], function() {
 });
 
 gulp.task('test-pack', ['del-test-dist'], function() {
-    return gulp.src('./test-src/global.spec.js').pipe(webpackStream({
+    return gulp.src('./test-src/index.spec.js').pipe(webpackStream({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
