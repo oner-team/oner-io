@@ -23,7 +23,7 @@ let insertScript = (url, errorCB = noop, options = {}) => {
     // `onload`只做一件事 即删除`script`标签
     // 不兼容IE 不需要`onreadystatechange`
     script.onload = () => {
-        options.log && console.log('jsonp onload');
+        //options.log && console.log('jsonp onload');
         removeScript(script);
         script = NULL;
     };
@@ -69,7 +69,7 @@ let jsonp = (options) => {
     
     return {
         abort() {
-            options.log && console.log('jsonp abort');
+            //options.log && console.log('jsonp abort');
 
             // 覆盖成功回调为无数据处理版本
             win[callbackName] = () => {

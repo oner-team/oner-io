@@ -1,7 +1,7 @@
 "use strict";
 
 const RSVP = require('rsvp');
-const ajax = require('./ajax');
+const ajax = require('./ajax.pc');
 const jsonp = require('./jsonp');
 const util = require('./util');
 
@@ -12,7 +12,7 @@ const {
 } = util;
 
 RSVP.on('error', function(reason) {
-    console.warn('rsvp error:', reason);
+    //console.warn('rsvp error:', reason);
 });
 
 const EMPTY = '';
