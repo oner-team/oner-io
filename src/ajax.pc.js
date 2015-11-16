@@ -84,88 +84,7 @@ let setHeaders = function(xhr, options) {
 };
 
 // 绑定事件
-// NOTE 还得继续使用readystatechange事件
-//      比较遗憾 到现在了依然不能安全的使用load和error等事件 就连PC端的chrome都有下面的问题
-//      500: 触发load loadend 不触发error
-//      404: 触发load loadend 不触发error
-let setEvents = (xhr, options) => {
-
-    let readyStateChangeFn = (e) => {
-        //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
-        if (xhr.readyState === 4) {
-            // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
-            if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
-                //let mime = xhr.getResponseHeader('Content-Type');
-                let data = xhr.responseText;
-                switch (options.accept) {
-                    case JS0N:
-                        try {
-                            data = JSON.parse(data)
-                        } catch (e) {
-                            console.warn('The response can NOT be parsed to JSON object.', data);
-                        }
-                        break;
-                    case SCRIPT:
-                        (1, eval)(data);
-                        break;
-                    case XML:
-                        data = xhr.responseXML;
-                        break;
-                    //case HTML:
-                    //case TEXT:
-                    default:
-                        break;
-                }
-                options.success(data, xhr);
-            } else {
-                // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
-                !xhr.__aborted && options.error(xhr.status, xhr);
-            }
-        }
-    };
-
-
-    // readyState value:
-    //   0: UNSET 未初始化
-    //   1: OPENED
-    //   2: HEADERS_RECEIVED
-    //   3: LOADING
-    //   4: DONE 此时触发load事件
-    xhr.addEventListener("readystatechange", readyStateChangeFn);
-
-    //xhr.addEventListener('error', function () {
-    //    console.log('xhr event: error');
-    //});
-
-    //xhr.addEventListener('load', function () {
-    //    console.log('xhr event: load');
-    //});
-
-    let abortFn = () => {
-        if (xhr.__completed) {
-            return;
-        }
-        //options.log && console.info('~abort');
-        options.abort(xhr.status, xhr);
-    };
-
-    xhr.addEventListener('abort', abortFn);
-
-    let loadedFn = () => {
-        if (xhr.__completed) {
-            return;
-        }
-        xhr.__completed = true;
-        //options.log && console.info('~loadend');
-        options.complete(xhr.status, xhr);
-        delete xhr.__aborted;
-    }
-
-    xhr.addEventListener('loadend', loadedFn);
-};
-
-// 绑定事件
-let setFallbackEvents = function(xhr, options) {
+let setEvents = function(xhr, options) {
 
     let completeFn = function() {
         if (xhr.__completed) {
@@ -175,10 +94,10 @@ let setFallbackEvents = function(xhr, options) {
         //options.log && console.info('~loadend');
         options.complete(xhr.status, xhr);
         xhr.__aborted = null;
-        //delete xhr.__aborted;
+        delete xhr.__aborted;
     }
 
-    let onLoadFn = function(e) {
+    let onLoadFn = function() {
 
         let data = xhr.responseText;
 
@@ -203,45 +122,62 @@ let setFallbackEvents = function(xhr, options) {
         }
         options.success(data, xhr);
         completeFn();
-        //    } else {
-        //        // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
-        //        !xhr.__aborted && options.error(xhr.status, xhr);
-        //    }
-        //}
     };
-
-    // readyState value:
-    //   0: UNSET 未初始化
-    //   1: OPENED
-    //   2: HEADERS_RECEIVED
-    //   3: LOADING
-    //   4: DONE 此时触发load事件
-    xhr.onload = onLoadFn;
 
     let onErrorFn = function (e) {
         options.error(xhr.status, xhr);
         completeFn();
     }
 
-    xhr.onerror = onErrorFn;
-
-    //xhr.addEventListener('error', function () {
-    //    console.log('xhr event: error');
-    //});
-
-    //xhr.addEventListener('load', function () {
-    //    console.log('xhr event: load');
-    //});
-
     let abortFn = function() {
+        console.log(xhr.__completed);
+
+
         if (xhr.__completed) {
             return;
         }
         //options.log && console.info('~abort');
         options.abort(xhr.status, xhr);
+        completeFn();
     };
 
-    xhr.onabort = abortFn;
+    if (!fallback) {
+        // readyState value:
+        //   0: UNSET 未初始化
+        //   1: OPENED
+        //   2: HEADERS_RECEIVED
+        //   3: LOADING
+        //   4: DONE 此时触发load事件
+        xhr.onreadystatechange = () => {
+            //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
+            if (xhr.readyState === 4) {
+                // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
+                if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+                    onLoadFn();
+                } else {
+                    // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
+                    !xhr.__aborted && options.error(xhr.status, xhr);
+                }
+            }
+        }
+    } else {
+        xhr.onload = onLoadFn;
+    }
+
+    xhr.onerror = onErrorFn;
+
+    // 重写`abort`方法
+    let originAbort = xhr.abort;
+    xhr.abort = function() {
+        console.log('aaabort');
+
+        xhr.__aborted = true;
+        // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
+        originAbort.call(xhr);
+
+        // `XDomainRequest`对象实例居然没有`onabort`方法
+        abortFn();
+    };
 };
 
 let defaultOptions = {
@@ -294,11 +230,7 @@ let ajax = function(options) {
     // `__completed`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
     xhr.__completed = FALSE;
 
-    if (!isFallback) {
-        setEvents(xhr, options);
-    } else {
-        setFallbackEvents(xhr, options);
-    }
+    setEvents(xhr, options);
 
     xhr.open(options.method, appendQueryString(options.url, options.data, options.cache));
 
@@ -313,23 +245,7 @@ let ajax = function(options) {
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
     xhr.send(options.method === GET ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
 
-    let originAbort = xhr.abort;
 
-    // 重写`abort`方法
-    xhr.abort = function() {
-        xhr.__aborted = true;
-        // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
-        originAbort.call(xhr);
-
-        // `XDomainRequest`对象实例没有`onabort`方法
-        if (fallback) {
-            if (xhr.__completed) {
-                return;
-            }
-            //options.log && console.info('~abort');
-            options.abort(xhr.status, xhr);
-        }
-    };
 
     return xhr;
 };

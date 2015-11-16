@@ -418,7 +418,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     //log: true,
                     url: host + 'api/timeout',
                     method: 'POST',
-                    timeout: 100
+                    timeout: 200
                 }
             });
             Order.create().then(function () {
@@ -446,7 +446,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(error.status).to.be(500);
+                    expect(error.status).to.be(NattyDB.ajax.fallback ? undefined : 500);
                     done();
                 } catch(e) {
                     done(new Error(e.message));
@@ -465,7 +465,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(error.status).to.be(404);
+                    expect(error.status).to.be(NattyDB.ajax.fallback ? undefined : 404);
                     done();
                 } catch(e) {
                     done(new Error(e.message));

@@ -196,7 +196,7 @@ describe('./ajax', function () {
             });
         });
 
-        it.only('should trigger abort and complete when request is aborted', function (done) {
+        it('should trigger abort and complete when request is aborted', function (done) {
 
             ea.expect(['abort', 'complete']);
 

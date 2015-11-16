@@ -37,7 +37,7 @@ app.all('/api/:test', function (req, res) {
                         id: 1
                     }
                 });
-            }, 1000);
+            }, 3000);
             break;
         case 'return-script':
             res.send('window.__test__ = 1;');

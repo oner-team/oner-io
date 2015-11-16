@@ -276,6 +276,8 @@ class DB {
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
+                console.log('timeout', config.pending);
+
                 if (config.pending) {
                     // 取消请求
                     requester.abort();
