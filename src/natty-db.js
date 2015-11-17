@@ -35,6 +35,9 @@ dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
 // 全局默认配置
 const defaultGlobalConfig = {
 
+    // 是否缓存
+    cache: true,
+
     // 默认参数
     data: {},
 
@@ -113,7 +116,8 @@ class DB {
         let config = extend({}, t.context, options);
 
         // 标记是否正在等待请求返回
-        config.pending = false;
+        //C.log('init pending value')
+        config.pending = FALSE;
 
         if (config.mock) {
             // dip平台不支持GET以外的类型
@@ -175,13 +179,13 @@ class DB {
          * @returns {Object} Promise Object
          */
         let api = (data) => {
-
             // 是否忽略自身的并发请求
             if (config.ignoreSelfConcurrent && config.pending) {
                 return dummyPromise;
             }
 
             if (config.retry === 0) {
+                //C.log('request');
                 return t.request(data, config);
             } else {
                 return t.tryRequest(data, config);
@@ -260,6 +264,7 @@ class DB {
         let requester;
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
+        //C.log('start pending');
         config.pending = TRUE;
 
         let defer = RSVP.defer();
@@ -270,6 +275,7 @@ class DB {
         } else if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
+            //C.log('send ajax');
             requester = t.sendAjax(data, config, defer, retryTime);
         }
 
@@ -357,6 +363,7 @@ class DB {
         let t = this;
 
         return ajax({
+            cache: config.cache,
             log: config.log,
             url: config.mock ? config.mockUrl : config.url,
             method: config.method,
@@ -392,6 +399,8 @@ class DB {
             },
             complete(/*status, xhr*/) {
                 if (retryTime === undefined || retryTime === config.retry) {
+                    //C.log('ajax complete');
+
                     config.pending = FALSE;
                 }
                 //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());

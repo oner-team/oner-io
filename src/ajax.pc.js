@@ -23,7 +23,10 @@ const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
-let fallback = (!('withCredentials' in (new XMLHttpRequest())) && typeof XDomainRequest != UNDEFINED);
+let xhrTester = new XMLHttpRequest();
+let hasXDR = typeof XDomainRequest != UNDEFINED;
+let fallback = (!('withCredentials' in xhrTester) && hasXDR);
+let supportCORS = ('withCredentials' in xhrTester) || hasXDR;
 
 // minetype的简写映射
 // TODO 考虑是否优化
@@ -121,23 +124,23 @@ let setEvents = function(xhr, options) {
                 break;
         }
         options.success(data, xhr);
+        //C.log('complete after load');
         completeFn();
     };
 
-    let onErrorFn = function (e) {
+    let onErrorFn = function () {
         options.error(xhr.status, xhr);
+        //C.log('complete after error');
         completeFn();
     }
 
     let abortFn = function() {
-        console.log(xhr.__completed);
-
-
         if (xhr.__completed) {
             return;
         }
         //options.log && console.info('~abort');
         options.abort(xhr.status, xhr);
+        //C.log('complete after abort');
         completeFn();
     };
 
@@ -149,14 +152,14 @@ let setEvents = function(xhr, options) {
         //   3: LOADING
         //   4: DONE 此时触发load事件
         xhr.onreadystatechange = () => {
-            //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
+            //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
             if (xhr.readyState === 4) {
                 // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
                 if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                     onLoadFn();
                 } else {
                     // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
-                    !xhr.__aborted && options.error(xhr.status, xhr);
+                    !xhr.__aborted && onErrorFn();
                 }
             }
         }
@@ -169,8 +172,6 @@ let setEvents = function(xhr, options) {
     // 重写`abort`方法
     let originAbort = xhr.abort;
     xhr.abort = function() {
-        console.log('aaabort');
-
         xhr.__aborted = true;
         // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
         originAbort.call(xhr);
@@ -178,6 +179,9 @@ let setEvents = function(xhr, options) {
         // `XDomainRequest`对象实例居然没有`onabort`方法
         abortFn();
     };
+
+    // IE9 bug
+    xhr.onprogress = xhr.ontimeout = noop;
 };
 
 let defaultOptions = {
@@ -251,5 +255,6 @@ let ajax = function(options) {
 };
 
 ajax.fallback = fallback;
+ajax.supportCORS = supportCORS;
 
 module.exports = ajax;

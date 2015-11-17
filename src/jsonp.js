@@ -45,6 +45,7 @@ let defaultOptions = {
 };
 
 let jsonp = (options) => {
+    C.log('start jsonp');
     options = extend({}, defaultOptions, options);
 
     let callbackName = options.callbackName.replace(/\{id\}/, makeRandom());
@@ -59,7 +60,7 @@ let jsonp = (options) => {
     // 生成`url`
     let url = appendQueryString(options.url, extend({
         [options.flag]: callbackName
-    }, options.data), true);
+    }, options.data), options.cache);
 
     // 插入脚本 + 错误回调
     let script = insertScript(url, (e) => {

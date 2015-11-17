@@ -23,6 +23,8 @@ const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
+let supportCORS = 'withCredentials' in (new XMLHttpRequest());
+
 // minetype的简写映射
 // TODO 考虑是否优化
 let acceptToRequestHeader = {
@@ -86,7 +88,8 @@ let setEvents = (xhr, options) => {
     xhr.__finished = FALSE;
 
     let readyStateChangeFn = (e) => {
-        //options.log && console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
+
+        //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
             // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
             if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
@@ -228,6 +231,10 @@ let ajax = (options) => {
     };
 
     return xhr;
-}
+};
+
+// 移动端不需要fallback
+ajax.fallback = false;
+ajax.supportCORS = supportCORS;
 
 module.exports = ajax;

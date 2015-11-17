@@ -1,6 +1,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
@@ -8,12 +9,17 @@
     <title>NattyDB(Mobile ONLY Version) Unit Test</title>
 </head>
 <body>
+<div style="color:red;">
+    单测注意: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!! <br/>
+    单测注意: 如果是IE浏览器 先调整到标准显示模式
+</div>
 <div id="mocha"></div>
 <!--[if lt IE 10]>
-<script src="./node_modules/es5-shim/es5-shim.min.js"></script>
-<script src="./node_modules/es5-shim/es5-sham.min.js"></script>
-<script src="./src/json2.js"></script>
+<script type="text/javascript" src="./node_modules/es5-shim/es5-shim.min.js"></script>
+<script type="text/javascript" src="./node_modules/es5-shim/es5-sham.min.js"></script>
+<script type="text/javascript" src="./src/json2.js"></script>
 <![endif]-->
+<script type="text/javascript" src="./test-src/log.js"></script>
 <script type="text/javascript" src="./node_modules/rsvp/dist/rsvp.js"></script>
 <script type="text/javascript" src="./dist/natty-db.pc.js"></script>
 <script type="text/javascript" src="./test-dist/test.js"></script>
