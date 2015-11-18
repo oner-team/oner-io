@@ -100,7 +100,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
     });
 
-
     describe('api config', function () {
 
         let DBC;
@@ -269,6 +268,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('ajax', function() {
+        // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
+        NattyDB.setGlobal({
+            cache: false
+        });
+
+        this.timeout(1000*60);
         let DBC;
 
         beforeEach('reset', function () {
@@ -279,7 +284,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('play with standard data structure', function (done) {
-            this.timeout(10000);
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
@@ -347,8 +351,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     mock: true,
                     mockUrl: host + 'api/order-create',
                     process: function (response) {
-                        console.log(this);
-
                         if (this.mock) {
                             return response;
                         } else {
@@ -491,6 +493,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
+                    C.dir(e);
                     done(new Error(e.message));
                 }
             }, function() {
@@ -517,7 +520,9 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('ignore seft concurrent', function (done) {
+        // 连发两次请求，第二次应该被忽略
+        it.skip('ignore seft concurrent', function (done) {
+
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/timeout', // 请求延迟返回的接口
@@ -525,9 +530,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            // 连发两次请求，第二次应该被忽略
             Order.create().then(function (data) {
+                //C.log('promise resolve');
                 try {
+                    C.log('id', data.id);
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
@@ -546,7 +552,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('loop', function (done) {
-            this.timeout(5000);
             let Taxi = DBC.create('Taxi', {
                 getDriverNum: {
                     url: host + 'api/return-success'
@@ -578,6 +583,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('jsonp', function () {
+        // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
+        NattyDB.setGlobal({
+            cache: false
+        });
+
+        this.timeout(1000*60);
         let DBC;
 
         beforeEach('reset', function () {
@@ -631,6 +642,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
 
             Order.create().then(function (data) {
+
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -640,7 +652,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('jsonp response.success is false ', function (done) {
+        it.only('jsonp response.success is false ', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
@@ -663,7 +675,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         // jsonp无法使用状态吗识别出具体的404、500等错误，都统一成`无法连接`的错误信息
         it('jsonp with error url', function (done) {
-            this.timeout(5000);
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'error-url',
@@ -705,7 +716,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('resolving after retry', function (done) {
-            this.timeout(5000);
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/jsonp-retry-success',

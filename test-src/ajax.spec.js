@@ -13,31 +13,8 @@ let isFallback = NattyDB.ajax.fallback;
 describe('./ajax', function () {
 
     describe('dependent detects', function () {
-        let xhr = new XMLHttpRequest();
-
-        let methods = ['loadend', 'readystatechange', 'abort'];
-
-        //methods.forEach(function (method) {
-        //    it('support `' + method + '` event',function() {
-        //        expect(xhr).to.have.property('on' + method);
-        //    });
-        //});
-
-        // http://enable-cors.org/index.html
-        //it('support `CORS`', function () {
-        //    expect(xhr).to.have.property('withCredentials');
-        //});
-
-        it('`script` tag should have onload event', function (done) {
-            let script = document.createElement('script');
-            script.src = host + 'api/return-script';
-            script.onload = function () {
-                expect(__test__).to.be(1);
-                window.__test__ = null;
-                done();
-            };
-            let head = document.getElementsByTagName('head')[0];
-            head.insertBefore(script, head.firstChild);
+        it('support `CORS`', function () {
+            expect(NattyDB.ajax.supportCORS).to.be(true);
         });
     });
 
@@ -168,7 +145,7 @@ describe('./ajax', function () {
                 accept: 'json',
                 error: function (status, xhr) {
                     ea.do('error');
-                    !isFallback && expect(status).to.be(500);
+                    !NattyDB.ajax.fallback && expect(status).to.be(500);
                 },
                 complete: function () {
                     ea.do('complete');
