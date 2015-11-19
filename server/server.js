@@ -37,7 +37,7 @@ app.all('/api/:test', function (req, res) {
                         id: 1
                     }
                 });
-            }, 3000);
+            }, 1000); // 时间不要太大 否则单测太漫长
             break;
         case 'return-script':
             res.send('window.__test__ = 1;');

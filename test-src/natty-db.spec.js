@@ -521,7 +521,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         // 连发两次请求，第二次应该被忽略
-        it.skip('ignore seft concurrent', function (done) {
+        it('ignore seft concurrent', function (done) {
 
             let Order = DBC.create('Order', {
                 create: {
@@ -531,9 +531,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
 
             Order.create().then(function (data) {
-                //C.log('promise resolve');
                 try {
-                    C.log('id', data.id);
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
@@ -578,11 +576,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // 验证状态
                 expect(Taxi.getDriverNum.looping).to.be(false);
                 done();
-            }, 500);
+            }, 1000);
         });
     });
 
-    describe('jsonp', function () {
+
+        describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
         NattyDB.setGlobal({
             cache: false
@@ -652,7 +651,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it.only('jsonp response.success is false ', function (done) {
+        it('jsonp response.success is false ', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     //log: true,
@@ -686,7 +685,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // can not go here
             }, function (error) {
                 try {
-                    expect(error.message).to.contain('Not Accessable JSONP URL');
+                    expect(error.message).to.contain('Not Accessable JSONP');
                     done();
                 } catch (e) {
                     done(new Error(e.message));
@@ -789,4 +788,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
     });
+    //    run();
+    //}, 4000);
 });

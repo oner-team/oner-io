@@ -27,7 +27,10 @@ gulp.task('delete-dist-dir', function (cb) {
 });
 
 function pack(isFallback) {
-    return gulp.src('src/index.js').pipe(webpackStream({
+
+    var indexFile = isFallback ? 'src/index.pc.js' : 'src/index.js';
+
+    return gulp.src(indexFile).pipe(webpackStream({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
@@ -68,8 +71,8 @@ gulp.task('pack-normal-version', ['delete-dist-dir'], function() {
     return pack(false);
 });
 
-// pack fallback version for natty-db.js
-gulp.task('pack-fallback-version', ['pack-normal-version'], function() {
+gulp.task('pack', ['pack-normal-version'], function() {
+    // pack fallback version for natty-db.js
     return pack(true);
 });
 
@@ -123,7 +126,7 @@ gulp.task('min', function () {
     })).pipe(gulp.dest('./dist'));
 });
 
-gulp.task('reload-by-src', ['pack-fallback-version'], function () {
+gulp.task('reload-by-src', ['pack'], function () {
     browserSync.reload();
 });
 
@@ -132,7 +135,7 @@ gulp.task('reload-by-test', ['test-pack'], function () {
 });
 
 // 启动监听
-gulp.task('watch', ['pack-fallback-version', 'test-pack'], function () {
+gulp.task('watch', ['pack', 'test-pack'], function () {
     browserSync({
         server: {
             baseDir: './'

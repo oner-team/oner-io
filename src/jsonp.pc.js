@@ -3,23 +3,47 @@ const win = window;
 const doc = document;
 const NULL = null;
 const SCRIPT = 'script';
-
+const IE8 = navigator.userAgent.indexOf('MSIE 8.0') > -1;
+// TODO add test spec
 let removeScript = (script) => {
+    if (IE8 && script.readyState) {
+        script.onreadystatechange = NULL;
+    } else {
         script.onerror = NULL;
+    }
     script.parentNode.removeChild(script);
     script = NULL;
 };
 let head = NULL;
 let insertScript = (url, options) => {
     let script = doc.createElement(SCRIPT);
+    script.type = 'text/javascript';
     script.src = url;
     script.async = true;
 
-    script.onerror = (e) => {
-        win[options.callbackName] = NULL;
-        options.error(e);
-        options.complete();
-    };
+    // 绑定`error`事件
+    if (IE8 && script.readyState) {
+        script.onreadystatechange = () => {
+            // IE8下script标签不支持`onerror`事件, 通过JSONP的执行顺序来模拟触发:
+            // 1:   script.readyState状态值为`loading`
+            // 2.1: 如果脚本加载成功, 浏览器就会先执行脚本内容, 即调用JSONP函数, 如: `jsonp2327905726()`,
+            //      (该函数执行之后会立即被设置成`null`值, 用于第3步的判断), JSONP函数执行完成后, 会进入第3步.
+            // 2.2: 如果脚本加载不成功, 也会进入第3步.
+            // 3:   无论脚本是否加载成功, `script.readyState`状态值都变化为`loaded`,
+            //      如果加载不成功, 可以通过判断JSONP函数一定是存在, 即可模拟`error`回调了.
+            if (script.readyState === 'loaded' && win[options.callbackName]) {
+                win[options.callbackName] = NULL;
+                options.error();
+                options.complete();
+            }
+        }
+    } else {
+        script.onerror = (e) => {
+            win[options.callbackName] = NULL;
+            options.error(e);
+            options.complete();
+        };
+    }
 
     head = head || doc.getElementsByTagName('head')[0];
     head.insertBefore(script, head.firstChild);
@@ -57,6 +81,7 @@ let jsonp = (options) => {
 
     // 成功回调
     win[callbackName] = (data) => {
+        // JSONP函数需要立即删除 用于`IE8`判断是否触发`onerror`
         win[callbackName] = NULL;
         options.success(data);
         options.complete();

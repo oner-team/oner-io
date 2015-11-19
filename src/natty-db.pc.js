@@ -1,8 +1,8 @@
 "use strict";
 
 const RSVP = require('rsvp');
-const ajax = require('./ajax');
-const jsonp = require('./jsonp');
+const ajax = require('./ajax.pc');
+const jsonp = require('./jsonp.pc');
 const util = require('./util');
 
 const {
