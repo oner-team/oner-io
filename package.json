@@ -1,10 +1,10 @@
 {
   "name": "natty-db",
-  "version": "0.1.1",
-  "description": "An awesome natty little data fetching tool for mobile project that no longer needs to use zepto. ",
+  "version": "0.2.0",
+  "description": "A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto. ",
   "repository": "https://github.com/Jias/natty-db.git",
   "author": "gnosaij",
-  "main": "dist/natty-db.js",
+  "main": "dist/natty-db.min.js",
   "files": [
     "dist",
     "src",
@@ -12,7 +12,17 @@
     "LICENSE"
   ],
   "keywords": [
-    "data, database, db, mobile-db, ajax, mobile-ajax, get, post, jsonp, query"
+    "natty-db",
+    "data",
+    "database",
+    "db",
+    "ajax",
+    "mobile-ajax",
+    "get",
+    "post",
+    "jsonp",
+    "query",
+    "fetch"
   ],
   "dependencies": {
     "rsvp": "~3.1.0"

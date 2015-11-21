@@ -1,5 +1,41 @@
-# natty-db
-An awesome natty little data fetching tool for mobile project that no longer needs to use zepto.
+# NattyDB.js
+A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto. 
+
+## 安装(请详细阅读)
+
+先将`NattyDB`安装到项目本地
+
+```bash
+$ npm install natty-db --save
+```
+
+### 选择版本
+
+`NattyDB`发布时包含`H5`和`PC`两个版本，请根据项目情况来选用。
+
+#### H5版：natty-db.js
+
+在`package.json`中配置的默认版本就是移动端版本，文件路径为：`dist/natty-db.min.js`，所以，移动端项目中，直接`require`即可。
+
+```js
+$ let NattyDB = require('natty-db');
+```
+
+#### PC版：natty-db.pc.js
+
+如过项目需要同时兼容移动端和PC端，请使用PC版。推荐下面的使用方式。
+
+`require`方式不变：
+
+```js
+$ let NattyDB = require('natty-db');
+```
+
+但同时在`Webpack`中配置`alias`的路径到`PC`版`NattyDB`。
+
+
+
+
 
 ## Usage
 

@@ -249,8 +249,6 @@ let ajax = function(options) {
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
     xhr.send(options.method === GET ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
 
-
-
     return xhr;
 };
 
