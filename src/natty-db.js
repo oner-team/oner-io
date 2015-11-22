@@ -570,6 +570,7 @@ let VERSION;
 __BUILD_VERSION__
 
 let NattyDB = {
+    onlyForHTML5: TRUE,
     version: VERSION,
     Context,
     _util: util,

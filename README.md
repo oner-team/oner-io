@@ -1,37 +1,76 @@
 # NattyDB.js
-A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto. 
+A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto's Ajax. 
 
-## 安装(请详细阅读)
+## Install
 
-先将`NattyDB`安装到项目本地
+先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
+
+> RSVP小而美地实现了`Promise`的概念。
 
 ```bash
-$ npm install natty-db --save
+$ npm install natty-db rsvp --save
 ```
 
-### 选择版本
+#### 版本说明
 
-`NattyDB`发布时包含`H5`和`PC`两个版本，请根据项目情况来选用。
+NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件路径为：
 
-#### H5版：natty-db.js
+* H5版本：node_modules/dist/natty-db.min.js
+* PC版本：node_modules/dist/natty-db.pc.min.js (文件名中加上了`.pc`)
 
-在`package.json`中配置的默认版本就是移动端版本，文件路径为：`dist/natty-db.min.js`，所以，移动端项目中，直接`require`即可。
+#### 引入方式(一)：直接使用`script`标签
+
+RSVP + H5版NattyDB
+
+```html
+<script src="./node_modules/rsvp/dist/rsvp.min.js"></script>
+<script src="./node_modules/natty-db/dist/natty-db.min.js"></script>
+```
+
+RSVP + PC版NattyDB
+
+```html
+<script type="text/javascript" src="./node_modules/rsvp/dist/rsvp.min.js"></script>
+<script type="text/javascript" src="./node_modules/natty-db/dist/natty-db.pc.min.js"></script>
+```
+
+#### 引入方式(二)：模块化的开发方式
+
+> 此处的文档，是假设了项目中使用Webpack作为模块管理工具。
+
+##### 配置`RSVP`依赖
+
+如果以模块方式(非`script`标签方式)加载RSVP依赖，需要在Webpack配置中使用[ProvidePlugin](http://webpack.github.io/docs/list-of-plugins.html#provideplugin)插件将全局RSVP变量引用转换为`require('rsvp')`模块引用。
+
+```js
+plugins: [
+    new webpack.ProvidePlugin({
+       RSVP: 'rsvp'
+    })
+]
+```
+
+##### 引入H5版NattyDB
+
+在NattyDB模块的`package.json`中配置的默认版本就是H5版本，文件路径为：`dist/natty-db.min.js`。
 
 ```js
 $ let NattyDB = require('natty-db');
 ```
 
-#### PC版：natty-db.pc.js
+##### 引入PC版NattyDB
 
-如过项目需要同时兼容移动端和PC端，请使用PC版。推荐下面的使用方式。
+如果项目需要同时兼容移动端和PC端(目前NattyDB支持到`IE8+`)，需要在Webpack中配置[resolve.alias](http://webpack.github.io/docs/configuration.html#resolve-alias)，将NattyDB指向PC版，引用方式保持和H5版本一样。
 
-`require`方式不变：
+Webpack中的配置：
 
 ```js
-$ let NattyDB = require('natty-db');
+resolve: {
+    alias: {
+        'natty-db': 'natty-db/dist/natty-db.pc.min.js'
+    }
+}
 ```
-
-但同时在`Webpack`中配置`alias`的路径到`PC`版`NattyDB`。
 
 
 
@@ -115,19 +154,21 @@ DB.User.getPhone({
 
 ```
 
-## dev
+## Develop
+
+启动数据端服务器，用于测试返回的数据。
+
+```bash
+$ npm run server
+```
+
+启动实时编译的开发环境
 
 ```bash
 $ npm start
 ```
 
-and
-
-```bash
-$ node server/server.js
-```
-
-## Important Refs
+## Important References
 
 * [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
 * [Browser support for CORS](http://enable-cors.org/client.html)
