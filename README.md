@@ -1,7 +1,7 @@
 # NattyDB.js
 A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto's Ajax. 
 
-## Install
+## 加载
 
 先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
 
@@ -11,14 +11,14 @@ A natty little data fetching tool for react project that no longer needs to use 
 $ npm install natty-db rsvp --save
 ```
 
-#### 版本说明
+### 版本说明
 
 NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件路径为：
 
 * H5版本：node_modules/dist/natty-db.min.js
 * PC版本：node_modules/dist/natty-db.pc.min.js (文件名中加上了`.pc`)
 
-#### 引入方式(一)：直接使用`script`标签
+### 使用`script`标签引入
 
 RSVP + H5版NattyDB
 
@@ -34,11 +34,11 @@ RSVP + PC版NattyDB
 <script type="text/javascript" src="./node_modules/natty-db/dist/natty-db.pc.min.js"></script>
 ```
 
-#### 引入方式(二)：模块化的开发方式
+### 以模块化的方式引入
 
 > 此处的文档，是假设了项目中使用Webpack作为模块管理工具。
 
-##### 配置`RSVP`依赖
+#### 配置`RSVP`依赖
 
 如果以模块方式(非`script`标签方式)加载RSVP依赖，需要在Webpack配置中使用[ProvidePlugin](http://webpack.github.io/docs/list-of-plugins.html#provideplugin)插件将全局RSVP变量引用转换为`require('rsvp')`模块引用。
 
@@ -50,7 +50,7 @@ plugins: [
 ]
 ```
 
-##### 引入H5版NattyDB
+#### 引入H5版NattyDB
 
 在NattyDB模块的`package.json`中配置的默认版本就是H5版本，文件路径为：`dist/natty-db.min.js`。
 
@@ -58,7 +58,7 @@ plugins: [
 $ let NattyDB = require('natty-db');
 ```
 
-##### 引入PC版NattyDB
+#### 引入PC版NattyDB
 
 如果项目需要同时兼容移动端和PC端(目前NattyDB支持到`IE8+`)，需要在Webpack中配置[resolve.alias](http://webpack.github.io/docs/configuration.html#resolve-alias)，将NattyDB指向PC版，引用方式保持和H5版本一样。
 
@@ -72,19 +72,46 @@ resolve: {
 }
 ```
 
-## Setting Levels
+## 约定
+
+#### 数据结构
+
+NattyDB内部接受的数据结构约定如下：
+
+```js
+{
+    "success": true,
+    "content": {},
+    "error": {
+        "code": "100",
+        "message": "error string"
+    }
+}
+```
+
+说明：
+
+* [强制] 以`success`键值表示返回的数据是否有错误，以布尔值表示。
+  - [强制] 当值为`true`时，返回的数据中必须包含`content`内容。
+  - [强制] 当值为`false`时，返回的数据中必须包含`error`内容。
+* [强制] 以`content`键值表示数据正确时的数据内容。格式**必须**是一个对象。
+* [强制] 以`error`键值表示数据有错误时的错误信息，格式**必须**是一个对象。
+  - [建议] 错误信息中建议使用`code`，`message`等非缩写单词。
+
+
+## 配置层级
 
 NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
 
-##### 全局配置
+#### 全局配置
 
 
 
-##### 上下文配置
+#### 上下文配置
 
-##### 接口配置
+#### 接口配置
 
-## Usage
+## 使用
 
 #### 第一步：定义数据接口
 
@@ -162,7 +189,7 @@ DB.User.getPhone({
 
 ```
 
-## Develop
+## 开发(Develop)
 
 启动数据端服务器，用于测试返回的数据。
 
@@ -176,11 +203,97 @@ $ npm run server
 $ npm start
 ```
 
-## Important References
+## 参考文档(Important References)
 
 * [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
 * [Browser support for CORS](http://enable-cors.org/client.html)
 * [XDomainRequest on MSDN](https://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx)
+
+## 常见问答
+
+#### Q：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
+
+A：假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
+
+```js
+// A系统的数据结构
+{
+    "success": true,
+    "data": {...},
+    ...
+}
+
+// B系统的数据结构
+{
+    "hasError": false,
+    "content": {...},
+    ...
+}
+```
+
+针对上面的两种数据结构，在NattyDB中可以有两种方案可以选择：
+
+一：如果项目中对`A`和`B`两个系统的依赖有主次之分，比如以`A`系统为主，则可以把针对`A`系统的数据结构适配作为全局配置。然后用一个新的数据上下文(Context)配置`B`系统的数据结构。如：
+
+```js
+let NattyDB = require('natty-db');
+
+// 把A系统的配置作为全局配置
+NattyDB.setGlobal({
+    fit: function (response) {
+        return {
+            success: response.success,
+            content: response.data, // 适配点
+            ...
+        };
+    }
+});
+
+// 在新的DB上下文中配置适用于B系统的fit函数
+let systemBContext = new NattyDB.Context({
+    fit: function () {
+        return {
+            success: !response.hasError, // 适配点
+            content: response.content,
+            ...
+        };
+    }
+});
+// 使用B系统的上下文创建DB
+systemBContext.create('Boo', {...});
+
+// 只要其他的DB上下文没有配置fit函数，则该DB上下文的数据适配方式就会使用全局(即A系统)的
+let otherContext = new NattyDB.Context();
+otherContext.create('Foo', {...});
+
+```
+
+二：如果`A`和`B`两个系统分不出主次，那建议直接为两个系统分别创建各自的DB上下文，代码如下：
+
+```js
+// 适用于A系统的DB上下文
+let systemAContext = new NattyDB.Context({
+    fit: function () {
+        return {
+            success: response.success, // 适配点
+            content: response.data,
+            ...
+        };
+    }
+});
+
+// 适用于B系统的DB上下文
+let systemBContext = new NattyDB.Context({
+    fit: function () {
+        return {
+            success: !response.hasError, // 适配点
+            content: response.content,
+            ...
+        };
+    }
+});
+
+```
 
 ## Credits
 
