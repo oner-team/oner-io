@@ -72,9 +72,17 @@ resolve: {
 }
 ```
 
+## Setting Levels
+
+NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
+
+##### 全局配置
 
 
 
+##### 上下文配置
+
+##### 接口配置
 
 ## Usage
 
