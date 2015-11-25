@@ -569,11 +569,7 @@ class Context {
 let VERSION;
 __BUILD_VERSION__
 
-// `NattyDB`本身就是一个内置的`DB Context`
-// 这样简单的项目直接使用`NattyDB.create`即可
-let NattyDB = new Context(defaultGlobalConfig);
-
-extend(NattyDB, {
+let NattyDB = {
     onlyForHTML5: TRUE,
     version: VERSION,
     Context,
@@ -595,6 +591,9 @@ extend(NattyDB, {
     getGlobal(property) {
         return property ? runtimeGlobalConfig[property] : runtimeGlobalConfig;
     }
-});
+};
+
+// 内部直接将运行时的全局配置初始化到默认值
+NattyDB.setGlobal(defaultGlobalConfig);
 
 module.exports = NattyDB;
