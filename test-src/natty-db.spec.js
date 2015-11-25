@@ -20,6 +20,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
     });
 
+    describe('NattyDB is a special Context', function () {
+        it('NattyDB is an instance of NattyDB.Context', function () {
+            expect(NattyDB instanceof NattyDB.Context).to.be(true);
+        });
+    })
+
     describe('global setting',function() {
         let defaultGlobalConfig = NattyDB.getGlobal();
         let defaultGlobalConfigProperties = [

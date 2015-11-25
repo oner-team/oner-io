@@ -44,7 +44,7 @@ const defaultGlobalConfig = {
     // 预处理回调
     fit: noop,
 
-    // 自定义header, 只针对ajax有效
+    // 自定义header, 只针对非跨域的ajax有效, 跨域时将忽略自定义header
     header: {},
 
     // 是否忽律自身的并发请求
@@ -87,7 +87,7 @@ const defaultGlobalConfig = {
     urlPrefix: EMPTY
 };
 
-let runtimeGlobalConfig = {};
+let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
 
 class DB {
     // TODO 检查参数合法性
@@ -569,7 +569,11 @@ class Context {
 let VERSION;
 __BUILD_VERSION__
 
-let NattyDB = {
+// `NattyDB`本身就是一个内置的`DB Context`
+// 这样简单的项目直接使用`NattyDB.create`即可
+let NattyDB = new Context(defaultGlobalConfig);
+
+extend(NattyDB, {
     onlyForHTML5: FALSE,
     version: VERSION,
     Context,
@@ -591,9 +595,6 @@ let NattyDB = {
     getGlobal(property) {
         return property ? runtimeGlobalConfig[property] : runtimeGlobalConfig;
     }
-};
-
-// 内部直接将运行时的全局配置初始化到默认值
-NattyDB.setGlobal(defaultGlobalConfig);
+});
 
 module.exports = NattyDB;
