@@ -100,39 +100,59 @@ NattyDB内部接受的数据结构约定如下：
 
 NattyDB中约定的语义化，是指一个数据接口在业务场景下被调用时，应该更贴近自然语言，让人一眼即懂。具体的约定表现为DB和API的**关联性设计约定**和**命名约定**：
 
-关联性设计：
+关联性设计
 
 假设有一些相互关联的数据接口，它们有共同的宿主(主语)或行为目标(宾语)，那这里的宿主或目标就可以被设计成一个DB，而这些接口就是这个DB下的一套API。
 
 > DB和API的关系，可以用一句话概括："一个DB是由若干个API所构成的对象"。
 
-简单举例，假设项目需要新增两个接口，"获取用户手机号" 和 "获取用户花名"。很明显，这两个接口所请求的内容有共同的宿主—"用户"，DB的命名已有选择。而"获取手机号" 和 "获取花名"就是这个DB的两个具体的接口，即API。代码如下：
+命名约定
 
-定义场景：
+* DB的命名必须使用名词词性。
+* API的命名必须使用动词词性或动宾短语。
+
+简单举例
+
+假设项目需要新增两个接口，"获取用户手机号" 和 "获取用户花名"。很明显，这两个接口所请求的内容有共同的宿主—"用户"，DB的命名已有选择。而"获取手机号" 和 "获取花名"就是这个DB的两个具体的接口，即API。
+
+定义场景：假设文件名是`db.js`
 
 ```js
 let NattyDB = require('natty-db');
-NattyDB.create('User', {
+// 上下文的概念下文会详细讲，这里只知道所有DB都有上下文即可。
+let DBContext = new NattyDB.Context({...});
+// 定义DB
+DBContext.create('User', {
   getPhone: {...},
   getNickName: {...}
 });
-module.exports = Natt
+module.exports = DBContext;
 ```
 
 使用场景：
 
 ```js
-NattyDB.create('User', {
-  getPhone: {...},
-  getNickName: {...}
+// 引用上面定义的模块
+let DB = require('path/to/db');
+
+// 请求用户手机号
+DB.User.getPhone({...}).then(function (data) {
+  // 成功
+}, function (error) {
+  // 失败
+});
+
+// 请求用户花名
+DB.User.getNickName({...}).then(function (data) {
+  // 成功
+}, function (error) {
+  // 失败
 });
 ```
 
+从上面的代码可以看出，如果严格根据语义化的约定来命名DB和API，那么一次数据请求的代码中是不会出现`ajax`，`jsonp`，`fetch`等具体的底层技术关键字的。
 
-命名约定：
 
-* DB的命名必须使用名词词性。
-* API的命名必须使用动词词性或动宾短语。
 
 ## 配置层级
 
