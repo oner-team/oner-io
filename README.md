@@ -1,7 +1,7 @@
 # NattyDB.js
 A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto's Ajax. 
 
-## 加载
+## 安装
 
 先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
 
@@ -74,7 +74,7 @@ resolve: {
 
 ## 约定
 
-#### 数据结构
+#### 数据结构约定
 
 NattyDB内部接受的数据结构约定如下：
 
@@ -96,7 +96,8 @@ NattyDB内部接受的数据结构约定如下：
 
 > 在NattyDB内部，严格按照上面约定的结构处理数据。项目中可以通过适配函数`fit`将数据结构方便地转换成约定的格式。`fit`函数的使用详见下文。
 
-#### 语义化
+
+#### 语义化约定
 
 NattyDB中约定的语义化，是指一个数据接口在业务场景下被调用时，应该更贴近自然语言，让人一眼即懂。语义化的具体约定表现针对DB和API的命名约定。
 
@@ -109,7 +110,7 @@ NattyDB中约定的语义化，是指一个数据接口在业务场景下被调�
 * DB的命名必须使用名词词性。
 * API的命名必须使用动词词性或动宾短语。
 
-命名目标，即调用场景是怎样的。
+命名目标，即调用场景是怎样用的。
 
 ```js
 // 指定的DB.主语.谓语({参数})
@@ -120,7 +121,7 @@ DB.User.getPhone({...}).then(...);
 
 简单举例
 
-假设项目需要新增两个接口，"获取用户手机号" 和 "获取用户花名"。很明显，这两个接口所请求的内容有共同的宿主—"用户"，DB的命名已有选择。而"获取手机号" 和 "获取花名"就是这个DB的两个具体的接口，即API。
+假设项目需要新增两个接口，"获取用户手机号" 和 "获取用户花名"。很明显，这两个接口所请求的内容有共同的宿主—"用户"，即DB的命名已有选择。而"获取手机号" 和 "获取花名"就是这个DB的两个具体的接口，即API。
 
 定义场景：假设文件名是`db.js`
 
@@ -136,7 +137,7 @@ DBContext.create('User', {
 module.exports = DBContext;
 ```
 
-使用场景：
+使用场景：通常位于业务逻辑的代码中
 
 ```js
 // 引用上面定义的模块
@@ -157,7 +158,7 @@ DB.User.getNickName({...}).then(function (data) {
 });
 ```
 
-从上面的代码可以看出，如果严格根据语义化的约定来命名DB和API，那么一次数据请求的代码中是不会出现`ajax`，`jsonp`，`fetch`等具体的底层技术关键字的。
+从上面的代码可以看出，如果严格根据语义化的约定来命名DB和API，那么一次数据请求的代码中是不会出现`ajax`，`jsonp`，`fetch`等具体的底层技术关键字的，在业务场景中，尽可能少的关注数据接口的底层技术实现。这样，假设底层技术升级了，对应地修改定义部分的代码即可，使用场景的语义并没有被破坏。
 
 
 
@@ -273,9 +274,9 @@ $ npm start
 
 ## 常见问答
 
-#### Q：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
+##### 问：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
 
-A：假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
+答：假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
 
 ```js
 // A系统的数据结构
@@ -302,6 +303,7 @@ let NattyDB = require('natty-db');
 
 // 把A系统的配置作为全局配置
 NattyDB.setGlobal({
+    // A系统的数据结构适配函数
     fit: function (response) {
         return {
             success: response.success,
@@ -311,8 +313,13 @@ NattyDB.setGlobal({
     }
 });
 
-// 在新的DB上下文中配置适用于B系统的fit函数
+// 如果创建新的DB上下文时没有配置fit函数，则会继承全局(即A系统)的
+let systemAContext = new NattyDB.Context();
+systemAContext.create('Foo', {...});
+
+// 创建适用于B系统的DB上下文
 let systemBContext = new NattyDB.Context({
+    // B系统的数据结构适配函数
     fit: function () {
         return {
             success: !response.hasError, // 适配点
@@ -324,21 +331,20 @@ let systemBContext = new NattyDB.Context({
 // 使用B系统的上下文创建DB
 systemBContext.create('Boo', {...});
 
-// 只要其他的DB上下文没有配置fit函数，则该DB上下文的数据适配方式就会使用全局(即A系统)的
-let otherContext = new NattyDB.Context();
-otherContext.create('Foo', {...});
-
+module.exports = {systemAContext, systemBContext};
 ```
 
 二：如果`A`和`B`两个系统分不出主次，那建议直接为两个系统分别创建各自的DB上下文，代码如下：
 
 ```js
+let NattyDB = require('natty-db');
+
 // 适用于A系统的DB上下文
 let systemAContext = new NattyDB.Context({
     fit: function () {
         return {
-            success: response.success, // 适配点
-            content: response.data,
+            success: response.success, 
+            content: response.data, // 适配点
             ...
         };
     }
@@ -355,7 +361,66 @@ let systemBContext = new NattyDB.Context({
     }
 });
 
+module.exports = {systemAContext, systemBContext};
 ```
+
+##### 问：当前项目是大型项目，一个DB上下文中包含的DB数量有很多，可以拆分成多个模块吗，拆分后又如何共享全局配置的？
+
+答：在设计NattyDB的时候就已经考虑了大型项目，一个数据模块的粒度，即可以是单个DB上下文，也可以是多个DB上下文，甚至可以是单个DB(如果这个DB太多接口)。至于拆分成多个模块以后如何共享全局配置，这个就是模块化编程的常(经)见(典)问题了。下面的代码仅供参考，不属于NattyDB本身的文档。
+
+方式一：将NattyDB模块设置为全局变(对)量(象)共享。(如果不想引入全局变量，请直接看方式二)
+
+```js
+// 将NattyDB挂载到全局
+let NattyDB = window.NattyDB = require('natty-db');
+
+// 设置全局配置
+NattyDB.setGlobal({...});
+```
+
+
+
+其他的数据模块都直接使用全局NattyDB变(对)量(象)
+
+```js
+let FooContext = new NattyDB.Context();
+FooContext.create('Foo', {...});
+module.exports = {FooContext};
+```
+
+方式二：为项目添加一个DB模块总入口，然后将NattyDB模块传入各个子级的DB模块。
+
+DB模块总入口代码：`DB.js`
+
+```js
+let NattyDB = require('natty-db');
+// 将NattyDB共享到子级模块中
+let FooDBContext = require('./FooDBContext').init(NattyDB);
+// DB上下文也可以共享到子级模块中
+let HooDB = require('./HooDB').init(FooDBContext);
+module.exports = {FooDBContext}
+```
+
+`FooDBContext.js`中的代码，返回一个DB上下文
+
+```js
+module.exports = function init(NattyDB) {
+    let FooDBContext = new NattyDB.Context({...});
+    FooDBContext.create('Foo', {...});
+    return FooDBContext;
+};
+```
+
+`HooDB.js`中的代码，返回一个DB
+
+```js
+module.exports = function init(DBContext) {
+    DBContext.create('Foo', {...});
+    return DBContext;
+};
+```
+
+
 
 ## Credits
 
