@@ -72,7 +72,106 @@ resolve: {
 }
 ```
 
-## 约定
+## 名字解释
+
+#### DB模块
+
+doing...
+
+#### DB上下文
+
+doing...
+
+#### DB
+
+doing...
+
+#### API
+
+doing...
+
+## 使用流程总览
+
+这一节先总览一下使用NattyDB的完整流程，代码中和代码后的注释说明是重点。
+
+第一步，创建DB模块(如：`DB.js`)，内容大致如下，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
+
+```js
+// 引入`NattyDB`
+const NattyDB = request('natty-db');
+
+// 创建一个`DB上下文`，用于多个`DB`共享配置。
+let DBContext = new NattyDB.Context({...});
+
+// 使用`DB上下文`创建一个`DB`，同时指定该`DB`所具有的`API`。
+DBContext.create('User', {
+    getPhone: {...},
+    getNickName: {...}
+});
+
+// 创建更多`DB`
+DBContext.create('Order', {
+    create: {...},
+    close: {...}
+});
+
+// 创建更多`DB上下文`
+let DBContext2 = new NattyDB.Context({...});
+
+// 省略的代码
+
+// 输出`DB上下文`
+module.exports = {DBContext, DBContext2};
+```
+
+特别注意，一个DB模块的输出值，永远是一个或多个DB上下文对象，这是NattyDB的一个使用约定。
+
+第二步，在业务场景中使用DB模块
+
+```js
+// 引入上面创建的`DB`模块
+const {DB, DB2} = require('path/to/DB');
+
+// 调用一个DB的具体的API
+DB.User.getPhone({
+    // 动态参数
+}).then(function (data) {
+    // 成功回调
+}, function (error) {
+    // 失败回调
+});
+
+// 调用一个DB的具体的API
+DB.Order.create({
+    // 动态参数
+}).then(function (data) {
+    // 成功回调
+}, function (error) {
+    // 失败回调
+});
+
+// 省略的DB2的代码
+```
+
+特别注意，在上面的代码中，接收DB模块的输出值时，用的变量是`DB`和`DB2`，而不是`DBContext`和`DBContext2`，因为对于业务模块来说，根本不需要关注DB模块的内部实现层级，DB上下文的概念只存在于DB模块内部，一旦输出到业务模块中，都是等待调用的数据集合的含义。
+
+## 配置层级
+
+NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
+
+#### 全局配置
+
+doing...
+
+#### 上下文配置
+
+doing...
+
+#### 接口配置
+
+doing...
+
+## 编码约定
 
 #### 数据结构约定
 
@@ -86,7 +185,7 @@ NattyDB内部接受的数据结构约定如下：
 }
 ```
 
-说明：下面所有的约定都是强制的。
+说明：
 
 * 以`success`键值表示返回的数据是否有错误，以布尔值表示。
   - 当值为`true`时，返回的数据中必须包含`content`对象。
@@ -160,97 +259,9 @@ DB.User.getNickName({...}).then(function (data) {
 
 从上面的代码可以看出，如果严格根据语义化的约定来命名DB和API，那么一次数据请求的代码中是不会出现`ajax`，`jsonp`，`fetch`等具体的底层技术关键字的，在业务场景中，尽可能少的关注数据接口的底层技术实现。这样，假设底层技术升级了，对应地修改定义部分的代码即可，使用场景的语义并没有被破坏。
 
+#### DB模块设计约定
 
-
-## 配置层级
-
-NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
-
-#### 全局配置
-
-
-
-#### 上下文配置
-
-#### 接口配置
-
-## 使用
-
-#### 第一步：定义数据接口
-
-创建项目或模块的`db`文件。如`db.js`
-
-```js
-// 引入`natty-db`模块
-const NattyDB = request('natty-db');
-
-// 创建一个`DB上下文(DB-Context)`，用于多个`DB`共享默认配置。
-let DBC = new NattyDB.Context({
-     urlPrefix: 'your-url-prefix',
-     mock: false,
-     data: {
-         token: 'your-token'
-     },
-     timeout: 5000,
-     // 数据格式预处理
-     fix: function(resp) {
-         return {
-             success: !resp.hasError,
-             content: resp.content,
-             error: resp.error
-         }
-     } 
-});
-
-// 在一个DB上下文中创建一个`DB`，同时指定该`DB`所具有的方法。
-DBC.create('User', {
-    getPhone: {
-        url: 'xxx',
-        method: 'GET', // GET|POST
-        data: {}, // 静态参数
-        header: {}, // 非jsonp时才生效
-        timeout: 5000, // 如果超时了，会触发error
-        jsonp: false, // true
-        jsonp: [true, 'cb', 'j{id}'], // 自定义的jsonp        fit: fn,
-        process: fn, 
-        once: false,
-        retry: 0,
-        ignoreSelfConcurrent: true
-    },
-    ...
-});
-
-// 创建更多`DB`
-DBC.create('Order', {...});
-
-// 返回DB上下文，供业务逻辑调用
-module.exports = DBC;
-```
-
-#### 第二步：使用数据接口
-
-```js
-// 引入`db`文件
-const DB = require('path/to/db');
-
-DB.User.getPhone({
-    // 动态参数
-}).then(function (data) {
-    // 成功回调，`data`是`process`处理后的数据
-}, function (error) {
-    // 失败回调
-    if (error.status == 404) {} // ajax方法才有error.status
-    if (error.status == 500) {} // ajax方法才有error.status
-    if (error.status == 0)      // ajax方法才有error.status 0表示不确定的错误 可能是跨域时使用了非法Header
-    if (error.timeout) {
-        console.log(error.message)
-    }
-
-    // 服务器端返回的约定错误，以具体项目而定
-    if (error.code == 10001) {}
-});
-
-```
+doing...
 
 ## 开发(Develop)
 
@@ -266,17 +277,11 @@ $ npm run server
 $ npm start
 ```
 
-## 参考文档(Important References)
-
-* [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
-* [Browser support for CORS](http://enable-cors.org/client.html)
-* [XDomainRequest on MSDN](https://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx)
-
 ## 常见问答
 
-##### 问：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
+#### Q：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
 
-答：假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
+假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
 
 ```js
 // A系统的数据结构
@@ -364,9 +369,9 @@ let systemBContext = new NattyDB.Context({
 module.exports = {systemAContext, systemBContext};
 ```
 
-##### 问：当前项目是大型项目，一个DB上下文中包含的DB数量有很多，可以拆分成多个模块吗，拆分后又如何共享全局配置的？
+#### Q：当前项目是大型项目，一个DB上下文中包含的DB数量有很多，可以拆分成多个模块吗，拆分后又如何共享全局配置的？
 
-答：在设计NattyDB的时候就已经考虑了大型项目，一个数据模块的粒度，即可以是单个DB上下文，也可以是多个DB上下文，甚至可以是单个DB(如果这个DB太多接口)。至于拆分成多个模块以后如何共享全局配置，这个就是模块化编程的常(经)见(典)问题了。下面的代码仅供参考，不属于NattyDB本身的文档。
+在设计NattyDB的时候就已经考虑了大型项目，一个数据模块的粒度，即可以是单个DB上下文，也可以是多个DB上下文，甚至可以是单个DB(如果这个DB太多接口)。至于拆分成多个模块以后如何共享全局配置，这个就是模块化编程的常(经)见(典)问题了。下面的代码仅供参考，不属于NattyDB本身的文档。
 
 方式一：将NattyDB模块设置为全局变(对)量(象)共享。(如果不想引入全局变量，请直接看方式二)
 
@@ -377,8 +382,6 @@ let NattyDB = window.NattyDB = require('natty-db');
 // 设置全局配置
 NattyDB.setGlobal({...});
 ```
-
-
 
 其他的数据模块都直接使用全局NattyDB变(对)量(象)
 
@@ -401,7 +404,7 @@ let HooDB = require('./HooDB').init(FooDBContext);
 module.exports = {FooDBContext}
 ```
 
-`FooDBContext.js`中的代码，返回一个DB上下文
+`FooDBContext.js`中的代码
 
 ```js
 module.exports = function init(NattyDB) {
@@ -411,7 +414,7 @@ module.exports = function init(NattyDB) {
 };
 ```
 
-`HooDB.js`中的代码，返回一个DB
+`HooDB.js`中的代码
 
 ```js
 module.exports = function init(DBContext) {
@@ -420,7 +423,15 @@ module.exports = function init(DBContext) {
 };
 ```
 
+## Important References
 
+* [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
+* [Browser support for CORS](http://enable-cors.org/client.html)
+* [XDomainRequest on MSDN](https://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx)
+
+## Issues
+
+[https://github.com/Jias/natty-db/issues](https://github.com/Jias/natty-db/issues)
 
 ## Credits
 
