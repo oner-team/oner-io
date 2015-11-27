@@ -12,7 +12,11 @@ const {
 } = util;
 
 RSVP.on('error', function(reason) {
-    //console.warn('rsvp error:', reason);
+    if (window.console) {
+        console.error(reason);
+    } else {
+        throw new Error(reason);
+    }
 });
 
 const EMPTY = '';

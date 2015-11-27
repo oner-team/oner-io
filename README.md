@@ -31,6 +31,11 @@ RSVP + H5版NattyDB
 RSVP + PC版NattyDB
 
 ```html
+<!--[if lt IE 10]>
+<script type="text/javascript" src="./node_modules/es5-shim/es5-shim.min.js"></script>
+<script type="text/javascript" src="./node_modules/es5-shim/es5-sham.min.js"></script>
+<script type="text/javascript" src="./test-src/json2.js"></script>
+<![endif]-->
 <script type="text/javascript" src="./node_modules/rsvp/dist/rsvp.min.js"></script>
 <script type="text/javascript" src="./node_modules/natty-db/dist/natty-db.pc.min.js"></script>
 ```
