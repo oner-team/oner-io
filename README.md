@@ -14,10 +14,10 @@ $ npm install natty-db rsvp --save
 
 ### 版本说明
 
-NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件路径为：
+NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件名为：
 
-* H5版本：node_modules/dist/natty-db.min.js
-* PC版本：node_modules/dist/natty-db.pc.min.js (文件名中加上了`.pc`)
+* H5版本：natty-db.js，natty-db.min.js
+* PC版本：natty-db.pc.min.js，natty-db.pc.min.js (文件名中加上了`.pc`)
 
 ### 使用`script`标签引入
 
@@ -401,6 +401,11 @@ $ npm run server
 ```bash
 $ npm start
 ```
+
+## 兼容性
+
+* H5版本：iPhone4+、Android？(还没找到底线)
+* PC版本：IE8+、Edge、Chrome、Safari、Firefox
 
 ## 常见问答
 
