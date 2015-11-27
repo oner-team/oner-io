@@ -1,5 +1,6 @@
 # NattyDB.js
-A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto's Ajax. 
+
+A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
 ## 安装
 
@@ -72,24 +73,6 @@ resolve: {
 }
 ```
 
-## 名字解释
-
-#### DB模块
-
-doing...
-
-#### DB上下文
-
-doing...
-
-#### DB
-
-doing...
-
-#### API
-
-doing...
-
 ## 使用流程总览
 
 这一节先总览一下使用NattyDB的完整流程，代码中和代码后的注释说明是重点。
@@ -155,21 +138,163 @@ DB.Order.create({
 
 特别注意，在上面的代码中，接收DB模块的输出值时，用的变量是`DB`和`DB2`，而不是`DBContext`和`DBContext2`，因为对于业务模块来说，根本不需要关注DB模块的内部实现层级，DB上下文的概念只存在于DB模块内部，一旦输出到业务模块中，都是等待调用的数据集合的含义。
 
-## 配置层级
+## 配置
+
+#### 配置层级
 
 NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
 
-#### 全局配置
+##### 全局配置
 
-doing...
+操作NattyDB最顶配置有两个方法：`setGlobal` 和 `getGlobal`
 
-#### 上下文配置
+```js
+// 设置
+NattyDB.setGlobal({/*全局配置*/});
+// 获取所有全局配置
+NattyDB.getGlobal();
+// 获取一项全局配置
+NattyDB.getGlobal('jsonp');
+```
 
-doing...
+##### 上下文配置
 
-#### 接口配置
+上下文配置就是一个DB上下文实例在初始化时的配置，即传入到NattyDB.Context类的参数。
 
-doing...
+```js
+let DBContext = new NattyDB.Context({/*上下文配置*/});
+```
+
+##### 接口配置
+
+一个DB上下文实例可以创建多个DB对象，一个DB对象是由多个接口构成的。接口配置就是用于描述单个DB接口的。
+
+```js
+DBContext.create('Order', {
+    create: {/*接口配置*/},
+    close: function () {
+        return {/*接口配置*/};
+    }
+});
+```
+
+#### 配置参数
+
+上面提到全局配置，上下文配置和接口配置，都可以传入以下参数。
+
+##### cache
+
+* 类型：Boolean
+* 默认：true
+
+是否允许(浏览器默认的)缓存，值为`true`时，会在请求的`url`中加入`noCache`参数，屏蔽浏览器的缓存机制。
+
+##### data
+
+* 类型：Object / Function
+* 默认：{}
+
+请求的默认参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，data参数用于定义该接口的固定参数。
+
+##### fit
+
+* 类型：Function
+* 默认：function (response) {return response}
+
+数据结构预处理函数
+
+##### header
+
+* 类型：Object
+* 默认：{}
+
+自定义ajax请求的header，所以只对ajax请求生效，当ajax请求跨域时，该配置将被忽略。
+
+##### ignoreSelfConcurrent
+
+* 类型：Boolean
+* 默认：false
+
+是否忽律接口自身的并发请求，即请求锁。
+
+##### jsonp
+
+* 类型：Boolean / Array
+* 默认：false
+* 示例：[true, 'cb', 'j{id}']
+
+请求方式是否使用jsonp，当值为true时，默认的url参数形如`?callback=jsonp3879494623`，如果需要自定义jsonp的url参数，可以通过数组参数配置。
+
+##### method
+
+* 类型：String
+* 默认：'GET'
+* 可选：'GET、POST'
+
+配置ajax的请求方式。
+
+##### mock
+
+* 类型：Boolean
+* 默认：false
+
+是否开启mock模式
+
+##### mockUrl
+
+* 类型：String
+* 默认：''(空字符串)
+
+mock模式开启时的请求地址
+
+##### mockUrlPrefix
+
+* 类型：String
+* 默认：''(空字符串)
+
+mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
+
+##### once
+
+* 类型：Boolean
+* 默认：false
+
+是否对请求的数据进行缓存，开启之后，第二次(及以后)请求该接口时，会直接使用缓存的数据触发回调。
+
+##### process
+
+* 类型：Function
+* 默认：function (data) {return data}
+
+请求成功时的数据处理函数，该函数接收到的参数是下文的"数据结构约定"中`content`的值。
+
+##### retry
+
+* 类型：Number
+* 默认：0
+
+在请求失败(网络错误，超时，success为false等)时是否进行请求重试。
+
+##### timeout
+
+* 类型：Number
+* 默认：0
+
+超时时间，0表示不启动超时处理。
+
+##### url
+
+* 类型：String
+* 默认：''(空字符串)
+
+请求地址
+
+##### urlPrefix
+
+* 类型：String
+* 默认：''(空字符串)
+
+请求地址前缀，如果url的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
 
 ## 编码约定
 
@@ -261,7 +386,7 @@ DB.User.getNickName({...}).then(function (data) {
 
 #### DB模块设计约定
 
-doing...
+其实在上文的"使用流程总览"一节中已经有过说明
 
 ## 开发(Develop)
 

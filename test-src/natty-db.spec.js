@@ -269,9 +269,9 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
     describe('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        NattyDB.setGlobal({
-            cache: false
-        });
+        //NattyDB.setGlobal({
+        //    cache: false
+        //});
 
         this.timeout(1000*60);
         let DBC;
@@ -583,9 +583,9 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        NattyDB.setGlobal({
-            cache: false
-        });
+        //NattyDB.setGlobal({
+        //    cache: false
+        //});
 
         this.timeout(1000*60);
         let DBC;

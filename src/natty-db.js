@@ -36,7 +36,7 @@ dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
 const defaultGlobalConfig = {
 
     // 是否缓存
-    cache: true,
+    cache: false,
 
     // 默认参数
     data: {},
@@ -47,7 +47,7 @@ const defaultGlobalConfig = {
     // 自定义header, 只针对非跨域的ajax有效, 跨域时将忽略自定义header
     header: {},
 
-    // 是否忽律自身的并发请求
+    // 是否忽律接口自身的并发请求
     ignoreSelfConcurrent: FALSE,
 
     // 有两种格式配置`jsonp`的值

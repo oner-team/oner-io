@@ -1,7 +1,7 @@
 {
   "name": "natty-db",
   "version": "0.2.1",
-  "description": "A natty little data fetching tool for react project that no longer needs to use jQuery/Zepto. ",
+  "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-db.git",
   "author": "gnosaij",
   "main": "dist/natty-db.min.js",
