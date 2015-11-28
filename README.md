@@ -4,14 +4,6 @@ A natty semantic data-fetching tool for project that no longer needs to use jQue
 
 ## 安装
 
-先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
-
-> RSVP小而美地实现了`Promise`的概念。
-
-```bash
-$ npm install natty-db rsvp --save
-```
-
 ### 版本说明
 
 NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件名为：
@@ -24,29 +16,36 @@ NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。
 RSVP + H5版NattyDB
 
 ```html
-<script src="./node_modules/rsvp/dist/rsvp.min.js"></script>
-<script src="./node_modules/natty-db/dist/natty-db.min.js"></script>
+<script src="path/to/rsvp.min.js"></script>
+<script src="path/to/natty-db.min.js"></script>
 ```
 
 RSVP + PC版NattyDB
 
 ```html
 <!--[if lt IE 10]>
-<script type="text/javascript" src="./node_modules/es5-shim/es5-shim.min.js"></script>
-<script type="text/javascript" src="./node_modules/es5-shim/es5-sham.min.js"></script>
-<script type="text/javascript" src="./test-src/json2.js"></script>
+<script type="text/javascript" src="path/to/es5-shim.min.js"></script>
+<script type="text/javascript" src="path/to/es5-sham.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="./node_modules/rsvp/dist/rsvp.min.js"></script>
-<script type="text/javascript" src="./node_modules/natty-db/dist/natty-db.pc.min.js"></script>
+<script type="text/javascript" src="path/to/rsvp.min.js"></script>
+<script type="text/javascript" src="path/to/natty-db.pc.min.js"></script>
 ```
 
 ### 以模块化的方式引入
 
-> 此处的文档，是假设了项目中使用Webpack作为模块管理工具。
+先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
+
+> RSVP小而美地实现了`Promise`的概念，是NattyDB的唯一依赖。
+
+```bash
+$ npm install natty-db rsvp --save
+```
 
 #### 配置`RSVP`依赖
 
-如果以模块方式(非`script`标签方式)加载RSVP依赖，需要在Webpack配置中使用[ProvidePlugin](http://webpack.github.io/docs/list-of-plugins.html#provideplugin)插件将全局RSVP变量引用转换为`require('rsvp')`模块引用。
+> 此处假设了项目中使用`Webpack`作为模块管理工具。
+
+如果以模块方式(非`script`标签方式)加载RSVP依赖，需要在`Webpack`配置中使用[ProvidePlugin](http://webpack.github.io/docs/list-of-plugins.html#provideplugin)插件将全局RSVP变量引用转换为`require('rsvp')`模块引用。
 
 ```js
 plugins: [
@@ -66,9 +65,11 @@ $ let NattyDB = require('natty-db');
 
 #### 引入PC版NattyDB
 
-如果项目需要同时兼容移动端和PC端(目前NattyDB支持到`IE8+`)，需要在Webpack中配置[resolve.alias](http://webpack.github.io/docs/configuration.html#resolve-alias)，将NattyDB指向PC版，引用方式保持和H5版本一样。
+> 此处假设了项目中使用`Webpack`作为模块管理工具。
 
-Webpack中的配置：
+如果项目需要同时兼容移动端和PC端(目前NattyDB支持到`IE8+`)，需要在`Webpack`中配置[resolve.alias](http://webpack.github.io/docs/configuration.html#resolve-alias)，将NattyDB指向PC版，引用方式保持和H5版本一样。
+
+`Webpack`中的配置：
 
 ```js
 resolve: {
@@ -78,7 +79,20 @@ resolve: {
 }
 ```
 
-## 使用流程总览
+### 对IE8/9的兼容，需要注意！
+
+如果项目需要兼容`IE8/9`，需要在html中引入`es5-shim`和`es5-sham`扩展。
+
+```html
+<!--[if lt IE 10]>
+<script type="text/javascript" src="path/to/es5-shim.min.js"></script>
+<script type="text/javascript" src="path/to/es5-sham.min.js"></script>
+<![endif]-->
+```
+
+> NattyDB最初是为了一个基于React的项目而开发的，所以使用了和项目一样的开发环境，即`ES6 + Webpack + Babel`组合，而经过`Babel`编译后的代码，如果想运行在`IE8/9`浏览上，就需要引入`es5-shim`和`es5-sham`扩展。
+
+## 使用总览
 
 这一节先总览一下使用NattyDB的完整流程，代码中和代码后的注释说明是重点。
 
@@ -305,6 +319,8 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 
 #### 数据结构约定
 
+请记住NattyDB在数据结构上的约定，当一个项目的服务端数据结构不一致的时候，比如需要对接多个系统(跨公司的系统，新老系统并存等)是时候，这里的约定就是将各种数据结构统一后的焦点。
+
 NattyDB内部接受的数据结构约定如下：
 
 ```js
@@ -323,7 +339,7 @@ NattyDB内部接受的数据结构约定如下：
 * 以`content`键值表示数据正确时的数据内容。格式**必须**是一个对象。
 * 以`error`键值表示数据有错误时的错误信息，格式**必须**是一个对象。
 
-> 在NattyDB内部，严格按照上面约定的结构处理数据。项目中可以通过适配函数`fit`将数据结构方便地转换成约定的格式。`fit`函数的使用详见下文。
+在NattyDB内部，严格按照上面约定的结构接收和处理数据。项目中可以通过适配函数`fit`将数据结构方便地转换成约定的格式。`fit`函数的使用详见下文。
 
 
 #### 语义化约定
