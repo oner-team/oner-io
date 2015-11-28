@@ -217,15 +217,12 @@ let ajax = function(options) {
     // `IE10+`和标准浏览器的`XMLHttpRequest`都原生支持跨域
     let xhr = new XMLHttpRequest();
 
-    let isFallback = FALSE;
-
     // `IE8/9`使用`XDomainRequest`来实现跨域, `IE10+`的`XMLHttpRequest`对象直接支持跨域
-    if (!('withCredentials' in xhr) && typeof XDomainRequest != UNDEFINED) {
+    if (fallback) {
         // NOTE `XDomainRequest`仅支持`GET`和`POST`两个方法
         // 支持的事件有: onerror, onload, onprogress, ontimeout, 注意没有`onloadend`
         // https://developer.mozilla.org/zh-CN/docs/Web/API/XDomainRequest
         xhr = new XDomainRequest();
-        isFallback = true;
     }
 
     // 再高级的浏览器都有低级错误! 已经不能在相信了!
@@ -241,7 +238,9 @@ let ajax = function(options) {
     // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
-    //xhr.withCredentials = isCrossDomain(options.url);
+    if (!fallback) {
+        xhr.withCredentials = isCrossDomain(options.url);
+    }
 
     // 设置requestHeader
     //setHeaders(xhr, options);

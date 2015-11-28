@@ -1,1 +1,1 @@
-exports.host = 'http://30.10.37.139:8001/';
+exports.host = 'http://10.22.22.126:8001/';

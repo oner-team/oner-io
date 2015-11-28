@@ -525,6 +525,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
             let Order = DBC.create('Order', {
                 create: {
+                    cache: false,
                     url: host + 'api/timeout', // 请求延迟返回的接口
                     ignoreSelfConcurrent: true
                 }

@@ -234,7 +234,20 @@ DBContext.create('Order', {
 * 类型：Boolean
 * 默认：false
 
-是否忽律接口自身的并发请求，即请求锁。
+是否忽略接口自身的并发请求，即是否开启请求锁。
+
+示例：假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在NattyDB中，只需要一个参数即可开启请求锁。
+
+```js
+DBContext.create('Order', {
+    create: {
+        url: 'api/createOrder',
+        // 开启请求锁 
+        // 该接口在服务端返回响应之前，如果再次被调用，将被忽略。
+        ignoreSelfConcurrent: true
+    }
+});
+```
 
 ##### jsonp
 
@@ -248,9 +261,11 @@ DBContext.create('Order', {
 
 * 类型：String
 * 默认：'GET'
-* 可选：'GET、POST'
+* 可选：'GET'、'POST'
 
 配置ajax的请求方式。
+
+> 如果浏览器是IE8/9，则NattyDB内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
 
 ##### mock
 
