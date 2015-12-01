@@ -538,11 +538,6 @@ class DB {
  *     // NOTE 关闭轮询的唯一方法就是stopLoop方法
  *     Driver.getDistance.stopLoop();
  *
- *     // 暂不支持
- *     NattyDB.addAccept('hbs', function(text){
- *         return Handlebars.compile(text);
- *     });
- *
  */
 class Context {
     /**

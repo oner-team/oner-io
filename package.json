@@ -22,7 +22,11 @@
     "post",
     "jsonp",
     "query",
-    "fetch"
+    "fetch",
+    "micro-ajax",
+    "standalone-ajax",
+    "micro-jsonp",
+    "standalone-jsonp"
   ],
   "dependencies": {
     "rsvp": "~3.1.0"
