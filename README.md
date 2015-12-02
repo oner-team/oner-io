@@ -424,6 +424,23 @@ DB.User.getNickName({...}).then(function (data) {
 
 其实在上文的"使用流程总览"一节中已经有过说明
 
+## 轮询请求
+
+
+
+```js
+// 开始轮询
+DB.Driver.getDistance.startLoop({
+  duration: 5000,
+  process: function (data) {
+    console.log(data);
+  }
+});
+
+// 结束轮询
+DB.Driver.getDistance.stopLoop();
+```
+
 ## 开发(Develop)
 
 启动数据端服务器，用于测试返回的数据。
