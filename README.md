@@ -426,12 +426,16 @@ DB.User.getNickName({...}).then(function (data) {
 
 ## 轮询请求
 
+创建轮询请求从来就没有这么简单过！
 
+> 注意：在轮询的过程中是不响应错误的。
 
 ```js
 // 开始轮询
 DB.Driver.getDistance.startLoop({
+  // 间隔时间
   duration: 5000,
+  // 成功的对调，参数是约定格式的`content`值
   process: function (data) {
     console.log(data);
   }
@@ -439,6 +443,9 @@ DB.Driver.getDistance.startLoop({
 
 // 结束轮询
 DB.Driver.getDistance.stopLoop();
+
+// 轮询状态
+DB.Driver.getDistance.looping; // true or false
 ```
 
 ## 开发(Develop)
