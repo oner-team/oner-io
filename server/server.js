@@ -17,6 +17,14 @@ app.all('/api/:test', function (req, res) {
     });
 
     switch (req.params.test) {
+        case 'once':
+            res.json({
+                success: true,
+                content: {
+                    phone: 1
+                }
+            });
+            break;
         // simple test
         case '500':
             res.status(500).json({error: '500'});

@@ -74,7 +74,7 @@ const defaultGlobalConfig = {
     mockUrlPrefix: EMPTY,
 
     // 是否缓存数据
-    once: FALSE,
+    //once: FALSE, // 有待进一步设计
 
     // 成功回调
     process: noop,
@@ -273,10 +273,12 @@ class DB {
 
         let defer = RSVP.defer();
 
-        if (config.once && t.cache[config.API]) {
-            defer.resolve(t.cache[config.API]);
-            config.pending = FALSE;
-        } else if (config.jsonp) {
+        //if (config.once && t.cache[config.API]) {
+        //    defer.resolve(t.cache[config.API]);
+        //    config.pending = FALSE;
+        //} else
+
+        if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
             //C.log('send ajax');
@@ -335,6 +337,8 @@ class DB {
      * @param defer
      */
     processResponse(config, response, defer) {
+        let t = this;
+
         // 非标准格式数据的预处理
         response = config.fit(response);
 
@@ -343,7 +347,7 @@ class DB {
             let responseData = config.process(response.content);
 
             // 记入缓存
-            config.once && (t.cache[config.API] = responseData);
+            //config.once && (t.cache[config.API] = responseData);
             defer.resolve(responseData);
         } else {
             // NOTE response是只读的对象!!!

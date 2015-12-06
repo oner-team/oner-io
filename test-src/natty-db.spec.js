@@ -33,7 +33,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             'mock',
             'mockUrl',
             'mockUrlPrefix',
-            'once',
+            //'once',
             'process',
             'retry',
             'timeout',
@@ -299,6 +299,35 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
         });
+
+        //it('once', function (done) {
+        //    let User = DBC.create('User', {
+        //        getPhone: {
+        //            url: 'api/once',
+        //            once: true
+        //        }
+        //    });
+        //
+        //    User.getPhone().then(function(data) {
+        //        try {
+        //            expect(data.phone).to.be(1);
+        //            done();
+        //        } catch(e) {
+        //            done(new Error(e.message));
+        //        }
+        //    });
+        //
+        //    setTimeout(function () {
+        //        User.getPhone().then(function(data) {
+        //            try {
+        //                expect(data.phone).to.be(1);
+        //                done();
+        //            } catch(e) {
+        //                done(new Error(e.message));
+        //            }
+        //        });
+        //    }, 1000);
+        //});
 
         it('play with non-standard data structure by `fit`', function (done) {
             let Order = DBC.create('Order', {
