@@ -154,7 +154,6 @@ class DB {
         if (config.mock) {
             config.data.m = '1';
         }
-
         config.data['__' + t.name + '.' + config.API + '()__'] = '';
 
         return config;

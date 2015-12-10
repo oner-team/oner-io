@@ -273,7 +273,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
     });
 
-    describe.only('ajax', function() {
+    describe('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
         //NattyDB.setGlobal({
         //    cache: false
@@ -289,26 +289,14 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it.skip('play with standard data structure', function (done) {
+        it('play with standard data structure', function (done) {
             let Order = DBC.create('Order', {
                 create: {
-                    url: 'api/order-create',
-                    method: 'POST'
-                },
-                close: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
             Order.create().then(function(data) {
-                try {
-                    expect(data.id).to.be(1);
-                    done();
-                } catch(e) {
-                    done(new Error(e.message));
-                }
-            });
-            Order.close().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();

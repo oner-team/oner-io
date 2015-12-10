@@ -119,7 +119,6 @@ class DB {
     processAPIOptions(options) {
 
         let t = this;
-
         let config = extend({}, t.context, options);
 
         // 标记是否正在等待请求返回
@@ -155,7 +154,7 @@ class DB {
         if (config.mock) {
             config.data.m = '1';
         }
-        //config.data['__' + t.name + '.' + config.API + '()__'] = '';
+        config.data['__' + t.name + '.' + config.API + '()__'] = '';
 
         return config;
     }
