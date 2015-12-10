@@ -19,6 +19,7 @@ RSVP.on('error', function(reason) {
     }
 });
 
+const NULL = null;
 const EMPTY = '';
 const TRUE = true;
 const FALSE = !TRUE;
@@ -88,7 +89,9 @@ const defaultGlobalConfig = {
     url: EMPTY,
 
     // 全局`url`前缀
-    urlPrefix: EMPTY
+    urlPrefix: EMPTY,
+
+    withCredentials: NULL
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
@@ -116,7 +119,6 @@ class DB {
     processAPIOptions(options) {
 
         let t = this;
-
         let config = extend({}, t.context, options);
 
         // 标记是否正在等待请求返回
@@ -132,13 +134,8 @@ class DB {
 
         config.url = t.getFullUrl(options.url);
 
-
-        if (isBoolean(options.jsonp)) {
-            config.jsonp = options.jsonp;
-        }
-
         // 按照[boolean, callbackKeyWord, callbackFunctionName]格式处理
-        else if (isArray(options.jsonp)) {
+        if (isArray(options.jsonp)) {
             config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
             // 这个参数只用于jsonp
             if (config.jsonp) {
@@ -149,15 +146,16 @@ class DB {
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
-        else {
-            config.jsonp = !!config.url.match(/\.jsonp(\?.*)?$/);
+        if (!!config.url.match(/\.jsonp(\?.*)?$/)) {
+            config.jsonp = true;
         }
 
 
         if (config.mock) {
             config.data.m = '1';
         }
-        //config.data['__' + t.name + '.' + config.API + '()__'] = '';
+
+        config.data['__' + t.name + '.' + config.API + '()__'] = '';
 
         return config;
     }
@@ -210,7 +208,7 @@ class DB {
         let loopTimer = null;
         api.looping = FALSE;
         // 开启轮询
-        api.startLoop = (options) => {
+        api.startLoop = (options, resolveFn = noop, rejectFn = noop) => {
             if (!options.duration || !isNumber(options.duration)) {
                 throw new Error('Illegal `duration` value for `startLoop` method.');
                 return api;
@@ -219,13 +217,13 @@ class DB {
             let sleepAndRequest = () => {
                 api.looping = TRUE;
                 loopTimer = setTimeout(() => {
-                    api(options.data).then(options.process, noop);
+                    api(options.data).then(resolveFn, rejectFn);
                     sleepAndRequest();
                 }, options.duration);
             };
 
             // NOTE 轮询过程中是不响应服务器端错误的 所以第二个参数是`noop`
-            api(options.data).then(options.process, noop);
+            api(options.data).then(resolveFn, rejectFn);
             sleepAndRequest();
         };
         // 停止轮询
@@ -375,7 +373,7 @@ class DB {
             method: config.method,
             data: data,
             header: config.header,
-
+            withCredentials: config.withCredentials,
             // 强制约定json
             accept: 'json',
             success(response/*, xhr*/) {
@@ -488,7 +486,7 @@ class DB {
  *             fit: fn,
  *             process: fn,
  *
- *             once: false,
+ *             // once: false,
  *             retry: 0,
  *             ignoreSelfConcurrent: true,
  *

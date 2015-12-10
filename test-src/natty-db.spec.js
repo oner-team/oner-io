@@ -107,6 +107,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         beforeEach('reset NattyDB context', function () {
             DBC = new NattyDB.Context({
                 urlPrefix: host,
+                jsonp: true,
                 mock: false
             });
         });
@@ -194,6 +195,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 pay: {
                     url: 'path'
                 },
+                transfer: {
+                    jsonp: false,
+                    url: 'path'
+                },
                 create: {
                     url: 'path.jsonp'
                 },
@@ -202,7 +207,8 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order.pay.config.jsonp).to.be(false);
+            expect(Order.pay.config.jsonp).to.be(true);
+            expect(Order.transfer.config.jsonp).to.be(false);
             expect(Order.create.config.jsonp).to.be(true);
             expect(Order.close.config.jsonp).to.be(true);
         });
@@ -267,7 +273,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
     });
 
-    describe('ajax', function() {
+    describe.only('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
         //NattyDB.setGlobal({
         //    cache: false
@@ -283,14 +289,26 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('play with standard data structure', function (done) {
+        it.skip('play with standard data structure', function (done) {
             let Order = DBC.create('Order', {
                 create: {
+                    url: 'api/order-create',
+                    method: 'POST'
+                },
+                close: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
             Order.create().then(function(data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+            Order.close().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -591,10 +609,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             // 开始轮询
             Taxi.getDriverNum.startLoop({
                 data: {},
-                duration: 200,
-                process: function(data) {
-                    time++;
-                }
+                duration: 200
+            }, function (data) {
+                // 成功回掉
+                time++;
+            }, function (error) {
+                // 失败回调
             });
 
             setTimeout(function () {
@@ -611,7 +631,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
 
-        describe('jsonp', function () {
+    describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
         //NattyDB.setGlobal({
         //    cache: false

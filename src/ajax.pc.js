@@ -7,7 +7,7 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-const {extend, appendQueryString, noop, isCrossDomain} = require('./util');
+const {extend, appendQueryString, noop, isCrossDomain, isBoolean} = require('./util');
 
 const doc = document;
 const FALSE = false;
@@ -67,7 +67,7 @@ let acceptToRequestHeader = {
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
-let setHeaders = function(xhr, options) {
+let setHeaders = (xhr, options) => {
     // 如果没有跨域 则打该标识 业界通用做法
     // TODO 如果是跨域的 只有有限的requestHeader是可以使用的 待补充注释
     if (!isCrossDomain(options.url)) {
@@ -87,7 +87,7 @@ let setHeaders = function(xhr, options) {
 };
 
 // 绑定事件
-let setEvents = function(xhr, options) {
+let setEvents = (xhr, options) => {
 
     let completeFn = function() {
         if (xhr.__completed) {
@@ -190,7 +190,7 @@ let defaultOptions = {
     accept: TEXT,
     data: null,
     header: {},
-    //withCredentials: false, 这个值由url是否跨域决定
+    withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
     cache: true,
     success: noop,
     error: noop,
@@ -199,7 +199,7 @@ let defaultOptions = {
     log: FALSE
 };
 
-let ajax = function(options) {
+let ajax = (options) => {
 
     options = extend({}, defaultOptions, options);
 
@@ -239,7 +239,7 @@ let ajax = function(options) {
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
     if (!fallback) {
-        xhr.withCredentials = isCrossDomain(options.url);
+        xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCrossDomain(options.url);
     }
 
     // 设置requestHeader

@@ -3,21 +3,6 @@ const doc = document;
 let noop = (v) => {
     return v;
 };
-/**
- * 对象扩展
- * @param  {Object} receiver
- * @param  {Object} supplier
- * @return {Object} 扩展后的receiver对象
- */
-let extend = (receiver = {}, supplier = {}) => {
-    for (let key in supplier) {
-        // `supplier`中不是未定义的键 都可以执行扩展
-        if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
-            receiver[key] = supplier[key];
-        }
-    }
-    return receiver;
-};
 
 /**
  * 变换两个参数的函数到多个参数
@@ -113,6 +98,29 @@ let isCrossDomain = (url) => {
     let requestA = doc.createElement('a');
     requestA.href = url;
     return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
+};
+
+/**
+ * 对象扩展
+ * @param  {Object} receiver
+ * @param  {Object} supplier
+ * @return {Object} 扩展后的receiver对象
+ * @note 这个extend方法是定制的, 不要拷贝到其他地方用!!!
+ */
+let extend = (receiver = {}, supplier = {}) => {
+    for (let key in supplier) {
+        // `supplier`中不是未定义的键 都可以执行扩展
+        if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
+            if (isArray(supplier[key])) {
+                receiver[key] = [].concat(supplier[key]);
+            } else if (typeof supplier[key] === 'object') {
+                receiver[key] = extend({}, supplier[key]);
+            } else {
+                receiver[key] = supplier[key];
+            }
+        }
+    }
+    return receiver;
 };
 
 module.exports = {

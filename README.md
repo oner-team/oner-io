@@ -137,7 +137,7 @@ const {DB, DB2} = require('path/to/DB');
 // 调用一个DB的具体的API
 DB.User.getPhone({
     // 动态参数
-}).then(function (data) {
+}).then(function (content) {
     // 成功回调
 }, function (error) {
     // 失败回调
@@ -146,7 +146,7 @@ DB.User.getPhone({
 // 调用一个DB的具体的API
 DB.Order.create({
     // 动态参数
-}).then(function (data) {
+}).then(function (content) {
     // 成功回调
 }, function (error) {
     // 失败回调
@@ -291,7 +291,7 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 ##### process
 
 * 类型：Function
-* 默认：function (data) {return data}
+* 默认：function (content) {return content}
 
 请求成功时的数据处理函数，该函数接收到的参数是下文的"数据结构约定"中`content`的值。
 
@@ -397,14 +397,14 @@ module.exports = DBContext;
 let DB = require('path/to/db');
 
 // 请求用户手机号
-DB.User.getPhone({...}).then(function (data) {
+DB.User.getPhone({...}).then(function (content) {
   // 成功
 }, function (error) {
   // 失败
 });
 
 // 请求用户花名
-DB.User.getNickName({...}).then(function (data) {
+DB.User.getNickName({...}).then(function (content) {
   // 成功
 }, function (error) {
   // 失败
@@ -421,17 +421,17 @@ DB.User.getNickName({...}).then(function (data) {
 
 创建轮询请求从来就没有这么简单过！
 
-> 注意：在轮询的过程中是不响应错误的。
-
 ```js
 // 开始轮询
 DB.Driver.getDistance.startLoop({
+  // 轮询使用的参数
+  data: {...},
   // 间隔时间
-  duration: 5000,
-  // 成功的对调，参数是约定格式的`content`值
-  process: function (data) {
-    console.log(data);
-  }
+  duration: 5000
+}, function (content) {
+  // 成功回调
+}, function (error) {
+  // 失败回调
 });
 
 // 结束轮询
