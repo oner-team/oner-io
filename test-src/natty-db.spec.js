@@ -38,7 +38,8 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             'retry',
             'timeout',
             'url',
-            'urlPrefix'
+            'urlPrefix',
+            'withCredentials'
         ];
 
         let resetNattyDBGlobalConfig = function () {
