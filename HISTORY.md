@@ -15,7 +15,31 @@ DBContext.create('Address', {
 
 #### 和已有的异步功能对接
 
-和其他的异步功能可以对接，如对接`Native`的地理位置接口。
+和已有的异步功能可以对接，如对接`Native`的地理位置接口。
+
+```js
+// 已有的异步功能：获取地理位置
+JSAPI.get('GPS'，function (data) {
+  // 成功
+}, function (error) {
+  // 失败
+});
+
+// 使用NattyDB对接
+DBContext.create('User', {
+  getGPS: {
+    promise: function (RSVP) {
+      let defer = RSVP.defer();
+      JSAPI.get('GPS'，function (data) {
+        defer.resolev(data);
+      }, function (error) {
+        defer.reject(error);
+      });
+      return defer.promise;
+    }
+  }
+});
+```
 
 ## History
 
