@@ -26,7 +26,7 @@ JSAPI.get('GPS'，function (data) {
 });
 
 // 使用NattyDB对接
-DBContext.create('User', {
+let User = DBContext.create('User', {
   getGPS: {
     promise: function (RSVP) {
       let defer = RSVP.defer();
@@ -38,6 +38,13 @@ DBContext.create('User', {
       return defer.promise;
     }
   }
+});
+
+// 使用场景
+User.getGPS().then(function (content) {
+  // 成功
+}, function (error) {
+  // 失败
 });
 ```
 
