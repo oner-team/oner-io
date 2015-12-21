@@ -247,6 +247,33 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.method6.config.url).to.be('../path');
             expect(Order.method7.config.url).to.be('/path');
         });
+
+        it.skip('`promise` config when success', function (done) {
+            let getPayId = (successFn) => {
+                setTimeout(function () {
+                    successFn({id: 1});
+                }, 500);
+            };
+
+            let Order = DBC.create('Order', {
+                getSign: {
+                    data: {
+                        a: 1
+                    },
+                    promise: function (data, config, defer, retryTime) {
+                        getPayId(function (content) {
+                            defer.resolev(content);
+                        });
+                    }
+                }
+            });
+
+            Order.getSign({
+                b: 1
+            }).then(function (content) {
+                done();
+            });
+        });
     });
 
     describe("DBC.create", function () {
@@ -827,6 +854,5 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
     });
-    //    run();
-    //}, 4000);
+
 });

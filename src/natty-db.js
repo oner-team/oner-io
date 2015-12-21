@@ -278,7 +278,6 @@ class DB {
         if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
-            //C.log('send ajax');
             requester = t.sendAjax(data, config, defer, retryTime);
         }
 
