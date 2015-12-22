@@ -274,8 +274,9 @@ class DB {
         //    defer.resolve(t.cache[config.API]);
         //    config.pending = FALSE;
         //} else
-
-        if (config.jsonp) {
+        if (config.request) {
+            requester = config.request(data, config, defer, retryTime);
+        } else if (config.jsonp) {
             requester = t.sendJSONP(data, config, defer, retryTime);
         } else {
             requester = t.sendAjax(data, config, defer, retryTime);

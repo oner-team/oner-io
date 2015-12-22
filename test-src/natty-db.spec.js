@@ -247,22 +247,33 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.method6.config.url).to.be('../path');
             expect(Order.method7.config.url).to.be('/path');
         });
+    });
 
-        it.skip('`promise` config when success', function (done) {
+    describe('request config', function () {
+        //this.timeout(1000*60);
+        let DBC;
+
+        beforeEach('reset', function () {
+            DBC = new NattyDB.Context();
+        });
+        // 当使用request参数时, 只有data, retry, ignoreSelfConcurrent起作用
+        it('`request` config with success', function (done) {
             let getPayId = (successFn) => {
                 setTimeout(function () {
                     successFn({id: 1});
-                }, 500);
+                }, 200);
             };
-
             let Order = DBC.create('Order', {
                 getSign: {
                     data: {
                         a: 1
                     },
-                    promise: function (data, config, defer, retryTime) {
+                    request: function (data, config, defer, retryTime) {
+                        // 验证参数是否正确合并
+                        expect(data.a).to.be(1);
+                        expect(data.b).to.be(1);
                         getPayId(function (content) {
-                            defer.resolev(content);
+                            defer.resolve(content);
                         });
                     }
                 }
@@ -271,8 +282,101 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.getSign({
                 b: 1
             }).then(function (content) {
+                expect(content.id).to.be(1);
                 done();
             });
+        });
+
+        it('`request` config with error', function (done) {
+            let getPayId = (successFn, errorFn) => {
+                setTimeout(function () {
+                    errorFn({message: 1});
+                }, 200);
+            };
+            let Order = DBC.create('Order', {
+                getSign: {
+                    request: function (data, config, defer, retryTime) {
+                        getPayId(function (content) {
+                            defer.resolve(content);
+                        }, function (error) {
+                            defer.reject(error);
+                        });
+                    }
+                }
+            });
+
+            Order.getSign().then(function (content) {
+            }, function (error) {
+                expect(error.message).to.be(1);
+                done();
+            });
+        });
+
+        it('`request` config with retry', function (done) {
+            let getPayId = (successFn, errorFn) => {
+                setTimeout(function () {
+                    errorFn({message: 1});
+                }, 200);
+            };
+            let Order = DBC.create('Order', {
+                getSign: {
+                    retry: 1,
+                    request: function (data, config, defer, retryTime) {
+                        //console.log(retryTime);
+
+                        getPayId(function (content) {
+                            defer.resolve(content);
+                        }, function (error) {
+                            defer.reject(error);
+                        });
+                    }
+                }
+            });
+
+            Order.getSign().then(function (content) {
+            }, function (error) {
+                expect(error.message).to.be(1);
+                done();
+            });
+        });
+
+        it('`request` config with ignoreSelfConcurrent', function (done) {
+            let count = 0;
+            let getPayId = (successFn, errorFn) => {
+                count++;
+                setTimeout(function () {
+                    errorFn({message:1});
+                }, 200);
+            };
+
+            let Order = DBC.create('Order', {
+                getSign: {
+                    ignoreSelfConcurrent: true,
+                    request: function (data, config, defer, retryTime) {
+                        //console.log(retryTime);
+
+                        getPayId(function (content) {
+                            defer.resolve(content);
+                        }, function (error) {
+                            defer.reject(error);
+                        });
+                    }
+                }
+            });
+
+            Order.getSign().then(function (content) {
+            }, function (error) {
+                expect(error.message).to.be(1);
+            });
+
+            Order.getSign().then(function (content) {
+            }, function (error) {
+            });
+
+            setTimeout(function () {
+                expect(count).to.be(1);
+                done();
+            }, 1000);
         });
     });
 
