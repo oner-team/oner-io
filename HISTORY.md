@@ -50,6 +50,10 @@ User.getGPS().then(function (content) {
 
 ## History
 
+#### v0.3.1 / 开发中
+
+* 能够和已有的异步功能进行对接
+
 #### v0.3.0 / 2015-12-11
 
 * 修复：接口(API)的`jsonp`配置的值没有正确继承上下文(Context)的配置。
