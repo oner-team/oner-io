@@ -7,7 +7,7 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-const {extend, appendQueryString, noop, isCrossDomain, isBoolean} = require('./util');
+const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
 const doc = document;
 const FALSE = false;
@@ -68,6 +68,9 @@ let acceptToRequestHeader = {
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
 let setHeaders = (xhr, options) => {
+    if (!xhr.setRequestHeader) {
+        return;
+    }
     // 如果没有跨域 则打该标识 业界通用做法
     // TODO 如果是跨域的 只有有限的requestHeader是可以使用的 待补充注释
     if (!isCrossDomain(options.url)) {
@@ -244,10 +247,11 @@ let ajax = (options) => {
     }
 
     // 设置requestHeader
-    //setHeaders(xhr, options);
+    setHeaders(xhr, options);
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-    xhr.send(options.method === GET ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
+
+    xhr.send(options.method === GET ? NULL : options.data !== NULL ? param(options.data) : NULL);
 
     return xhr;
 };

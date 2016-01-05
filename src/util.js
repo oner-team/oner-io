@@ -1,4 +1,5 @@
 const doc = document;
+const escape = encodeURIComponent;
 
 let noop = (v) => {
     return v;
@@ -30,27 +31,6 @@ let makeRandom = () => {
     return floor(random() * 9e9);
 };
 
-// 给URL追加查询字符串
-const escape = encodeURIComponent;
-let appendQueryString = (url, obj, cache) => {
-    let kv = [];
-
-    // 是否追加noCache参数
-    !cache && kv.push('noCache=' + makeRandom());
-
-    for (let key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            kv.push(escape(key) + '=' + escape(obj[key]));
-        }
-    }
-
-    if (kv.length) {
-        return url + (~url.indexOf('?') ? '&' : '?') + kv.join('&');
-    } else {
-        return url;
-    }
-};
-
 const absoluteUrlReg = /^(https?:)?\/\//;
 let isAbsoluteUrl = (url) => {
     return !!url.match(absoluteUrlReg);
@@ -71,13 +51,27 @@ let isFunction = (v) => {
     return typeof v === FUNCTION;
 };
 
-let runAsFn = (v, options) => {
-    return isFunction(v) ? v(options) : v;
+let runAsFn = (v) => {
+    return isFunction(v) ? v() : v;
 };
 
 const NUMBER = 'number';
 let isNumber = (v) => {
     return !isNaN(v) && typeof v === NUMBER;
+};
+
+const OBJECT = 'object';
+let isObject = (v) => {
+    return typeof v === OBJECT;
+};
+
+let isWindow = (v) => {
+    return v != null && v === v.window;
+};
+
+// 参考了zepto
+let isPlainObject = (v) => {
+    return isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype;
 };
 
 let isArray = Array.isArray;
@@ -123,8 +117,92 @@ let extend = (receiver = {}, supplier = {}) => {
     return receiver;
 };
 
+let likeArray = (v) => {
+    return typeof v.length === NUMBER;
+};
+
+let each = (v, fn) => {
+    let i, l;
+    if (likeArray(v)) {
+        for (i = 0, l = v.length; i < l; i++) {
+            if (fn.call(v[i], i, v[i]) === false) return;
+        }
+    } else {
+        for (i in v) {
+            if (fn.call(v[i], i, v[i]) === false) return;
+        }
+    }
+}
+
+let serialize = (params, obj, shallow, scope) => {
+    let type, hash = isPlainObject(obj)
+    each(obj, function(key, value) {
+        type = typeof value;
+        if (scope) key = shallow ? scope : scope + '[' + (hash || type == 'object' || type == 'array' ? key : '') + ']';
+        // 递归
+        if (type == 'array' || (!shallow && type == 'object')) {
+            serialize(params, value, shallow, key);
+        } else {
+            params.add(key, value);
+        }
+    });
+};
+
+/**
+ * 功能和`Zepto.param`一样
+ * @param obj {Object}
+ * @param shallow {Boolean}
+ * @returns {string}
+ * $.param({ foo: { one: 1, two: 2 }}) // "foo[one]=1&foo[two]=2)"
+ * $.param({ ids: [1,2,3] })           // "ids[]=1&ids[]=2&ids[]=3"
+ * $.param({ ids: [1,2,3] }, true)     // "ids=1&ids=2&ids=3"
+ * $.param({ foo: 'bar', nested: { will: 'not be ignored' }})    // "foo=bar&nested[will]=not+be+ignored"
+ * $.param({ foo: 'bar', nested: { will: 'be ignored' }}, true)  // "foo=bar&nested=[object+Object]"
+ * $.param({ id: function(){ return 1 + 2 } })  // "id=3"
+ */
+let param = (obj, shallow) => {
+    var params = [];
+    params.add = (key, value) => {
+        if (isFunction(value)) value = value();
+        if (value == null) value = '';
+        params.push(escape(key) + '=' + escape(value));
+    };
+    serialize(params, obj, shallow);
+    return params.join('&').replace(/%20/g, '+');
+};
+
+let decodeParam = (str) => {
+    return decodeURIComponent(str.replace(/\+/g, ' '));
+};
+
+// 给URL追加查询字符串
+let appendQueryString = (url, obj, cache) => {
+    //let kv = [];
+
+    // 是否追加noCache参数
+    if (!cache) {
+        obj.__noCache = makeRandom();
+    }
+
+    let queryString = param(obj);
+    //!cache && kv.push('noCache=' + makeRandom());
+
+    //for (let key in obj) {
+    //    if (obj.hasOwnProperty(key)) {
+    //        kv.push(escape(key) + '=' + escape(obj[key]));
+    //    }
+    //}
+
+    if (queryString) {
+        return url + (~url.indexOf('?') ? '&' : '?') + queryString;
+    } else {
+        return url;
+    }
+};
+
 module.exports = {
     extend: redo(extend),
+    each,
     makeRandom,
     appendQueryString,
     noop,
@@ -135,5 +213,7 @@ module.exports = {
     isFunction,
     isNumber,
     isArray,
+    param,
+    decodeParam,
     runAsFn
 };

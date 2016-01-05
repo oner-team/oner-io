@@ -7,7 +7,7 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-const {extend, appendQueryString, noop, isCrossDomain, isBoolean} = require('./util');
+const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
 const doc = document;
 const FALSE = false;
@@ -220,7 +220,7 @@ let ajax = (options) => {
     setHeaders(xhr, options);
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-    xhr.send(options.method === GET ? NULL : options.data !== NULL ? JSON.stringify(options.data) : NULL);
+    xhr.send(options.method === GET ? NULL : options.data !== NULL ? param(options.data) : NULL);
 
     let originAbort = xhr.abort;
 

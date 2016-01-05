@@ -4,12 +4,25 @@ const {host} = require('./config');
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl, isNumber, loadScript} = NattyDB._util;
+var {appendQueryString, isAbsoluteUrl, isNumber, loadScript, param, decodeParam} = NattyDB._util;
 
 describe('./util', function () {
+    describe('param', function () {
+        it("{a:'b c', d:['e+f',{g:'h', i:['j','k']}]}", function () {
+            expect(decodeParam(param({a:'b c', d:['e+f',{g:'h', i:['j','k']}], l:true, m:0})))
+                .to.be("a=b c&d[]=e+f&d[1][g]=h&d[1][i][]=j&d[1][i][]=k&l=true&m=0");
+        });
+        it("{ id: function(){ return 1 + 2 } }", function () {
+            expect(param({ id: function(){ return 1 + 2 } })).to.be('id=3');
+        });
+        it("param({ foo: 'bar', nested: { will: 'be ignored' }}, true)", function () {
+            expect(decodeParam(param({ foo: 'bar', nested: { will: 'be ignored' }}, true)))
+                .to.be("foo=bar&nested=[object Object]");
+        });
+    });
     describe('appendQueryString', function () {
         it("appendQueryString('./p', {}, fales)", function () {
-            expect(appendQueryString('./p', {}, false).indexOf('./p?noCache=')).to.be(0);
+            expect(appendQueryString('./p', {}, false).indexOf('./p?__noCache=')).to.be(0);
         });
         it("appendQueryString('./p', {}, true)", function () {
             expect(appendQueryString('./p', {}, true)).to.be('./p');

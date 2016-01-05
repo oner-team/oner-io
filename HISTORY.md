@@ -50,6 +50,10 @@ User.getGPS().then(function (content) {
 
 ## History
 
+#### v0.3.3 / 2016-01-05
+
+* 修复: `POST`格式错误
+
 #### v0.3.2 / 2016-01-05
 
 * 修復: `POST`请求时`url`参数追加了多余`data`数据被修复。

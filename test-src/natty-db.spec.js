@@ -422,15 +422,14 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('play with standard data structure', function (done) {
+
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
-            Order.create({
-                he:'he'
-            }).then(function(data) {
+            Order.create({he:'he', a:[4,{name:['tingle js+css', 'logo'], age:100}]}).then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
