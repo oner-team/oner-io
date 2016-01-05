@@ -428,7 +428,9 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {
+            Order.create({
+                he:'he'
+            }).then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -642,7 +644,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('resolving after retry', function (done) {
+        it('`GET` resolving after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/retry-success',
@@ -651,16 +653,40 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create(function (obj) {
+            Order.create(function () {
                 return {
-                    retry: obj.retryTime
+                    retry: Order.create.config.mark.retryTime
                 };
             }).then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    C.dir(e);
+                    done(new Error(e.message));
+                }
+            }, function() {
+                // can not go here
+            });
+        });
+
+        it('`POST` resolving after retry', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/retry-success',
+                    method: 'POST',
+                    retry: 2
+                }
+            });
+
+            Order.create(function () {
+                return {
+                    retry: Order.create.config.mark.retryTime
+                };
+            }).then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
                     done(new Error(e.message));
                 }
             }, function() {
@@ -884,7 +910,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('resolving after retry', function (done) {
+        it('`JSONP` resolving after retry', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/jsonp-retry-success',
@@ -893,9 +919,9 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create(function (obj) {
+            Order.create(function () {
                 return {
-                    retry: obj.retryTime
+                    retry: Order.create.config.mark.retryTime
                 };
             }).then(function (data) {
                 try {

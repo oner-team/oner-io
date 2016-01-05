@@ -150,11 +150,13 @@ class DB {
             config.jsonp = true;
         }
 
+        // 请求标记
+        config.mark = {};
 
         if (config.mock) {
-            config.data.m = '1';
+            config.mark.m = '1';
         }
-        config.data['__' + t.name + '.' + config.API + '()__'] = '';
+        config.mark['__' + t.name + '.' + config.API + '()__'] = '';
 
         return config;
     }
@@ -256,10 +258,11 @@ class DB {
     request(data, config, retryTime) {
         let t = this;
 
+        // 更新的请求标记
+        config.mark.retryTime = retryTime;
+
         // `data`必须在请求发生时实时创建
-        data = extend({}, config.data, runAsFn(data, {
-            retryTime
-        }));
+        data = extend({}, config.data, runAsFn(data));
 
         // 根据`config`的差别 请求对象分为`ajax`和`jsonp`两种
         let requester;
@@ -367,6 +370,7 @@ class DB {
 
         return ajax({
             cache: config.cache,
+            mark: config.mark,
             log: config.log,
             url: config.mock ? config.mockUrl : config.url,
             method: config.method,
@@ -423,6 +427,7 @@ class DB {
         let t = this;
         return jsonp({
             log: config.log,
+            mark: config.mark,
             url: config.mock ? config.mockUrl : config.url,
             data: data,
             cache: config.cache,

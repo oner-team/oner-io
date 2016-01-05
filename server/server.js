@@ -132,7 +132,7 @@ app.all('/api/:test', function (req, res) {
             });
             break;
         case 'retry-success':
-            if (req.query.retry == '1') {
+            if (req.query.retryTime == '1') {
                 retryTime = 1;
             } else {
                 retryTime++;
@@ -151,7 +151,7 @@ app.all('/api/:test', function (req, res) {
             });
             break;
         case 'jsonp-retry-success':
-            if (req.query.retry == '1') {
+            if (req.query.retryTime == '1') {
                 retryTime = 1;
             } else {
                 retryTime++;

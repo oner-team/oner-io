@@ -28,6 +28,7 @@ let insertScript = (url, options) => {
 
 let defaultOptions = {
     url: '',
+    mark: {},
     data: {},
     cache: true,
     success: noop,
@@ -65,7 +66,7 @@ let jsonp = (options) => {
     // 生成`url`
     let url = appendQueryString(options.url, extend({
         [options.flag]: callbackName
-    }, options.data), options.cache);
+    }, options.mark, options.data), options.cache);
 
     // 插入脚本
     script = insertScript(url, options);
