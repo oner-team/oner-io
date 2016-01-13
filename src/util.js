@@ -1,5 +1,6 @@
 const doc = document;
 const escape = encodeURIComponent;
+const NULL = null;
 
 let noop = (v) => {
     return v;
@@ -66,12 +67,12 @@ let isObject = (v) => {
 };
 
 let isWindow = (v) => {
-    return v != null && v === v.window;
+    return v !== NULL && v === v.window;
 };
 
 // 参考了zepto
 let isPlainObject = (v) => {
-    return isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype;
+    return v !== NULL && isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype;
 };
 
 let isArray = Array.isArray;
@@ -107,7 +108,7 @@ let extend = (receiver = {}, supplier = {}) => {
         if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
             if (isArray(supplier[key])) {
                 receiver[key] = [].concat(supplier[key]);
-            } else if (typeof supplier[key] === 'object') {
+            } else if (isPlainObject(supplier[key])) {
                 receiver[key] = extend({}, supplier[key]);
             } else {
                 receiver[key] = supplier[key];
@@ -121,22 +122,27 @@ let likeArray = (v) => {
     return typeof v.length === NUMBER;
 };
 
+/**
+ *
+ * @param v {Array|Object} 遍历目标对象
+ * @param fn {Function} 遍历器 会被传入两个参数, 分别是`value`和`key`
+ */
 let each = (v, fn) => {
     let i, l;
     if (likeArray(v)) {
         for (i = 0, l = v.length; i < l; i++) {
-            if (fn.call(v[i], i, v[i]) === false) return;
+            if (fn.call(v[i], v[i], i) === false) return;
         }
     } else {
         for (i in v) {
-            if (fn.call(v[i], i, v[i]) === false) return;
+            if (fn.call(v[i], v[i], i) === false) return;
         }
     }
 }
 
 let serialize = (params, obj, shallow, scope) => {
     let type, hash = isPlainObject(obj)
-    each(obj, function(key, value) {
+    each(obj, function(value, key) {
         type = typeof value;
         if (scope) key = shallow ? scope : scope + '[' + (hash || type == 'object' || type == 'array' ? key : '') + ']';
         // 递归
@@ -164,7 +170,7 @@ let param = (obj, shallow) => {
     var params = [];
     params.add = (key, value) => {
         if (isFunction(value)) value = value();
-        if (value == null) value = '';
+        if (value == NULL) value = '';
         params.push(escape(key) + '=' + escape(value));
     };
     serialize(params, obj, shallow);
