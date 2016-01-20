@@ -50,6 +50,10 @@ User.getGPS().then(function (content) {
 
 ## History
 
+#### v0.3.4 / 2016-01-20
+
+* 添加`traditional`参数
+
 #### v0.3.3 / 2016-01-05
 
 * 修复: `POST`格式错误

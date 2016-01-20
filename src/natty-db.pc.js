@@ -406,6 +406,7 @@ class DB {
         let t = this;
 
         return ajax({
+            traditional: config.traditional,
             cache: config.cache,
             mark: config.mark,
             log: config.log,
@@ -463,6 +464,7 @@ class DB {
     sendJSONP(data, config, defer, retryTime) {
         let t = this;
         return jsonp({
+            traditional: config.traditional,
             log: config.log,
             mark: config.mark,
             url: config.mock ? config.mockUrl : config.url,

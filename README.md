@@ -443,16 +443,24 @@ DB.Driver.getDistance.looping; // true or false
 
 ## 开发(Develop)
 
-启动数据端服务器，用于测试返回的数据。
+启动数据端服务器，用于开发环境下测试返回数据。
 
 ```bash
 $ npm run server
 ```
 
-启动实时编译的开发环境
+启动实时编译的开发环境，并生成非压缩版的`natty-db.js`文件
 
 ```bash
-$ npm start
+$ npm run dev
+```
+
+## 构建
+
+生成用于发布压缩版的`natty-db.js`文件。
+
+```bash
+$ npm run build
 ```
 
 ## 兼容性

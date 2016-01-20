@@ -96,6 +96,9 @@ const defaultGlobalConfig = {
     // 0表示不启动超时处理
     timeout: 0,
 
+    // http://zeptojs.com/#$.param
+    traditional: FALSE,
+
     url: EMPTY,
 
     // 全局`url`前缀
@@ -406,6 +409,7 @@ class DB {
         let t = this;
 
         return ajax({
+            traditional: config.traditional,
             cache: config.cache,
             mark: config.mark,
             log: config.log,
@@ -463,6 +467,7 @@ class DB {
     sendJSONP(data, config, defer, retryTime) {
         let t = this;
         return jsonp({
+            traditional: config.traditional,
             log: config.log,
             mark: config.mark,
             url: config.mock ? config.mockUrl : config.url,

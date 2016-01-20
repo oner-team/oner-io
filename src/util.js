@@ -140,14 +140,14 @@ let each = (v, fn) => {
     }
 }
 
-let serialize = (params, obj, shallow, scope) => {
+let serialize = (params, obj, traditional, scope) => {
     let type, hash = isPlainObject(obj)
     each(obj, function(value, key) {
         type = typeof value;
-        if (scope) key = shallow ? scope : scope + '[' + (hash || type == 'object' || type == 'array' ? key : '') + ']';
+        if (scope) key = traditional ? scope : scope + '[' + (hash || type == 'object' || type == 'array' ? key : '') + ']';
         // 递归
-        if (type == 'array' || (!shallow && type == 'object')) {
-            serialize(params, value, shallow, key);
+        if (type == 'array' || (!traditional && type == 'object')) {
+            serialize(params, value, traditional, key);
         } else {
             params.add(key, value);
         }
@@ -157,7 +157,7 @@ let serialize = (params, obj, shallow, scope) => {
 /**
  * 功能和`Zepto.param`一样
  * @param obj {Object}
- * @param shallow {Boolean}
+ * @param traditional {Boolean}
  * @returns {string}
  * $.param({ foo: { one: 1, two: 2 }}) // "foo[one]=1&foo[two]=2)"
  * $.param({ ids: [1,2,3] })           // "ids[]=1&ids[]=2&ids[]=3"
@@ -166,14 +166,14 @@ let serialize = (params, obj, shallow, scope) => {
  * $.param({ foo: 'bar', nested: { will: 'be ignored' }}, true)  // "foo=bar&nested=[object+Object]"
  * $.param({ id: function(){ return 1 + 2 } })  // "id=3"
  */
-let param = (obj, shallow) => {
+let param = (obj, traditional) => {
     var params = [];
     params.add = (key, value) => {
         if (isFunction(value)) value = value();
         if (value == NULL) value = '';
         params.push(escape(key) + '=' + escape(value));
     };
-    serialize(params, obj, shallow);
+    serialize(params, obj, traditional);
     return params.join('&').replace(/%20/g, '+');
 };
 
@@ -182,7 +182,7 @@ let decodeParam = (str) => {
 };
 
 // 给URL追加查询字符串
-let appendQueryString = (url, obj, cache) => {
+let appendQueryString = (url, obj, cache, traditional) => {
     //let kv = [];
 
     // 是否追加noCache参数
@@ -190,7 +190,7 @@ let appendQueryString = (url, obj, cache) => {
         obj.__noCache = makeRandom();
     }
 
-    let queryString = param(obj);
+    let queryString = param(obj, traditional);
     //!cache && kv.push('noCache=' + makeRandom());
 
     //for (let key in obj) {

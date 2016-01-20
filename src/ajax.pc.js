@@ -200,7 +200,8 @@ let defaultOptions = {
     error: noop,
     complete: noop,
     abort: noop,
-    log: FALSE
+    log: FALSE,
+    traditional: FALSE
 };
 
 let ajax = (options) => {
@@ -237,7 +238,7 @@ let ajax = (options) => {
 
     setEvents(xhr, options);
 
-    xhr.open(options.method, appendQueryString(options.url, extend({}, options.mark, options.method === GET ? options.data : {}), options.cache));
+    xhr.open(options.method, appendQueryString(options.url, extend({}, options.mark, options.method === GET ? options.data : {}), options.cache, options.traditional));
 
     // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
@@ -251,7 +252,7 @@ let ajax = (options) => {
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
 
-    xhr.send(options.method === GET ? NULL : options.data !== NULL ? param(options.data) : NULL);
+    xhr.send(options.method === GET ? NULL : options.data !== NULL ? param(options.data, options.traditional) : NULL);
 
     return xhr;
 };

@@ -3,6 +3,7 @@ const win = window;
 const doc = document;
 const NULL = null;
 const SCRIPT = 'script';
+const FALSE = false;
 
 let removeScript = (script) => {
         script.onerror = NULL;
@@ -36,7 +37,8 @@ let defaultOptions = {
     complete: noop,
     log: false,
     flag: 'callback',
-    callbackName: 'jsonp{id}'
+    callbackName: 'jsonp{id}',
+    traditional: FALSE
 };
 
 let jsonp = (options) => {
@@ -66,7 +68,7 @@ let jsonp = (options) => {
     // 生成`url`
     let url = appendQueryString(options.url, extend({
         [options.flag]: callbackName
-    }, options.mark, options.data), options.cache);
+    }, options.mark, options.data), options.cache, options.traditional);
 
     // 插入脚本
     script = insertScript(url, options);

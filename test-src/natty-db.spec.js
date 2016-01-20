@@ -635,10 +635,11 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
-                    method: 'POST'
+                    method: 'POST',
+                    traditional: true
                 }
             });
-            Order.create({he:'he', a:[4,{name:['tingle js+css', 'logo'], age:100}]}).then(function(data) {
+            Order.create({he:'he', a:[4,{name:['1', '2'], age:100}]}).then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1038,6 +1039,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         it('jsonp response.success is true', function (done) {
             let Order = DBC.create('Order', {
                 create: {
+                    traditional: true,
+                    data: {
+                        a: [1,2,3]
+                    },
                     //log: true,
                     url: host + 'api/jsonp-order-create',
                     jsonp: true

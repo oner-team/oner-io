@@ -38,9 +38,11 @@ function pack(isFallback) {
             sourceMapFilename: !isFallback ? 'natty-db.js.map' : 'natty-db.pc.js.map',
             sourcePrefix: '',
 
-            // 下面两个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 这好和`gulp`的约定完美对接
+            // 下面三个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 正好和`gulp`的约定完美对接
+            // NOTE: 如果需要构建`umd`模块，则这三个配置项必须同时使用：library, libraryTarget, umdNamedDefine
             library: 'NattyDB',
-            libraryTarget: 'umd'
+            libraryTarget: 'umd',
+            umdNamedDefine: true
         },
         // 这个配置要和 output.sourceMapFilename 一起使用
         devtool: '#source-map',
