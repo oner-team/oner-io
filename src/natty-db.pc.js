@@ -96,6 +96,9 @@ const defaultGlobalConfig = {
     // 0表示不启动超时处理
     timeout: 0,
 
+    // http://zeptojs.com/#$.param
+    traditional: FALSE,
+
     url: EMPTY,
 
     // 全局`url`前缀

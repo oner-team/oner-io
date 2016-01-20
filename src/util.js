@@ -1,6 +1,9 @@
 const doc = document;
 const escape = encodeURIComponent;
 const NULL = null;
+const toString = Object.prototype.toString;
+const ARRAY_TYPE = '[object Array]';
+const OBJECT_TYPE = '[object Object]';
 
 let noop = (v) => {
     return v;
@@ -78,8 +81,6 @@ let isPlainObject = (v) => {
 let isArray = Array.isArray;
 if (__BUILD_FALLBACK__) {
     if (!isArray) {
-        const toString = Object.prototype.toString;
-        const ARRAY_TYPE = '[object Array]';
         isArray = (v) => {
             return toString.call(v) === ARRAY_TYPE;
         };
@@ -138,15 +139,23 @@ let each = (v, fn) => {
             if (fn.call(v[i], v[i], i) === false) return;
         }
     }
-}
+};
 
+//
 let serialize = (params, obj, traditional, scope) => {
-    let type, hash = isPlainObject(obj)
+    let type, array = isArray(obj), hash = isPlainObject(obj);
     each(obj, function(value, key) {
-        type = typeof value;
-        if (scope) key = traditional ? scope : scope + '[' + (hash || type == 'object' || type == 'array' ? key : '') + ']';
+        type = toString.call(value);
+        if (scope) {
+            key = traditional ? scope : scope + '[' + (hash || type == OBJECT_TYPE || type == ARRAY_TYPE ? key : '') + ']';
+        }
+
         // 递归
-        if (type == 'array' || (!traditional && type == 'object')) {
+        if (!scope && array) {
+            params.add(value.name, value.value);
+        }
+        // recurse into nested objects
+        else if (type == ARRAY_TYPE || (!traditional && type == OBJECT_TYPE)) {
             serialize(params, value, traditional, key);
         } else {
             params.add(key, value);

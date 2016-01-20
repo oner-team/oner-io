@@ -50,7 +50,7 @@ User.getGPS().then(function (content) {
 
 ## History
 
-#### v0.3.4 / 2016-01-20
+#### v0.3.4, v0.3.5 / 2016-01-20
 
 * 添加`traditional`参数
 

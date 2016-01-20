@@ -39,7 +39,8 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             'timeout',
             'url',
             'urlPrefix',
-            'withCredentials'
+            'withCredentials',
+            'traditional'
         ];
 
         let emptyEvent = NattyDB._event;
@@ -617,7 +618,8 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     describe('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
         //NattyDB.setGlobal({
-        //    cache: false
+        //    cache: false,
+        //    traditional: true
         //});
 
         this.timeout(1000*60);
@@ -636,9 +638,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 create: {
                     url: 'api/order-create',
                     method: 'POST',
-                    traditional: true
+                    //traditional: true
                 }
             });
+
+
+            console.dir(Order);
             Order.create({he:'he', a:[4,{name:['1', '2'], age:100}]}).then(function(data) {
                 try {
                     expect(data.id).to.be(1);

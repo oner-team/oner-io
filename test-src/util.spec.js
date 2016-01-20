@@ -19,6 +19,12 @@ describe('./util', function () {
             expect(decodeParam(param({ foo: 'bar', nested: { will: 'be ignored' }}, true)))
                 .to.be("foo=bar&nested=[object Object]");
         });
+        it("param({ foo: [1, 2]}, true)", function () {
+            expect(decodeParam(param({ foo: [1, 2]}, true))).to.be("foo=1&foo=2");
+        });
+        it("param({ foo: [1, 2]})", function () {
+            expect(decodeParam(param({ foo: [1, 2]}))).to.be("foo[]=1&foo[]=2");
+        });
     });
     describe('appendQueryString', function () {
         it("appendQueryString('./p', {}, fales)", function () {
