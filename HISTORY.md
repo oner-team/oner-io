@@ -50,6 +50,28 @@ User.getGPS().then(function (content) {
 
 ## History
 
+#### v0.3.6 / 2016-01-27
+
+* 修复`IE8/9`下`ajax`请求丢`cookie`的情况。
+* 添加试用版全局事件和上下文事件。支持的事件包括：`resolve`，`reject`，`error`。
+
+全局事件注册方法
+
+```js
+NattyDB.on('resolve', fn);
+NattyDB.on('reject', fn);
+NattyDB.on('error', fn);
+```
+
+DB上下文事件注册方法
+
+```js
+var DBC = new NattyDB.Context();
+DBC.on('resolve', fn);
+DBC.on('reject', fn);
+DBC.on('error', fn);
+```
+
 #### v0.3.4, v0.3.5 / 2016-01-20
 
 * 添加`traditional`参数

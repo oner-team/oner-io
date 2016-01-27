@@ -309,6 +309,13 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 
 超时时间，0表示不启动超时处理。
 
+##### traditional
+
+* 类型：Boolean
+* 默认：false
+
+和`jQuery/Zepto`的`param`方法的第二个参数一样的效果。
+
 ##### url
 
 * 类型：String

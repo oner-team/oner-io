@@ -15,6 +15,7 @@ const {
 RSVP.on('error', (reason) => {
     if (window.console) {
         console.error(reason);
+        event.fire('g.error', [reason]);
     } else {
         throw new Error(reason);
     }
@@ -82,10 +83,10 @@ const defaultGlobalConfig = {
     process: noop,
 
     // 全局失败时 只试用于全局配置和上下文配置 对接口配置无效
-    requestDidReject: NULL,
-
-    // 全局成功时 只试用于全局配置和上下文配置 对接口配置无效
-    requestDidResolve: NULL,
+    //reject: NULL,
+    //
+    //// 全局成功时 只试用于全局配置和上下文配置 对接口配置无效
+    //resolve: NULL,
 
     // 默认不执行重试
     retry: 0,
@@ -109,15 +110,7 @@ const defaultGlobalConfig = {
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
 
-let blackListForApiOptions = [
-    'requestDidReject',
-    'requestDidResolve'
-];
-
-let eventList = [
-    'requestDidReject',
-    'requestDidResolve'
-];
+let blackListForApiOptions = [];
 
 class DB {
     // TODO 检查参数合法性
@@ -145,9 +138,9 @@ class DB {
         let config = extend({}, t.context, options);
 
         // 过滤掉接口的黑名单配置
-        each(blackListForApiOptions, (option) => {
-            delete  config[option];
-        });
+        //each(blackListForApiOptions, (option) => {
+        //    delete  config[option];
+        //});
 
         // 标记是否正在等待请求返回
         //C.log('init pending value')
@@ -257,7 +250,6 @@ class DB {
         };
         // 停止轮询
         api.stopLoop = () => {
-            //debugger
             clearTimeout(loopTimer);
             api.looping = FALSE;
             loopTimer = null;
@@ -326,8 +318,8 @@ class DB {
                         message: 'Timeout By ' + config.timeout + 'ms.'
                     };
                     defer.reject(error);
-                    event.fire('g.requestDidReject', [error, config]);
-                    event.fire(config._contextId + '.requestDidReject', [error, config]);
+                    event.fire('g.reject', [error, config]);
+                    event.fire(config._contextId + '.reject', [error, config]);
                 }
             }, config.timeout);
         }
@@ -349,8 +341,8 @@ class DB {
         let request = () => {
             t.request(data, config, retryTime).then((content) => {
                 defer.resolve(content);
-                event.fire('g.requestDidResolve', [content, config], config);
-                event.fire(config._contextId + '.requestDidResolve', [content, config], config);
+                event.fire('g.resolve', [content, config], config);
+                event.fire(config._contextId + '.resolve', [content, config], config);
             }, (error) => {
                 if (retryTime === config.retry) {
                     defer.reject(error);
@@ -384,16 +376,16 @@ class DB {
             // 记入缓存
             //config.once && (t.cache[config.API] = responseData);
             defer.resolve(content);
-            event.fire('g.requestDidResolve', [content, config], config);
-            event.fire(config._contextId + '.requestDidResolve', [content, config], config);
+            event.fire('g.resolve', [content, config], config);
+            event.fire(config._contextId + '.resolve', [content, config], config);
         } else {
             let error = extend({
                 message: 'Processing Failed Within ' + config.DBName + '.' + config.API
             }, response.error);
             // NOTE response是只读的对象!!!
             defer.reject(error);
-            event.fire('g.requestDidReject', [error, config]);
-            event.fire(config._contextId + '.requestDidReject', [error, config]);
+            event.fire('g.reject', [error, config]);
+            event.fire(config._contextId + '.reject', [error, config]);
         }
     }
 
@@ -595,12 +587,7 @@ class Context {
         let t = this;
         options = options || {};
         let contextId = 'c' + Context.count++;
-
-        // 绑定上下文事件
-        each(eventList, (evt) => {
-            if (!isFunction(options[evt])) return;
-            event.on(contextId + '.' + evt, options[evt]);
-        });
+        t.contextId = contextId;
 
         t.config = extend({}, runtimeGlobalConfig, options, {
             _contextId: contextId
@@ -623,12 +610,19 @@ class Context {
 
         return t[DBName] = new DB(DBName, APIs, t.config);
     }
+
+    // 绑定上下文事件
+    on(name, fn) {
+        if (!isFunction(fn)) return;
+        event.on(this.contextId + '.' + name, fn);
+        return this;
+    }
 }
 
 // 用于给DB上下文命名
-// 如: 第一个和第二个上下文的`requestDidResolve`的事件 在event中的记录分别是:
-//     c1.requestDidResolve
-//     c2.requestDidResolve
+// 如: 第一个和第二个上下文的`resolve`的事件 在event中的记录分别是:
+//     c1.resolve
+//     c2.resolve
 Context.count = 0;
 
 let VERSION;
@@ -642,18 +636,16 @@ let NattyDB = {
     _event: event,
     ajax,
     jsonp,
+
     /**
      * 执行全局配置
      * @param options
      */
     setGlobal(options) {
         runtimeGlobalConfig = extend({}, defaultGlobalConfig, options);
-        // 绑定全局事件
-        each(eventList, (evt) => {
-            if (!isFunction(runtimeGlobalConfig[evt])) return;
-            event.on('g.' + evt, runtimeGlobalConfig[evt]);
-        });
+        return this;
     },
+
     /**
      * 获取全局配置
      * @param property {String} optional
@@ -661,6 +653,13 @@ let NattyDB = {
      */
     getGlobal(property) {
         return property ? runtimeGlobalConfig[property] : runtimeGlobalConfig;
+    },
+
+    // 绑定全局事件
+    on(name, fn) {
+        if (!isFunction(fn)) return;
+        event.on('g.' + name, fn);
+        return this;
     }
 };
 

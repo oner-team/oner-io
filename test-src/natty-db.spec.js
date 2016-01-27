@@ -113,18 +113,50 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it('check global `requestDidResolve`', function (done) {
+        it('check global `error`', function (done) {
             NattyDB.setGlobal({
-                urlPrefix: host,
-                requestDidResolve: function (data, config) {
-                    try {
-                        expect(data.id).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
+                urlPrefix: host
+            });
+
+            // 下面的js错误应该被捕获到
+            NattyDB.on('error', function (error) {
+                try {
+                    expect(window.notExistedFn).to.be(undefined);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
+
+
+            let DBC = new NattyDB.Context();
+            let Order = DBC.create('Order', {
+                create: {
+                    url: 'api/order-create',
+                    method: 'POST'
+                }
+            });
+            Order.create().then(function(data) {
+                // 触发一个js错误
+                notExistedFn();
+            }, function () {});
+        });
+
+        it('check global `resolve`', function (done) {
+            NattyDB.setGlobal({
+                urlPrefix: host
+            });
+
+            NattyDB.on('resolve', function (data, config) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+
+
             let DBC = new NattyDB.Context();
             let Order = DBC.create('Order', {
                 create: {
@@ -135,18 +167,20 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('check global `requestDidReject`', function (done) {
+        it('check global `reject`', function (done) {
             NattyDB.setGlobal({
-                urlPrefix: host,
-                requestDidReject: function (error, config) {
-                    try {
-                        expect(error.code).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
+                urlPrefix: host
+            });
+
+            NattyDB.on('reject', function (error, config) {
+                try {
+                    expect(error.code).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
+
             let DBC = new NattyDB.Context();
             let Order = DBC.create('Order', {
                 create: {
@@ -157,18 +191,20 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('check context `requestDidResolve`', function (done) {
+        it('check context `resolve`', function (done) {
             let DBC = new NattyDB.Context({
-                urlPrefix: host,
-                requestDidResolve: function (data, config) {
-                    try {
-                        expect(data.id).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
+                urlPrefix: host
+            });
+
+            DBC.on('resolve', function (data, config) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
+
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
@@ -178,18 +214,20 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('check context `requestDidReject`', function (done) {
+        it('check context `reject`', function (done) {
             let DBC = new NattyDB.Context({
-                urlPrefix: host,
-                requestDidReject: function (error, config) {
-                    try {
-                        expect(error.code).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
+                urlPrefix: host
+            });
+
+            DBC.on('reject', function (error, config) {
+                try {
+                    expect(error.code).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
+
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/return-error',
@@ -199,28 +237,31 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('check both global and context `requestDidResolve`', function (done) {
+        it('check both global and context `resolve`', function (done) {
             let globalResolve = false;
             NattyDB.setGlobal({
-                urlPrefix: host,
-                requestDidResolve: function (content) {
-                    //console.log(1, content);
-                    globalResolve = true;
-                }
+                urlPrefix: host
+            });
+
+            NattyDB.on('resolve', function (content) {
+                //console.log(1, content);
+                globalResolve = true;
             });
 
             let DBC = new NattyDB.Context({
-                requestDidResolve: function (content) {
-                    //console.log(2, content);
-                    try {
-                        expect(globalResolve).to.be(true);
-                        expect(content.id).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
+            });
+
+            DBC.on('resolve', function (content) {
+                //console.log(2, content);
+                try {
+                    expect(globalResolve).to.be(true);
+                    expect(content.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
+
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
@@ -230,29 +271,33 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('check both global and context `requestDidReject`', function (done) {
+        it('check both global and context `reject`', function (done) {
             let globalReject = false;
             NattyDB.setGlobal({
-                urlPrefix: host,
-                requestDidReject: function (error) {
-                    //console.log(1, error);
-                    globalReject = true;
+                urlPrefix: host
+            });
+
+            NattyDB.on('reject', function (error) {
+                //console.log(1, error);
+                globalReject = true;
+            });
+
+
+            let DBC = new NattyDB.Context({
+                urlPrefix: host
+            });
+
+            DBC.on('reject', function (error, config) {
+                //console.log(2, error);
+                try {
+                    expect(globalReject).to.be(true);
+                    expect(error.code).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
                 }
             });
 
-            let DBC = new NattyDB.Context({
-                urlPrefix: host,
-                requestDidReject: function (error, config) {
-                    //console.log(2, error);
-                    try {
-                        expect(globalReject).to.be(true);
-                        expect(error.code).to.be(1);
-                        done();
-                    } catch(e) {
-                        done(new Error(e.message));
-                    }
-                }
-            });
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/return-error',
@@ -262,20 +307,20 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             Order.create().then(function(data) {}, function () {});
         });
 
-        it('`blacklist` for global options', function () {
-            // 在全局的配置上声明了全局配置 不应该被接口配置继承
-            NattyDB.setGlobal({
-                requestDidReject: function(){},
-                requestDidResolve: function(){}
-            });
-            let DBC = new NattyDB.Context();
-            // 在接口的配置上声明了全局配置 不应该生效
-            let Order = DBC.create('Order', {
-                pay: {}
-            });
-
-            expect(Order.pay.config).not.to.have.keys(['requestDidReject', 'requestDidResolve']);
-        });
+        //it('`blacklist` for global options', function () {
+        //    // 在全局的配置上声明了全局配置 不应该被接口配置继承
+        //    NattyDB.setGlobal({
+        //        reject: function(){},
+        //        resolve: function(){}
+        //    });
+        //    let DBC = new NattyDB.Context();
+        //    // 在接口的配置上声明了全局配置 不应该生效
+        //    let Order = DBC.create('Order', {
+        //        pay: {}
+        //    });
+        //
+        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
+        //});
 
     });
 
@@ -346,32 +391,32 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.pay.config.mock).to.be(false);
         });
 
-        it('`blacklist` for API options', function () {
-            let DBC  = new NattyDB.Context();
-            // 在接口的配置上声明了全局配置 不应该生效
-            let Order = DBC.create('Order', {
-                pay: {
-                    requestDidReject: function(){},
-                    requestDidResolve: function(){}
-                }
-            });
-
-            expect(Order.pay.config).not.to.have.keys(['requestDidReject', 'requestDidResolve']);
-        });
-
-        it('`blacklist` for Context options', function () {
-            // 在上下文的配置上声明了全局配置 不应该被接口配置继承
-            let DBC  = new NattyDB.Context({
-                requestDidReject: function(){},
-                requestDidResolve: function(){}
-            });
-            // 在接口的配置上声明了全局配置 不应该生效
-            let Order = DBC.create('Order', {
-                pay: {}
-            });
-
-            expect(Order.pay.config).not.to.have.keys(['requestDidReject', 'requestDidResolve']);
-        });
+        //it('`blacklist` for API options', function () {
+        //    let DBC  = new NattyDB.Context();
+        //    // 在接口的配置上声明了全局配置 不应该生效
+        //    let Order = DBC.create('Order', {
+        //        pay: {
+        //            reject: function(){},
+        //            resolve: function(){}
+        //        }
+        //    });
+        //
+        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
+        //});
+        //
+        //it('`blacklist` for Context options', function () {
+        //    // 在上下文的配置上声明了全局配置 不应该被接口配置继承
+        //    let DBC  = new NattyDB.Context({
+        //        reject: function(){},
+        //        resolve: function(){}
+        //    });
+        //    // 在接口的配置上声明了全局配置 不应该生效
+        //    let Order = DBC.create('Order', {
+        //        pay: {}
+        //    });
+        //
+        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
+        //});
 
 
 
@@ -652,7 +697,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it.only('play with standard data structure with cookie', function (done) {
+        it.skip('play with standard data structure with cookie', function (done) {
 
             let Order = DBC.create('Order', {
                 create: {

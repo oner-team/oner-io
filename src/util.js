@@ -91,7 +91,6 @@ if (__BUILD_FALLBACK__) {
 let originA = doc.createElement('a');
 originA.href = window.location.href;
 let isCrossDomain = (url) => {
-    debugger
     let requestA = doc.createElement('a');
     requestA.href = url;
     return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
