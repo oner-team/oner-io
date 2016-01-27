@@ -642,11 +642,32 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-
-            console.dir(Order);
-            Order.create({he:'he', a:[4,{name:['1', '2'], age:100}]}).then(function(data) {
+            Order.create().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+        it.only('play with standard data structure with cookie', function (done) {
+
+            let Order = DBC.create('Order', {
+                create: {
+                    url: 'api/return-cookie',
+                    method: 'POST',
+                    //traditional: true
+                }
+            });
+
+            let cookieTime = new Date().getTime();
+            cookie.set('cookieTime', cookieTime);
+
+            Order.create().then(function(data) {
+                try {
+                    expect(data.cookieTime).to.be(cookieTime);
                     done();
                 } catch(e) {
                     done(new Error(e.message));

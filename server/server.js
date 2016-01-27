@@ -100,6 +100,18 @@ app.all('/api/:test', function (req, res) {
             });
             break;
 
+        // return standard data structure
+        case 'return-cookie':
+            console.log('aaa')
+          console.log(req.cookie);
+            res.json({
+                success: true,
+                content: {
+                    cookieTime: 1
+                }
+            });
+            break;
+
         // return standard error structure
         case 'return-error':
             res.json({

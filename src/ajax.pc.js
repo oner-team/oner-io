@@ -208,9 +208,11 @@ let ajax = (options) => {
 
     options = extend({}, defaultOptions, options);
 
+    // 是否跨域
+    let isCD = isCrossDomain(options.url);
 
     // 如果跨域了, 则禁止发送自定义的`header`信息
-    if (isCrossDomain(options.url)) {
+    if (isCD) {
         // 重置`header`, 统一浏览器的行为.
         // 如果在跨域时发送了自定义`header`, 则:
         //   标准浏览器会报错: Request header field xxx is not allowed by Access-Control-Allow-Headers in preflight response.
@@ -223,7 +225,7 @@ let ajax = (options) => {
     let xhr = new XMLHttpRequest();
 
     // `IE8/9`使用`XDomainRequest`来实现跨域, `IE10+`的`XMLHttpRequest`对象直接支持跨域
-    if (fallback) {
+    if (fallback && isCD) {
         // NOTE `XDomainRequest`仅支持`GET`和`POST`两个方法
         // 支持的事件有: onerror, onload, onprogress, ontimeout, 注意没有`onloadend`
         // https://developer.mozilla.org/zh-CN/docs/Web/API/XDomainRequest
@@ -244,7 +246,7 @@ let ajax = (options) => {
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
     if (!fallback) {
-        xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCrossDomain(options.url);
+        xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCD;
     }
 
     // 设置requestHeader
