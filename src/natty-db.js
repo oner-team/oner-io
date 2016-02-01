@@ -172,12 +172,12 @@ class DB {
         }
 
         // 请求标记
-        config.mark = {};
+        config.vars = {};
 
         if (config.mock) {
-            config.mark.m = '1';
+            config.vars.m = '1';
         }
-        config.mark.__api = t.name + '.' + config.API;
+        config.vars.__api = t.name + '.' + config.API;
 
         return config;
     }
@@ -279,10 +279,13 @@ class DB {
         let t = this;
 
         // 更新的请求标记
-        config.mark.__retryTime = retryTime;
+        config.vars.__retryTime = retryTime;
 
         // `data`必须在请求发生时实时创建
         data = extend({}, config.data, runAsFn(data));
+
+        // 将数据参数存在请求标记中, 方便API的`process`方法内部使用
+        config.vars.data = data;
 
         // 根据`config`的差别 请求对象分为`ajax`和`jsonp`两种
         let requester;
@@ -403,7 +406,7 @@ class DB {
         return ajax({
             traditional: config.traditional,
             cache: config.cache,
-            mark: config.mark,
+            mark: config.vars,
             log: config.log,
             url: config.mock ? config.mockUrl : config.url,
             method: config.method,
@@ -461,7 +464,7 @@ class DB {
         return jsonp({
             traditional: config.traditional,
             log: config.log,
-            mark: config.mark,
+            mark: config.vars,
             url: config.mock ? config.mockUrl : config.url,
             data: data,
             cache: config.cache,

@@ -794,6 +794,43 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
         });
 
+        // 固定参数和动态参数 在process和fix方法中都可以正确获取到
+        it('`this.vars.data` in process or fix method', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/order-create',
+                    method: 'POST',
+                    data: {
+                        fixData: 1
+                    },
+                    process: function (response) {
+                        expect(this.vars.data.fixData).to.be(1);
+                        expect(this.vars.data.liveData).to.be(1);
+                        return {
+                            orderId: response.id
+                        };
+                    },
+                    fit: function (response) {
+                        expect(this.vars.data.fixData).to.be(1);
+                        expect(this.vars.data.liveData).to.be(1);
+                        return response;
+                    }
+                }
+            });
+
+            Order.create({
+                liveData: 1
+            }).then(function(data) {
+                try {
+                    expect(data.orderId).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            });
+        });
+
+
         it('skip process data when it is mocking ', function (done) {
             let Order = DBC.create('Order', {
                 create: {
@@ -935,7 +972,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
             Order.create(function () {
                 return {
-                    retry: Order.create.config.mark.retryTime
+                    retry: Order.create.config.vars.retryTime
                 };
             }).then(function (data) {
                 try {
@@ -960,7 +997,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
             Order.create(function () {
                 return {
-                    retry: Order.create.config.mark.retryTime
+                    retry: Order.create.config.vars.retryTime
                 };
             }).then(function (data) {
                 try {
@@ -1205,7 +1242,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
             Order.create(function () {
                 return {
-                    retry: Order.create.config.mark.retryTime
+                    retry: Order.create.config.vars.retryTime
                 };
             }).then(function (data) {
                 try {

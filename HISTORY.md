@@ -18,6 +18,34 @@ DBContext.create('Address', {
 
 ## History
 
+#### v0.3.9 / 2016-02-21
+
+* API的`process`和`fix`方法中，现在可以获取到当前请求的参数了。这个参数是固定参数与动态参数的合集。存储在`this.vars`中。
+
+
+```js
+let Order = DBContext.create('Order', {
+  create: {
+    url: 'api/for/searchAddress',
+    data: {
+      fixData: '固参'
+    },
+    process: function() {
+      // `this.vars.data`的值是: {fixData: '固参', liveData: '动参'}
+      console.log(this.vars.data);
+    }
+  }
+});
+
+Order.create({
+  liveData: '动参'
+}).then(function(){
+  ...
+});
+```
+
+* 单元测试`case`数量加到92个。
+
 #### v0.3.8 / 2016-02-17
 
 * PC版：优化`IE8~11`下的`isCrossDomain`函数，修复`url`为相对路径且没有设置`urlPrefix`时的判断错误。
