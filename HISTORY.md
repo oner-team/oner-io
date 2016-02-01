@@ -18,6 +18,11 @@ DBContext.create('Address', {
 
 ## History
 
+#### v0.3.10 / 2016-02-23
+
+* 开始支持node环境，文件名为`natty-db.node.js`和`natty-db.node.min.js`，感谢昊帧。
+
+
 #### v0.3.9 / 2016-02-21 [diff](https://github.com/Jias/natty-db/commit/691ad0bcf5ca7451fe765ab4b079ca85629ee877)
 
 * API的`process`和`fix`方法中，现在可以获取到当前请求的参数了。这个参数是固定参数与动态参数的合集。存储在`this.vars`中。
