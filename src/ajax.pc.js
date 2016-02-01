@@ -23,7 +23,7 @@ const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
-let xhrTester = 'object' === typeof XMLHttpRequest ? new XMLHttpRequest() : null;
+let xhrTester = 'function' === typeof XMLHttpRequest ? new XMLHttpRequest() : {};
 let hasXDR = typeof XDomainRequest != UNDEFINED;
 let fallback = 'object' === typeof window ? (!('withCredentials' in xhrTester) && hasXDR) : null;
 let supportCORS = 'object' === typeof window ? (('withCredentials' in xhrTester) || hasXDR) : null;
