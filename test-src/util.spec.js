@@ -4,7 +4,7 @@ const {host} = require('./config');
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl, isNumber, loadScript, param, decodeParam} = NattyDB._util;
+var {appendQueryString, isAbsoluteUrl, isNumber, loadScript, param, decodeParam, isIE, isCrossDomain} = NattyDB._util;
 
 describe('./util', function () {
     describe('param', function () {
@@ -61,5 +61,99 @@ describe('./util', function () {
         it('1', function () {
             expect(isNumber(1)).to.be(true);
         })
+    });
+
+    describe('protocol', function(){
+
+        it('location protocol', function () {
+            let link = document.createElement('a');
+            link.href = location.href;
+            expect(link.protocol).to.be('http:');
+        });
+
+        it('foo.json protocol (IE diff)', function () {
+            let link = document.createElement('a');
+            link.href = 'foo.json';
+            expect(link.protocol).to.be(isIE ? ':' : 'http:');
+        });
+
+        it('//www.foo.com/json protocol (IE diff)', function () {
+            let link = document.createElement('a');
+            link.href = '//www.foo.com/json';
+            expect(link.protocol).to.be(isIE ? ':' : 'http:');
+        });
+
+        it('https://www.foo.com/json protocol', function () {
+            let link = document.createElement('a');
+            link.href = 'https://www.foo.com/json';
+            expect(link.protocol).to.be('https:');
+        });
+    });
+
+    describe('hostname', function(){
+
+        let originA = document.createElement('a');
+        originA.href = location.href;
+
+        it('location hostname', function () {
+            let link = document.createElement('a');
+            link.href = location.href;
+            expect(link.hostname).to.be(originA.hostname);
+        });
+
+        it('foo.json hostname (IE diff)', function () {
+            let link = document.createElement('a');
+            link.href = 'foo.json';
+            expect(link.hostname).to.be(isIE ? '' : originA.hostname);
+        });
+
+        it('//www.foo.com/json hostname', function () {
+            let link = document.createElement('a');
+            link.href = '//www.foo.com/json';
+            expect(link.hostname).to.be('www.foo.com');
+        });
+
+        it('https://www.foo.com/json hostname', function () {
+            let link = document.createElement('a');
+            link.href = 'https://www.foo.com/json';
+            expect(link.hostname).to.be('www.foo.com');
+        });
+    });
+
+    describe('isCrossDomain', function(){
+        let originA = document.createElement('a');
+        originA.href = location.href;
+
+        it('foo.json', function () {
+            expect(isCrossDomain('foo.json')).to.be(false);
+        });
+
+        it('../foo.json', function () {
+            expect(isCrossDomain('../foo.json')).to.be(false);
+        });
+
+        it('www.foo.com/json', function () {
+            expect(isCrossDomain('www.foo.com/json')).to.be(false);
+        });
+
+        it('//www.foo.com/json', function () {
+            expect(isCrossDomain('//www.foo.com/json')).to.be(true);
+        });
+
+        it('absolute path', function () {
+            expect(isCrossDomain(originA.protocol + '//' + originA.hostname + ':' + originA.port)).to.be(false);
+        });
+
+        it('different protocal', function () {
+            expect(isCrossDomain('https://' + originA.hostname)).to.be(true);
+        });
+
+        it('different port', function () {
+            expect(isCrossDomain(originA.protocol + '//' + originA.hostname + ':9876')).to.be(true);
+        });
+
+        it('https://www.foo.com/json', function () {
+            expect(isCrossDomain('https://www.foo.com/json')).to.be(true);
+        });
     });
 });

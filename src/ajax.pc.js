@@ -156,7 +156,7 @@ let setEvents = (xhr, options) => {
         //   4: DONE 此时触发load事件
         xhr.onreadystatechange = () => {
             //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
-            if (xhr.readyState === 4) {
+            if (xhr.readyState == 4) {
                 // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
                 if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                     onLoadFn();

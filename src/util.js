@@ -5,6 +5,13 @@ const toString = Object.prototype.toString;
 const ARRAY_TYPE = '[object Array]';
 const OBJECT_TYPE = '[object Object]';
 
+/**
+ * 判断是否是IE8~11, 不包含Edge
+ * @returns {boolean}
+ * @note IE11下 window.ActiveXObject的值很怪异, 所有需要追加 'ActiveXObject' in window 来判断
+ */
+const isIE = !!window.ActiveXObject || 'ActiveXObject' in window;
+
 let noop = (v) => {
     return v;
 };
@@ -87,13 +94,37 @@ if (__BUILD_FALLBACK__) {
     }
 }
 
-// 判断是否跨域
+
+
+/**
+ * 判断是否跨域
+ * @type {Element}
+ * @note 需要特别关注IE8~11的行为是不一样的!!!
+ */
 let originA = doc.createElement('a');
-originA.href = window.location.href;
+originA.href = location.href;
 let isCrossDomain = (url) => {
     let requestA = doc.createElement('a');
     requestA.href = url;
-    return (originA.protocol + '//' + originA.host) !== (requestA.protocol + '//' + requestA.host);
+    //console.log(originA.protocol + '//' + originA.host + '\n' + requestA.protocol + '//' + requestA.host);
+
+    // 如果`url`的值不包含`protocol`和`host`(比如相对路径), 在标准浏览器下, 会自定补全`requestA`对象的`protocal`和`host`属性.
+    // 但在IE8~11下, 不会自动补全. 即`requestA.protocol`和`requestA.host`的值都是空的.
+    if (__BUILD_FALLBACK__) {
+        if (isIE && requestA.protocol === ':') {
+            if (requestA.hostname === '') {
+                //alert(0)
+                return false;
+            } else {
+                //alert('1:'+(originA.hostname !== requestA.hostname || originA.port !== requestA.port))
+                return originA.hostname !== requestA.hostname || originA.port !== requestA.port;
+            }
+        }
+    }
+                //alert('2:'+ (originA.hostname !== requestA.hostname || originA.port !== requestA.port || originA.protocol !== requestA.protocol))
+
+    // 标准浏览器
+    return originA.hostname !== requestA.hostname || originA.port !== requestA.port || originA.protocol !== requestA.protocol;
 };
 
 /**
@@ -216,6 +247,7 @@ let appendQueryString = (url, obj, cache, traditional) => {
 };
 
 module.exports = {
+    isIE,
     extend: redo(extend),
     each,
     makeRandom,

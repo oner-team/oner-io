@@ -4,56 +4,29 @@
 
 以相同的参数调用相同的`API`时，在配置指定的时间内，不发出网络请求。
 
+示例说明(仅为草稿)：
+
 ```js
 DBContext.create('Address', {
   search: {
-    cacheLevel: 'session', // session/localstorage
+    cacheLevel: 'session', // 缓存级别可选：session/localstorage
+    cacheExpired: null, // 缓存时间可选：null/1000*60*60*24
     url: 'api/for/searchAddress'
   }
 });
 ```
 
-#### 和已有的异步功能对接
-
-和已有的异步功能可以对接，如对接`Native`的地理位置接口。
-
-```js
-// 已有的异步功能：获取地理位置
-JSAPI.get('GPS'，function (data) {
-  // 成功
-}, function (error) {
-  // 失败
-});
-
-// 使用NattyDB对接
-let User = DBContext.create('User', {
-  getGPS: {
-    promise: function (RSVP) {
-      let defer = RSVP.defer();
-      JSAPI.get('GPS'，function (data) {
-        defer.resolev(data);
-      }, function (error) {
-        defer.reject(error);
-      });
-      return defer.promise;
-    }
-  }
-});
-
-// 使用场景
-User.getGPS().then(function (content) {
-  // 成功
-}, function (error) {
-  // 失败
-});
-```
-
 ## History
+
+#### v0.3.7 / 2016-02-14
+
+* PC版：优化`IE8~11`下的`isCrossDomain`函数，修复`url`为相对路径且没有设置`urlPrefix`时的判断错误。
+* 单元测试`case`数量加到91个。
 
 #### v0.3.6 / 2016-01-27
 
-* 修复`IE8/9`下`ajax`请求丢`cookie`的情况。
-* 添加试用版全局事件和上下文事件。支持的事件包括：`resolve`，`reject`，`error`。
+* PC版：修复`IE8/9`下`ajax`请求丢`cookie`的情况。
+* PC+H5版：添加试用版全局事件和上下文事件。支持的事件包括：`resolve`，`reject`，`error`。
 
 全局事件注册方法
 
@@ -74,7 +47,7 @@ DBC.on('error', fn);
 
 #### v0.3.4, v0.3.5 / 2016-01-20
 
-* 添加`traditional`参数
+* 添加`traditional`参数，功能和`jQuery`的`ajax`方法的`traditional`参数一致。
 
 #### v0.3.3 / 2016-01-05
 
