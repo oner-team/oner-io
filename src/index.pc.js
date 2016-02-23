@@ -1,1 +1,1 @@
-module.exports = require('./natty-db.pc');
+module.exports = require('./natty-db');
