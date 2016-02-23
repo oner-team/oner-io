@@ -49,7 +49,7 @@
   "scripts": {
     "server": "node server/server.js",
     "dev": "gulp watch",
-    "build": "gulp pack && gulp min"
+    "build": "gulp pack-commonjs && gulp min"
   },
   "license": "MIT"
 }

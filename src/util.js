@@ -1,4 +1,4 @@
-const doc = document;
+const doc = 'object' === typeof window ? document : null;
 const escape = encodeURIComponent;
 const NULL = null;
 const toString = Object.prototype.toString;
@@ -10,7 +10,7 @@ const OBJECT_TYPE = '[object Object]';
  * @returns {boolean}
  * @note IE11下 window.ActiveXObject的值很怪异, 所有需要追加 'ActiveXObject' in window 来判断
  */
-const isIE = !!window.ActiveXObject || 'ActiveXObject' in window;
+const isIE = ('object' === typeof window && (!!window.ActiveXObject || 'ActiveXObject' in window));
 
 let noop = (v) => {
     return v;
@@ -101,8 +101,11 @@ if (__BUILD_FALLBACK__) {
  * @type {Element}
  * @note 需要特别关注IE8~11的行为是不一样的!!!
  */
-let originA = doc.createElement('a');
-originA.href = location.href;
+let originA;
+if(doc) {
+    originA = doc.createElement('a');
+    originA.href = location.href;
+} 
 let isCrossDomain = (url) => {
     let requestA = doc.createElement('a');
     requestA.href = url;

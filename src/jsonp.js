@@ -1,6 +1,6 @@
 const {appendQueryString, noop, extend, makeRandom} = require('./util');
-const win = window;
-const doc = document;
+const win = ('object' === typeof window ? window : null);
+const doc = ('object' === typeof window ? document : null);
 const NULL = null;
 const SCRIPT = 'script';
 const FALSE = false;
