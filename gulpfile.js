@@ -27,7 +27,6 @@ gulp.task('delete-dist-dir', function (cb) {
 });
 
 function pack(isFallback) {
-
     var indexFile = isFallback ? 'src/index.pc.js' : 'src/index.js';
 
     return gulp.src(indexFile).pipe(webpackStream({
@@ -56,7 +55,7 @@ function pack(isFallback) {
             ]
         },
         externals:  {
-            //rsvp: 'commonjs rsvp' // modules.export = require('rsvp');
+            // rsvp: 'commonjs rsvp' // modules.export = require('rsvp');
             rsvp: 'var RSVP' // modules.export = RSVP; 项目中的webpack要配配`new webpack.ProvidePlugin`
         },
         plugins: [
@@ -71,6 +70,40 @@ function pack(isFallback) {
     })).pipe(gulp.dest('./dist'));
 }
 
+// pack natty-db.node.js
+function packNodeVersion() {
+    var indexFile = 'src/index.js';
+
+    return gulp.src(indexFile).pipe(webpackStream({
+        output: {
+            // 不要配置path，会报错
+            //path: 'dist',
+            filename: 'natty-db.node.js',
+            sourcePrefix: '',
+            libraryTarget: 'commonjs'
+        },
+        // 这个配置要和 output.sourceMapFilename 一起使用
+        module: {
+            loaders: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: 'babel-loader?stage=1'
+                }
+            ]
+        },
+        externals:  {
+            rsvp: 'commonjs rsvp' 
+        },
+        plugins: [
+            new webpack.DefinePlugin({
+                __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
+                __BUILD_FALLBACK__: false
+            }),
+        ]
+    })).pipe(gulp.dest('./dist'));
+}
+
 // pack natty-db.js
 gulp.task('pack-normal-version', ['delete-dist-dir'], function() {
     return pack(false);
@@ -79,6 +112,10 @@ gulp.task('pack-normal-version', ['delete-dist-dir'], function() {
 gulp.task('pack', ['pack-normal-version'], function() {
     // pack fallback version for natty-db.js
     return pack(true);
+});
+
+gulp.task('pack-commonjs', ['pack'], function() {
+    return packNodeVersion();
 });
 
 gulp.task('test-pack', ['del-test-dist'], function() {
@@ -124,7 +161,8 @@ gulp.task('del-test-dist', function (done) {
 gulp.task('min', function () {
     return gulp.src([
         'dist/natty-db.js',
-        'dist/natty-db.pc.js'
+        'dist/natty-db.pc.js',
+        'dist/natty-db.node.js'
     ]).pipe(uglify()).pipe(rename(function (path) {
         console.log(path);
         path.basename += '.min';

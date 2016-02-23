@@ -9,7 +9,7 @@
  */
 const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
-const doc = document;
+const doc = ('object' === typeof window ? document : null);
 const FALSE = false;
 const UNDEFINED = undefined;
 const NULL = null;

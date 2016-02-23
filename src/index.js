@@ -1,1 +1,1 @@
-module.exports = window.NattyDB = require('./natty-db');
+module.exports = require('./natty-db');
