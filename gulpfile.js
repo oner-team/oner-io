@@ -72,7 +72,7 @@ function pack(isFallback) {
 
 // pack natty-db.node.js
 function packNodeVersion() {
-    var indexFile = 'src/index.js';
+    var indexFile = 'src/index.pc.js';
 
     return gulp.src(indexFile).pipe(webpackStream({
         output: {
