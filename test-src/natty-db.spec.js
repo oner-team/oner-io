@@ -460,6 +460,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 },
                 close: {
                     url: 'path.jsonp?foo'
+                },
+                delay: {
+                    mock: true,
+                    mockUrl: 'foo',
+                    jsonp: false, // mock为true时, jsonp的值不会根据url的值自动纠正
+                    url: 'path.jsonp?foo'
                 }
             });
 
@@ -467,6 +473,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.transfer.config.jsonp).to.be(false);
             expect(Order.create.config.jsonp).to.be(true);
             expect(Order.close.config.jsonp).to.be(true);
+            expect(Order.delay.config.jsonp).to.be(false);
         });
 
         it('auto `urlPrefix`', function () {
@@ -523,10 +530,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     data: {
                         a: 1
                     },
-                    request: function (data, config, defer, retryTime) {
+                    request: function (vars, config, defer) {
                         // 验证参数是否正确合并
-                        expect(data.a).to.be(1);
-                        expect(data.b).to.be(1);
+                        expect(vars.data.a).to.be(1);
+                        expect(vars.data.b).to.be(1);
                         getPayId(function (content) {
                             defer.resolve(content);
                         });
@@ -795,7 +802,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         // 固定参数和动态参数 在process和fix方法中都可以正确获取到
-        it('`this.vars.data` in process or fix method', function (done) {
+        it('`vars.data` in process or fix method', function (done) {
             let Order = DBC.create('Order', {
                 create: {
                     url: host + 'api/order-create',
@@ -803,16 +810,16 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     data: {
                         fixData: 1
                     },
-                    process: function (response) {
-                        expect(this.vars.data.fixData).to.be(1);
-                        expect(this.vars.data.liveData).to.be(1);
+                    process: function (content, vars) {
+                        expect(vars.data.fixData).to.be(1);
+                        expect(vars.data.liveData).to.be(1);
                         return {
-                            orderId: response.id
+                            orderId: content.id
                         };
                     },
-                    fit: function (response) {
-                        expect(this.vars.data.fixData).to.be(1);
-                        expect(this.vars.data.liveData).to.be(1);
+                    fit: function (response, vars) {
+                        expect(vars.data.fixData).to.be(1);
+                        expect(vars.data.liveData).to.be(1);
                         return response;
                     }
                 }
@@ -970,11 +977,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create(function () {
-                return {
-                    retry: Order.create.config.vars.retryTime
-                };
-            }).then(function (data) {
+            Order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -995,11 +998,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create(function () {
-                return {
-                    retry: Order.create.config.vars.retryTime
-                };
-            }).then(function (data) {
+            Order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1051,13 +1050,94 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
 
             // 第一次请求未完成之前 第二次请求返回的是一个伪造的promise对象
-            let dummyPromise = Order.create();
+            let dummyPromise = Order.create().then(function(){
+                throw new Error('unexpected `resolved`');
+            });
             expect(dummyPromise).to.have.property('dummy');
 
             // 伪造的promise对象要保证支持链式调用
             expect(dummyPromise.then()).to.be(dummyPromise);
             expect(dummyPromise.then().catch()).to.be(dummyPromise);
             expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
+        });
+
+        // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有返回, 则取消掉第一次请求(即: 返回时不响应)
+        it('override seft concurrent(XHR)', function (done) {
+
+            let Order = DBC.create('Order', {
+                create: {
+                    cache: false,
+                    url: host + 'api/timeout', // 请求延迟返回的接口
+                    overrideSelfConcurrent: true,
+                    process: function(content, vars) {
+                        // vars不应该混淆
+                        expect(vars.data.d).to.be(2);
+                    }
+                }
+            });
+
+            let count = 0;
+
+            // 第一次请求, 不应该有响应
+            Order.create({
+                d: 1
+            }).then(function (data) {
+                count++
+            });
+
+            // 第二次请求, 只响应这次请求
+            setTimeout(function(){
+                Order.create({
+                    d:2
+                }).then(function (data) {
+                    try {
+                        expect(count).to.be(0);
+                        done();
+                    } catch (e) {
+                        done(new Error(e.message));
+                    }
+                });
+            }, 300);
+        });
+
+        // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有响应, 则取消掉第一次请求(的响应)
+        it('override seft concurrent(JSONP)', function (done) {
+
+            let Order = DBC.create('Order', {
+                create: {
+                    cache: false,
+                    jsonp: true,
+                    url: host + 'api/jsonp-timeout', // 请求延迟返回的接口
+                    overrideSelfConcurrent: true,
+                    process: function(content, vars) {
+                        // vars不应该混淆
+                        expect(vars.data.d).to.be(2);
+                    }
+                }
+            });
+
+            let count = 0;
+
+            // 第一次请求, 不应该有响应
+            Order.create({
+                d: 1
+            }).then(function (data) {
+                count++
+            });
+
+            // 第二次请求, 只响应这次请求
+            setTimeout(function(){
+                Order.create({
+                    d:2
+                }).then(function (data) {
+                    try {
+                        expect(count).to.be(0);
+                        done();
+                    } catch (e) {
+                        done(new Error(e.message));
+                    }
+                });
+            }, 300);
         });
 
         it('loop', function (done) {
@@ -1240,11 +1320,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create(function () {
-                return {
-                    retry: Order.create.config.vars.retryTime
-                };
-            }).then(function (data) {
+            Order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();

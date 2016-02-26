@@ -6,7 +6,7 @@ const SCRIPT = 'script';
 const FALSE = false;
 
 let removeScript = (script) => {
-        script.onerror = NULL;
+    script.onerror = NULL;
     script.parentNode.removeChild(script);
     script = NULL;
 };

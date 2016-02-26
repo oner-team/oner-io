@@ -288,6 +288,30 @@ mock模式开启时的请求地址
 
 mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
 
+
+##### overrideSelfConcurrent
+
+* 类型：Boolean
+* 默认：false
+
+是否取消上一次没有完成的请求。即：在当上一次请求结束之前，如果又发起了下一次请求，则只执行后一次请求的响应。更多次数以此类推。
+
+示例：假设有一个自动补全输入框，当每次有新的字符输入时，都会向服务端发起新请求，取得匹配的备选列表，当输入速度很快时，期望的是只执行最后一次请求的响应，因为最后一次的字符最全，匹配的列表更精准。这种业务场景下，可以通过配置`overrideSelfConcurrent`为`true`，一是可以节省响应次数。二次能避免先发出的请求却最后响应(并发异步请求的响应顺序不一定和请求顺序一致)，导致推荐的数据列表不准确。
+
+```js
+DBContext.create('City', {
+    getSuggestion: {
+        url: 'api/getCitySuggestion',
+        // 开启覆盖响应
+        overrideSelfConcurrent: true
+    }
+});
+
+// 并发
+DB.City.getSuggestion({key:'a'}).then(...); // 不响应
+DB.City.getSuggestion({key:'ab'}).then(...); // 响应
+```
+
 ##### process
 
 * 类型：Function

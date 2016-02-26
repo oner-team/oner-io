@@ -18,15 +18,10 @@ DBContext.create('Address', {
 
 ## History
 
-#### v0.3.10 / 2016-02-23
+#### v0.3.11 / 2016-02-26
 
-* 开始支持node环境，文件名为`natty-db.node.js`和`natty-db.node.min.js`，感谢昊帧。
-
-
-#### v0.3.9 / 2016-02-21 [diff](https://github.com/Jias/natty-db/commit/691ad0bcf5ca7451fe765ab4b079ca85629ee877)
-
-* API的`process`和`fix`方法中，现在可以获取到当前请求的参数了。这个参数是固定参数与动态参数的合集。存储在`this.vars`中。
-
+* 添加`overrideSelfConcurrent`参数，详见文档。
+* API的`process`和`fix`方法中，传入了第二个参数，保存该次请求相关的数据，也为后续扩展做准备。
 
 ```js
 let Order = DBContext.create('Order', {
@@ -35,19 +30,30 @@ let Order = DBContext.create('Order', {
     data: {
       fixData: '固参'
     },
-    process: function() {
-      // `this.vars.data`的值是: {fixData: '固参', liveData: '动参'}
-      console.log(this.vars.data);
+    fit: function(response, vars) {
+      // `vars.data`的值是: {fixData: '固参', liveData: '动参'}
+      console.log(vars.data);
+    },
+    process: function(content, vars) {
+      // `vars.data`的值是: {fixData: '固参', liveData: '动参'}
+      console.log(vars.data);
     }
   }
 });
-
-Order.create({
-  liveData: '动参'
-}).then(function(){
-  ...
-});
 ```
+
+* 单元测试`case`数量加到94个。
+
+#### v0.3.10 / 2016-02-23
+
+* 开始支持node环境，文件名为`natty-db.node.js`和`natty-db.node.min.js`，感谢昊帧。
+
+
+#### v0.3.9 / 2016-02-21
+
+* API的`process`和`fix`方法中，现在可以获取到当前请求的参数了。
+
+> 这个版本的方案不严谨，被v0.3.11替换了。
 
 * 单元测试`case`数量加到92个。
 

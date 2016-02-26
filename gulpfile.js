@@ -183,7 +183,8 @@ gulp.task('watch', ['pack', 'test-pack'], function () {
         server: {
             baseDir: './'
         },
-        notify: false
+        notify: false,
+        open: 'external'
     });
 
     gulp.watch([

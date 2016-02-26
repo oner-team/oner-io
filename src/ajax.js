@@ -9,7 +9,7 @@
  */
 const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
-const doc = ('object' === typeof window ? document : null);
+const doc = 'object' === typeof window ? document : null;
 const FALSE = false;
 const UNDEFINED = undefined;
 const NULL = null;
@@ -23,7 +23,7 @@ const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
-let supportCORS = 'function' === typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest());
+let supportCORS = UNDEFINED !== typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest());
 
 // minetype的简写映射
 // TODO 考虑是否优化

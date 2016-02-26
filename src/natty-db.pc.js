@@ -76,17 +76,8 @@ const defaultGlobalConfig = {
     // 全局`mockUrl`前缀
     mockUrlPrefix: EMPTY,
 
-    // 是否缓存数据
-    //once: FALSE, // 有待进一步设计
-
     // 成功回调
     process: noop,
-
-    // 全局失败时 只试用于全局配置和上下文配置 对接口配置无效
-    //reject: NULL,
-    //
-    //// 全局成功时 只试用于全局配置和上下文配置 对接口配置无效
-    //resolve: NULL,
 
     // 默认不执行重试
     retry: 0,
@@ -147,8 +138,8 @@ class DB {
         config.pending = FALSE;
 
         if (config.mock) {
-            // dip平台不支持GET以外的类型
-            // TODO 是否拿出去
+            // dip平台强制使用`GET`方式, 因为不支持`GET`以外的类型
+            // TODO 是否拿出去? 和dip平台耦合了
             config.method = 'GET';
             config.mockUrl = t.getFullUrl(config.mockUrl, true);
         }
@@ -167,17 +158,9 @@ class DB {
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
-        if (!!config.url.match(/\.jsonp(\?.*)?$/)) {
+        if (!config.mock && !!config.url.match(/\.jsonp(\?.*)?$/)) {
             config.jsonp = true;
         }
-
-        // 请求标记
-        config.vars = {};
-
-        if (config.mock) {
-            config.vars.m = '1';
-        }
-        config.vars.__api = t.name + '.' + config.API;
 
         return config;
     }
@@ -278,36 +261,49 @@ class DB {
     request(data, config, retryTime) {
         let t = this;
 
-        // 更新的请求标记
-        config.vars.__retryTime = retryTime;
+        if (config.overrideSelfConcurrent && config._lastRequester) {
+            config._lastRequester.abort();
+            delete config._lastRequester;
+        }
+
+        // 一次请求的私有相关数据
+        let vars = {
+            mark: {
+                __api: t.name + '.' + config.API
+            }
+        };
+
+        // 更新的重试次数
+        vars.mark.__retryTime = retryTime;
+
+        if (config.mock) {
+            vars.m = 1;
+        };
 
         // `data`必须在请求发生时实时创建
         data = extend({}, config.data, runAsFn(data));
 
-        // 将数据参数存在请求标记中, 方便API的`process`方法内部使用
-        config.vars.data = data;
-
-        // 根据`config`的差别 请求对象分为`ajax`和`jsonp`两种
-        let requester;
+        // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
+        vars.data = data;
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
-        //C.log('start pending');
         config.pending = TRUE;
 
         let defer = RSVP.defer();
 
-        //if (config.once && t.cache[config.API]) {
-        //    defer.resolve(t.cache[config.API]);
-        //    config.pending = FALSE;
-        //} else
-
-        // 使用已有的request方法
+        // 创建请求实例requester
         if (config.request) {
-            requester = config.request(data, config, defer, retryTime);
+            // 使用已有的request方法
+            vars.requester = config.request(vars, config, defer);
         } else if (config.jsonp) {
-            requester = t.sendJSONP(data, config, defer, retryTime);
+            vars.requester = t.sendJSONP(vars, config, defer);
         } else {
-            requester = t.sendAjax(data, config, defer, retryTime);
+            vars.requester = t.sendAjax(vars, config, defer);
+        }
+
+        // 如果只响应最新请求
+        if (config.overrideSelfConcurrent) {
+            config._lastRequester = vars.requester;
         }
 
         // 超时处理
@@ -315,7 +311,8 @@ class DB {
             setTimeout(() => {
                 if (config.pending) {
                     // 取消请求
-                    requester.abort();
+                    vars.requester.abort();
+                    delete vars.requester;
                     let error = {
                         timeout: TRUE,
                         message: 'Timeout By ' + config.timeout + 'ms.'
@@ -366,24 +363,22 @@ class DB {
      * @param response
      * @param defer
      */
-    processResponse(config, response, defer) {
+    processResponse(vars, config, defer, response) {
         let t = this;
 
         // 非标准格式数据的预处理
-        response = config.fit(response);
+        response = config.fit(response, vars);
 
         if (response.success) {
             // 数据处理
-            let content = config.process(response.content);
+            let content = config.process(response.content, vars);
 
-            // 记入缓存
-            //config.once && (t.cache[config.API] = responseData);
             defer.resolve(content);
             event.fire('g.resolve', [content, config], config);
             event.fire(config._contextId + '.resolve', [content, config], config);
         } else {
             let error = extend({
-                message: 'Processing Failed Within ' + config.DBName + '.' + config.API
+                message: 'Processing Failed: ' + config.DBName + '.' + config.API
             }, response.error);
             // NOTE response是只读的对象!!!
             defer.reject(error);
@@ -400,23 +395,23 @@ class DB {
      *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} xhr对象实例
      */
-    sendAjax(data, config, defer, retryTime) {
+    sendAjax(vars, config, defer) {
         let t = this;
 
         return ajax({
             traditional: config.traditional,
             cache: config.cache,
-            mark: config.vars,
+            mark: vars.mark,
             log: config.log,
             url: config.mock ? config.mockUrl : config.url,
             method: config.method,
-            data: data,
+            data: vars.data,
             header: config.header,
             withCredentials: config.withCredentials,
             // 强制约定json
             accept: 'json',
             success(response/*, xhr*/) {
-                t.processResponse(config, response, defer);
+                t.processResponse(vars, config, defer, response);
             },
             error(status/*, xhr*/) {
 
@@ -441,10 +436,16 @@ class DB {
                 });
             },
             complete(/*status, xhr*/) {
-                if (retryTime === undefined || retryTime === config.retry) {
+                if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     //C.log('ajax complete');
 
                     config.pending = FALSE;
+                    vars.requester = NULL;
+
+                    // 如果只响应最新请求
+                    if (config.overrideSelfConcurrent) {
+                        delete config._lastRequester;
+                    }
                 }
                 //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
             }
@@ -453,25 +454,26 @@ class DB {
 
     /**
      * 发起jsonp请求
+     * @param vars {Object} 一次请求相关的私有数据
      * @param config {Object} 请求配置
      * @param defer {Object} RSVP.defer()的对象
      * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
      *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} 带有abort方法的对象
      */
-    sendJSONP(data, config, defer, retryTime) {
+    sendJSONP(vars, config, defer) {
         let t = this;
         return jsonp({
             traditional: config.traditional,
             log: config.log,
-            mark: config.vars,
+            mark: vars.mark,
             url: config.mock ? config.mockUrl : config.url,
-            data: data,
+            data: vars.data,
             cache: config.cache,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,
             success(response) {
-                t.processResponse(config, response, defer);
+                t.processResponse(vars, config, defer, response);
             },
             error(e) {
                 defer.reject({
@@ -480,8 +482,14 @@ class DB {
                 });
             },
             complete() {
-                if (retryTime === undefined || retryTime === config.retry) {
+                if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     config.pending = FALSE;
+                    vars.requester = NULL;
+
+                    // 如果只响应最新请求
+                    if (config.overrideSelfConcurrent) {
+                        delete config._lastRequester;
+                    }
                 }
                 //console.log('complete: pending:', config.pending);
             }
@@ -527,7 +535,6 @@ class DB {
  *             fit: fn,
  *             process: fn,
  *
- *             // once: false,
  *             retry: 0,
  *             ignoreSelfConcurrent: true,
  *
