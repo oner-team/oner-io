@@ -436,6 +436,7 @@ class DB {
                 });
             },
             complete(/*status, xhr*/) {
+
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     //C.log('ajax complete');
 

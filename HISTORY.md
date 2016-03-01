@@ -18,7 +18,11 @@ DBContext.create('Address', {
 
 ## History
 
-#### v0.3.14 / 2016-03-09
+#### v0.3.16 / 2016-03-10
+
+* 解决`IE8`下`ajax`模块不触发`complete`的`bug`。
+
+#### v0.3.15 / 2016-03-10
 
 * 打包脚本添加`natty-db.pc.node.js`。
 

@@ -1,10 +1,10 @@
 {
   "name": "natty-db",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-db.git",
   "author": "gnosaij",
-  "main": "dist/natty-db.min.js",
+  "main": "dist/natty-db.pc.node.min.js",
   "files": [
     "dist",
     "src",
@@ -26,7 +26,8 @@
     "micro-ajax",
     "standalone-ajax",
     "micro-jsonp",
-    "standalone-jsonp"
+    "standalone-jsonp",
+    "promise-api"
   ],
   "dependencies": {
     "rsvp": "~3.1.0"

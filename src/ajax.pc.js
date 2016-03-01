@@ -47,26 +47,31 @@ let setHeaders = (xhr, options) => {
     if (!xhr.setRequestHeader) {
         return;
     }
+
+    let header = {
+        Accept: acceptToRequestHeader[options.accept]
+    };
+
     // 如果没有跨域 则打该标识 业界通用做法
     // TODO 如果是跨域的 只有有限的requestHeader是可以使用的 待补充注释
     if (!isCrossDomain(options.url)) {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        header['X-Requested-With'] = 'XMLHttpRequest';
     }
 
-    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept]);
-
-    for (var key in options.header) {
-        xhr.setRequestHeader(key, options.header[key]);
-    }
+    extend(header, options.header);
 
     // 如果是`POST`请求，需要`urlencode`
     if (options.method === 'POST' && !options.header['Content-Type']) {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+    }
+
+    for (var key in header) {
+        xhr.setRequestHeader(key, header[key]);
     }
 };
 
 // 绑定事件
-let setEvents = (xhr, options) => {
+let setEvents = (xhr, options, isCrossDomain) => {
 
     let completeFn = function() {
         if (xhr.__completed) {
@@ -123,7 +128,11 @@ let setEvents = (xhr, options) => {
         completeFn();
     };
 
-    if (!fallback) {
+    // 如果是IE8/9 且 如果是跨域请求
+    if (fallback && isCrossDomain) {
+        // `XDomainRequest`实例是没有`onreadystatechange`方法的!!!
+        xhr.onload = onLoadFn;
+    } else {
         // readyState value:
         //   0: UNSET 未初始化
         //   1: OPENED
@@ -142,8 +151,6 @@ let setEvents = (xhr, options) => {
                 }
             }
         }
-    } else {
-        xhr.onload = onLoadFn;
     }
 
     xhr.onerror = onErrorFn;
@@ -214,7 +221,7 @@ let ajax = (options) => {
     // `__completed`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
     xhr.__completed = FALSE;
 
-    setEvents(xhr, options);
+    setEvents(xhr, options, isCD);
 
     xhr.open(options.method, appendQueryString(options.url, extend({}, options.mark, options.method === GET ? options.data : {}), options.cache, options.traditional));
 

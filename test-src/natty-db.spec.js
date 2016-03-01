@@ -113,21 +113,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it('check global `error`', function (done) {
+        it('catch error', function (done) {
             NattyDB.setGlobal({
                 urlPrefix: host
             });
-
-            // 下面的js错误应该被捕获到
-            NattyDB.on('error', function (error) {
-                try {
-                    expect(window.notExistedFn).to.be(undefined);
-                    done();
-                } catch(e) {
-                    done(new Error(e.message));
-                }
-            });
-
 
             let DBC = new NattyDB.Context();
             let Order = DBC.create('Order', {
@@ -138,8 +127,18 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
             Order.create().then(function(data) {
                 // 触发一个js错误
-                notExistedFn();
-            }, function () {});
+                try{
+                    notExistedFn();
+                } catch (e) {
+                    throw new Error(e);
+                }
+            })['catch'](function (error) {
+                if (window.console) {
+                    console.log(error.message);
+                    console.log(error.stack);
+                }
+                done();
+            });
         });
 
         it('check global `resolve`', function (done) {

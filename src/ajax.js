@@ -34,21 +34,24 @@ let acceptToRequestHeader = {
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
 let setHeaders = (xhr, options) => {
+    let header = {
+        Accept: acceptToRequestHeader[options.accept]
+    };
     // 如果没有跨域 则打该标识 业界通用做法
     // TODO 如果是跨域的 只有有限的requestHeader是可以使用的 待补充注释
     if (!isCrossDomain(options.url)) {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        header['X-Requested-With'] = 'XMLHttpRequest';
     }
 
-    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept]);
-
-    for (var key in options.header) {
-        xhr.setRequestHeader(key, options.header[key]);
-    }
+    extend(header, options.header);
 
     // 如果是`POST`请求，需要`urlencode`
     if (options.method === 'POST' && !options.header['Content-Type']) {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+    }
+
+    for (var key in header) {
+        xhr.setRequestHeader(key, header[key]);
     }
 };
 

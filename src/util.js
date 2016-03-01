@@ -155,6 +155,9 @@ let extend = (receiver = {}, supplier = {}) => {
 };
 
 let likeArray = (v) => {
+    if (!v) {
+        return false;
+    }
     return typeof v.length === NUMBER;
 };
 
