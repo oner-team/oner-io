@@ -31,39 +31,14 @@ let supportCORS = 'object' === typeof window ? (('withCredentials' in xhrTester)
 // minetype的简写映射
 // TODO 考虑是否优化
 let acceptToRequestHeader = {
-    // IIS returns `application/x-javascript`
-    script: 'text/javascript, application/javascript, application/x-javascript',
-    json:   APPLICATION_JSON,
+    // IIS returns `application/x-javascript` 但应该不需要支持
+    '*':    '*/' + '*',
+    script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
+    json:   'application/json, text/json',
     xml:    'application/xml, text/xml',
-    html:   TEXT_HTML,
+    html:   'text/html',
     text:   'text/plain'
 };
-
-//let responseHeaderToAccept = {
-//    'application/javascript': SCRIPT,
-//    'application/x-javascript': SCRIPT,
-//    'text/javascript': SCRIPT,
-//    [APPLICATION_JSON]: JS0N,
-//    'application/xml': XML,
-//    'text/xml': XML,
-//    [TEXT_HTML]: HTML,
-//    'text/plain': TEXT
-//};
-//
-//// 根据服务端返回的`Content-Type`的值 返回应该使用的`accept`的值
-//let getAccept = (mime) => {
-//    if (mime) mime = mime.split(';')[0];
-//    return responseHeaderToAccept[mime] || TEXT;
-//}
-//let addEvent = function(xhr, event, fn) {
-//    if (xhr.addEventListener) {
-//        xhr.addEventListener(event, fn, FALSE);
-//    } else if (xhr.attachEvent) {
-//        xhr.attachEvent('on' + event, fn);
-//    } else {
-//        xhr['on' + event] = fn;
-//    }
-//};
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
@@ -77,7 +52,7 @@ let setHeaders = (xhr, options) => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     }
 
-    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept] || '*/*');
+    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept]);
 
     for (var key in options.header) {
         xhr.setRequestHeader(key, options.header[key]);
@@ -85,7 +60,7 @@ let setHeaders = (xhr, options) => {
 
     // 如果是`POST`请求，需要`urlencode`
     if (options.method === 'POST' && !options.header['Content-Type']) {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     }
 };
 

@@ -9,49 +9,27 @@
  */
 const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
-const doc = 'object' === typeof window ? document : null;
 const FALSE = false;
 const UNDEFINED = undefined;
 const NULL = null;
 const GET = 'GET';
 const SCRIPT = 'script';
 const XML = 'xml';
-const HTML = 'html';
-const TEXT = 'text';
 const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了字母`O`
-
-const APPLICATION_JSON = 'application/json';
-const TEXT_HTML = 'text/html';
 
 let supportCORS = UNDEFINED !== typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest());
 
 // minetype的简写映射
 // TODO 考虑是否优化
 let acceptToRequestHeader = {
-    // IIS returns `application/x-javascript`
-    script: 'text/javascript, application/javascript, application/x-javascript',
-    json:   APPLICATION_JSON,
+    // IIS returns `application/x-javascript` 但应该不需要支持
+    '*':    '*/' + '*',
+    script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
+    json:   'application/json, text/json',
     xml:    'application/xml, text/xml',
-    html:   TEXT_HTML,
+    html:   'text/html',
     text:   'text/plain'
 };
-
-//let responseHeaderToAccept = {
-//    'application/javascript': SCRIPT,
-//    'application/x-javascript': SCRIPT,
-//    'text/javascript': SCRIPT,
-//    [APPLICATION_JSON]: JS0N,
-//    'application/xml': XML,
-//    'text/xml': XML,
-//    [TEXT_HTML]: HTML,
-//    'text/plain': TEXT
-//};
-//
-//// 根据服务端返回的`Content-Type`的值 返回应该使用的`accept`的值
-//let getAccept = (mime) => {
-//    if (mime) mime = mime.split(';')[0];
-//    return responseHeaderToAccept[mime] || TEXT;
-//}
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
@@ -62,7 +40,7 @@ let setHeaders = (xhr, options) => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     }
 
-    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept] || '*/*');
+    xhr.setRequestHeader('Accept', acceptToRequestHeader[options.accept]);
 
     for (var key in options.header) {
         xhr.setRequestHeader(key, options.header[key]);
@@ -70,7 +48,7 @@ let setHeaders = (xhr, options) => {
 
     // 如果是`POST`请求，需要`urlencode`
     if (options.method === 'POST' && !options.header['Content-Type']) {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     }
 };
 
@@ -166,7 +144,7 @@ let defaultOptions = {
     url: '',
     mark: {},
     method: GET,
-    accept: TEXT,
+    accept: '*',
     data: null,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
