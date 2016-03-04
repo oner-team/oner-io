@@ -18,6 +18,14 @@ DBContext.create('Address', {
 
 ## History
 
+#### v0.3.14 / 2016-03-09
+
+* 打包脚本添加`natty-db.pc.node.js`。
+
+#### v0.3.13 / 2016-03-02
+
+* 优化`Ajax`请求头的`Accept`和`Content-Type`字段的默认值，解决 [issue#6](https://github.com/Jias/natty-db/issues/6) 提到的乱码问题。
+
 #### v0.3.11 / 2016-02-26
 
 * 添加`overrideSelfConcurrent`参数，详见文档。
