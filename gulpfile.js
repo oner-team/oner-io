@@ -98,7 +98,7 @@ function packNodeVersion(isPc) {
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
-                __BUILD_FALLBACK__: false
+                __BUILD_FALLBACK__: isPc
             }),
         ]
     })).pipe(gulp.dest('./dist'));
