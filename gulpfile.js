@@ -71,14 +71,14 @@ function pack(isFallback) {
 }
 
 // pack natty-db.node.js
-function packNodeVersion() {
-    var indexFile = 'src/index.pc.js';
+function packNodeVersion(isPc) {
+    var indexFile = isPc ? 'src/index.pc.js' : 'src/index.js';
 
     return gulp.src(indexFile).pipe(webpackStream({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
-            filename: 'natty-db.node.js',
+            filename: isPc ? 'natty-db.pc.node.js' : 'natty-db.node.js',
             sourcePrefix: '',
             libraryTarget: 'commonjs'
         },
@@ -115,7 +115,8 @@ gulp.task('pack', ['pack-normal-version'], function() {
 });
 
 gulp.task('pack-commonjs', ['pack'], function() {
-    return packNodeVersion();
+    packNodeVersion(true);
+    packNodeVersion(false);
 });
 
 gulp.task('test-pack', ['del-test-dist'], function() {
@@ -162,7 +163,8 @@ gulp.task('min', function () {
     return gulp.src([
         'dist/natty-db.js',
         'dist/natty-db.pc.js',
-        'dist/natty-db.node.js'
+        'dist/natty-db.node.js',
+        'dist/natty-db.pc.node.js'
     ]).pipe(uglify()).pipe(rename(function (path) {
         console.log(path);
         path.basename += '.min';
