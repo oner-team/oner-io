@@ -1,4 +1,5 @@
-const doc = 'object' === typeof window ? document : null;
+const hasWindow = 'undefined' !== typeof window;
+const doc = hasWindow ? document : null;
 const escape = encodeURIComponent;
 const NULL = null;
 const toString = Object.prototype.toString;
@@ -10,7 +11,7 @@ const OBJECT_TYPE = '[object Object]';
  * @returns {boolean}
  * @note IE11下 window.ActiveXObject的值很怪异, 所有需要追加 'ActiveXObject' in window 来判断
  */
-const isIE = ('object' === typeof window && (!!window.ActiveXObject || 'ActiveXObject' in window));
+const isIE = hasWindow && (!!window.ActiveXObject || 'ActiveXObject' in window);
 
 let noop = (v) => {
     return v;

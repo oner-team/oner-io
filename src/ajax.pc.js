@@ -9,9 +9,10 @@
  */
 const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
-const doc = 'object' === typeof window ? document : null;
+const hasWindow = 'undefined' !== typeof window;
+const doc = hasWindow ? document : null;
 const FALSE = false;
-const UNDEFINED = undefined;
+const UNDEFINED = 'undefined';
 const NULL = null;
 const GET = 'GET';
 const SCRIPT = 'script';
@@ -24,9 +25,9 @@ const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
 let xhrTester = UNDEFINED !== typeof XMLHttpRequest ? new XMLHttpRequest() : {};
-let hasXDR = typeof XDomainRequest != UNDEFINED;
-let fallback = 'object' === typeof window ? (!('withCredentials' in xhrTester) && hasXDR) : null;
-let supportCORS = 'object' === typeof window ? (('withCredentials' in xhrTester) || hasXDR) : null;
+let hasXDR = UNDEFINED !== typeof XDomainRequest;
+let fallback = hasWindow ? (!('withCredentials' in xhrTester) && hasXDR) : null;
+let supportCORS = hasWindow ? (('withCredentials' in xhrTester) || hasXDR) : null;
 
 // minetype的简写映射
 // TODO 考虑是否优化

@@ -1,10 +1,11 @@
 const {appendQueryString, noop, extend, makeRandom} = require('./util');
-const win = 'object' === typeof window ? window : null;
-const doc = 'object' === typeof window ? document : null;
+const hasWindow = 'undefined' !== typeof window;
+const win = hasWindow ? window : null;
+const doc = hasWindow ? document : null;
 const NULL = null;
 const SCRIPT = 'script';
 const FALSE = false;
-const IE8 = 'object' === typeof window ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : false;
+const IE8 = hasWindow ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : false;
 // TODO add test spec
 let removeScript = (script) => {
     if (IE8 && script.readyState) {

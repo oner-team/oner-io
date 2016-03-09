@@ -10,7 +10,7 @@
 const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
 
 const FALSE = false;
-const UNDEFINED = undefined;
+const UNDEFINED = 'undefined';
 const NULL = null;
 const GET = 'GET';
 const SCRIPT = 'script';
