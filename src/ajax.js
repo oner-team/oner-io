@@ -174,20 +174,7 @@ let ajax = (options) => {
         options.header = {};
     }
 
-    // H5版本
-    // `IE10+`和标准浏览器的`XMLHttpRequest`都原生支持跨域
     let xhr = new XMLHttpRequest();
-
-    // Web版本
-    if (__BUILD_FALLBACK__) {
-        // `IE8/9`使用`XDomainRequest`来实现跨域, `IE10+`的`XMLHttpRequest`对象直接支持跨域
-        if (!('withCredentials' in xhr) && typeof XDomainRequest != UNDEFINED) {
-            // NOTE `XDomainRequest`仅支持`GET`和`POST`两个方法
-            // 支持的事件有: onerror, onload, onprogress, ontimeout, 注意没有`onloadend`
-            // https://developer.mozilla.org/zh-CN/docs/Web/API/XDomainRequest
-            xhr = new XDomainRequest();
-        }
-    }
 
     setEvents(xhr, options);
 

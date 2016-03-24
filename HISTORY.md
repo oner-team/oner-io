@@ -18,6 +18,10 @@ DBContext.create('Address', {
 
 ## History
 
+#### v0.4.0 / 2016-03-24
+
+* 添加`willRequest`和`didRequest` hook。
+
 #### v0.3.16 / 2016-03-10
 
 * 解决`IE8`下`ajax`模块不触发`complete`的`bug`。
