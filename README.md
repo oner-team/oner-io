@@ -215,6 +215,13 @@ DBContext.create('Order', {
 
 请求的默认参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，data参数用于定义该接口的固定参数。
 
+##### didRequest
+
+* 类型：Function
+* 默认：`function(){}`
+
+钩子函数，会在请求执行完成后调用。
+
 ##### fit
 
 * 类型：Function
@@ -242,7 +249,7 @@ DBContext.create('Order', {
 DBContext.create('Order', {
     create: {
         url: 'api/createOrder',
-        // 开启请求锁 
+        // 开启请求锁
         // 该接口在服务端返回响应之前，如果再次被调用，将被忽略。
         ignoreSelfConcurrent: true
     }
@@ -353,6 +360,13 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 * 默认：''(空字符串)
 
 请求地址前缀，如果url的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
+
+##### willRequest
+
+* 类型：Function
+* 默认：`function(){}`
+
+钩子函数，会在请求执行前调用。
 
 ## 编码约定
 
@@ -570,7 +584,7 @@ let NattyDB = require('natty-db');
 let systemAContext = new NattyDB.Context({
     fit: function () {
         return {
-            success: response.success, 
+            success: response.success,
             content: response.data, // 适配点
             ...
         };

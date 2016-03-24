@@ -48,6 +48,9 @@ const defaultGlobalConfig = {
     // 默认参数
     data: {},
 
+    // 请求完成钩子函数
+    didRequest: noop,
+
     // 预处理回调
     fit: noop,
 
@@ -96,7 +99,10 @@ const defaultGlobalConfig = {
     // 全局`url`前缀
     urlPrefix: EMPTY,
 
-    withCredentials: NULL
+    withCredentials: NULL,
+
+    // 请求之前调用的钩子函数
+    willRequest: noop
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
@@ -289,6 +295,9 @@ class DB {
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
         config.pending = TRUE;
 
+        // 调用 willRequest 钩子
+        config.willRequest.call(t);
+
         let defer = RSVP.defer();
 
         // 创建请求实例requester
@@ -320,6 +329,9 @@ class DB {
                     defer.reject(error);
                     event.fire('g.reject', [error, config]);
                     event.fire(config._contextId + '.reject', [error, config]);
+
+                    // 调用 didRequest 钩子
+                    config.didRequest.call(t, config);
                 }
             }, config.timeout);
         }
@@ -365,6 +377,9 @@ class DB {
      */
     processResponse(vars, config, defer, response) {
         let t = this;
+
+        // 调用 didRequest 钩子函数
+        config.didRequest.call(t, config);
 
         // 非标准格式数据的预处理
         response = config.fit(response, vars);
