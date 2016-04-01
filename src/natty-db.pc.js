@@ -1,6 +1,6 @@
 "use strict";
 
-const RSVP = require('rsvp');
+const Defer = require('./defer');
 const ajax = require('./ajax.pc');
 const jsonp = require('./jsonp.pc');
 const util = require('./util');
@@ -12,15 +12,6 @@ const {
     isNumber, isArray, isFunction, each
 } = util;
 
-RSVP.on('error', (reason) => {
-    if (window.console) {
-        console.error(reason);
-        event.fire('g.error', [reason]);
-    } else {
-        throw new Error(reason);
-    }
-});
-
 const NULL = null;
 const EMPTY = '';
 const TRUE = true;
@@ -28,7 +19,7 @@ const FALSE = !TRUE;
 
 /**
  * 伪造的`promise`对象
- * NOTE 伪造的promise对象要支持链式调用 保证和`new RSVP.Promise()`返回的对象行为一致
+ * NOTE 伪造的promise对象要支持链式调用 保证和`new Promise()`返回的对象行为一致
  *      dummyPromise.then().catch().finally()
  */
 let dummyPromise = {
@@ -262,7 +253,7 @@ class DB {
      * @param config {Object} 已经处理完善的请求配置
      * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
      *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
-     * @returns {Object} RSVP.defer()
+     * @returns {Object} defer对象
      */
     request(data, config, retryTime) {
         let t = this;
@@ -298,7 +289,7 @@ class DB {
         // 调用 willRequest 钩子
         config.willRequest.call(t);
 
-        let defer = RSVP.defer();
+        let defer = new Defer();
 
         // 创建请求实例requester
         if (config.request) {
@@ -343,12 +334,12 @@ class DB {
      * 重试功能的实现
      * @param data {Object} 发送的数据
      * @param config
-     * @returns {Object} RSVP.defer()
+     * @returns {Object} defer对象
      */
     tryRequest(data, config) {
         let t = this;
 
-        let defer = RSVP.defer();
+        let defer = new Defer();
         let retryTime = 0;
         let request = () => {
             t.request(data, config, retryTime).then((content) => {
@@ -405,7 +396,7 @@ class DB {
     /**
      * 发起Ajax请求
      * @param config {Object} 请求配置
-     * @param defer {Object} RSVP.defer()的对象
+     * @param defer {Object} defer对象
      * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
      *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} xhr对象实例
@@ -472,7 +463,7 @@ class DB {
      * 发起jsonp请求
      * @param vars {Object} 一次请求相关的私有数据
      * @param config {Object} 请求配置
-     * @param defer {Object} RSVP.defer()的对象
+     * @param defer {Object} defer对象
      * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
      *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
      * @returns {Object} 带有abort方法的对象

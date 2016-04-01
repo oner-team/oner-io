@@ -18,6 +18,10 @@ DBContext.create('Address', {
 
 ## History
 
+#### v1.0.0 / soon
+
+* 删除对`RSVP`的依赖，改为使用`Promise Polyfill`。
+
 #### v0.4.0 / 2016-03-24
 
 * 添加`willRequest`和`didRequest` hook。

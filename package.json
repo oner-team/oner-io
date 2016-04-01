@@ -1,6 +1,6 @@
 {
   "name": "natty-db",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-db.git",
   "author": "gnosaij",
@@ -30,7 +30,7 @@
     "promise-api"
   ],
   "dependencies": {
-    "rsvp": "~3.1.0"
+    "lie": "^3.0.2"
   },
   "devDependencies": {
     "babel-loader": "^5.1.3",

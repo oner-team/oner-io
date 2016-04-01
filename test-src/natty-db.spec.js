@@ -113,7 +113,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it('catch error', function (done) {
+        it.only('catch error', function (done) {
             NattyDB.setGlobal({
                 urlPrefix: host
             });
@@ -126,16 +126,14 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
             Order.create().then(function(data) {
-                // 触发一个js错误
-                try{
-                    notExistedFn();
-                } catch (e) {
-                    throw new Error(e);
-                }
+                // 调用一个不存在的函数, 触发一个js错误
+                notExistedFn();
             })['catch'](function (error) {
                 if (window.console) {
                     console.log(error.message);
-                    console.log(error.stack);
+                    console.error(error.stack);
+                } else {
+                    C.log(error.message, error.stack);
                 }
                 done();
             });
