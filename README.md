@@ -4,84 +4,43 @@ A natty semantic data-fetching tool for project that no longer needs to use jQue
 
 ## 安装
 
+安装`natty-db`和`lie`
+
+```
+npm install natty-db lie --save
+```
+
+`lie`是`Promise`的`polyfill`实现库，如果需要在非原生支持`Promise`对象的浏览器或`Webview`中使用`NattyDB`，才需要引入`lie`。
+
 ### 版本说明
 
-NattyDB同时包含H5和PC两个版本，请根据项目具体需求来选用。两个版本分别对应的文件名为：
+`NattyDB`包含三个`build`版本，请根据项目具体需求来选用。
 
-* H5版本：natty-db.js，natty-db.min.js
-* PC版本：natty-db.pc.min.js，natty-db.pc.min.js (文件名中加上了`.pc`)
+|| 文件名 |兼容性|
+|-----------|-------------|---------------|
+|Mobile| natty-db.js |Webkit内核的浏览器|
+|PC| natty-db.pc.js |Webkit内核的浏览器，IE8+|
+|Node|natty-db.node.js|相当于兼容Node环境的PC版|
 
-### 使用`script`标签引入
+### 以标签方式引入
 
-RSVP + H5版NattyDB
+#### 移动版：
 
 ```html
-<script src="path/to/rsvp.min.js"></script>
+<script src="path/to/lie.polyfill.min.js"></script><!--如果需要-->
 <script src="path/to/natty-db.min.js"></script>
 ```
 
-RSVP + PC版NattyDB
+#### PC版：
 
 ```html
-<!--[if lt IE 10]>
-<script type="text/javascript" src="path/to/es5-shim.min.js"></script>
-<script type="text/javascript" src="path/to/es5-sham.min.js"></script>
-<![endif]-->
-<script type="text/javascript" src="path/to/rsvp.min.js"></script>
-<script type="text/javascript" src="path/to/natty-db.pc.min.js"></script>
+<script src="path/to/lie.polyfill.min.js"></script><!--如果需要-->
+<script src="path/to/natty-db.pc.min.js"></script>
 ```
 
-### 以模块化的方式引入
+#### 对IE8/9的兼容，需要注意！
 
-先将NattyDB和[RSVP](https://github.com/tildeio/rsvp.js)安装到项目本地
-
-> RSVP小而美地实现了`Promise`的概念，是NattyDB的唯一依赖。
-
-```bash
-$ npm install natty-db rsvp --save
-```
-
-#### 配置`RSVP`依赖
-
-> 此处假设了项目中使用`Webpack`作为模块管理工具。
-
-如果以模块方式(非`script`标签方式)加载RSVP依赖，需要在`Webpack`配置中使用[ProvidePlugin](http://webpack.github.io/docs/list-of-plugins.html#provideplugin)插件将全局RSVP变量引用转换为`require('rsvp')`模块引用。
-
-```js
-plugins: [
-    new webpack.ProvidePlugin({
-       RSVP: 'rsvp'
-    })
-]
-```
-
-#### 引入H5版NattyDB
-
-在NattyDB模块的`package.json`中配置的默认版本就是H5版本，文件路径为：`dist/natty-db.min.js`。
-
-```js
-$ let NattyDB = require('natty-db');
-```
-
-#### 引入PC版NattyDB
-
-> 此处假设了项目中使用`Webpack`作为模块管理工具。
-
-如果项目需要同时兼容移动端和PC端(目前NattyDB支持到`IE8+`)，需要在`Webpack`中配置[resolve.alias](http://webpack.github.io/docs/configuration.html#resolve-alias)，将NattyDB指向PC版，引用方式保持和H5版本一样。
-
-`Webpack`中的配置：
-
-```js
-resolve: {
-    alias: {
-        'natty-db': 'natty-db/dist/natty-db.pc.min.js'
-    }
-}
-```
-
-### 对IE8/9的兼容，需要注意！
-
-如果项目需要兼容`IE8/9`，需要在html中引入`es5-shim`和`es5-sham`扩展。
+如果项目需要兼容`IE8/9`，需要在NattyDB之前引入`es5-shim`和`es5-sham`扩展。
 
 ```html
 <!--[if lt IE 10]>
@@ -90,72 +49,59 @@ resolve: {
 <![endif]-->
 ```
 
-> NattyDB最初是为了一个基于React的项目而开发的，所以使用了和项目一样的开发环境，即`ES6 + Webpack + Babel`组合，而经过`Babel`编译后的代码，如果想运行在`IE8/9`浏览上，就需要引入`es5-shim`和`es5-sham`扩展。
+> `NattyDB`最初是为了一个基于`React`的项目而开发的，所以使用了和项目一样的开发环境，即`ES6 + Webpack + Babel`组合，而经过`Babel`编译后的代码，如果想运行在`IE8/9`浏览上，就需要引入`es5-shim`和`es5-sham`扩展。
+
+### 以模块方式引入
+
+无论是移动版，PC版还是Node版本的NattyDB，都可以使用模块化的方式引入。NattyDB模块默认指向的build版本是node版本。
+
+```js
+var NattyDB = require('natty-db'); // 默认指向Node版本
+```
+
+如果想使用非Node版本，可以通过`Webpack`的`alias`配置，指向到需要的版本。
 
 ## 使用总览
 
-这一节先总览一下使用NattyDB的完整流程，代码中和代码后的注释说明是重点。
+这一节先总览一下使用`NattyDB`的完整流程，这一部分的注释和说明是重点，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
 
-第一步，创建DB模块(如：`DB.js`)，内容大致如下，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
+下面的示例假设当前业务的需求是，创建和使用一个名为`订单`的数据模块。
+
+#### 第一步，创建名为`Order`的数据模块，如`db.order.js`
 
 ```js
-// 引入`NattyDB`
-const NattyDB = request('natty-db');
-
 // 创建一个`DB上下文`，用于多个`DB`共享配置。
-let DBContext = new NattyDB.Context({...});
+const DBContext = new NattyDB.Context({...});
 
-// 使用`DB上下文`创建一个`DB`，同时指定该`DB`所具有的`API`。
-DBContext.create('User', {
-    getPhone: {...},
-    getNickName: {...}
+// 使用`DB上下文`创建一个名为`Order`的`DB`，同时配置该`DB`所具有的`API`。
+DBContext.create('OrderDB', {
+    create: {...}, // 创建订单
+    close: {...}   // 结束订单
 });
-
-// 创建更多`DB`
-DBContext.create('Order', {
-    create: {...},
-    close: {...}
-});
-
-// 创建更多`DB上下文`
-let DBContext2 = new NattyDB.Context({...});
-
-// 省略的代码
 
 // 输出`DB上下文`
-module.exports = {DBContext, DBContext2};
+module.exports = DBContext;
 ```
 
-特别注意，一个DB模块的输出值，永远是一个或多个DB上下文对象，这是NattyDB的一个使用约定。
+特别注意，一个数据模块的输出值，永远是一个或多个`DB`上下文对象，这是NattyDB的使用约定。
 
-第二步，在业务场景中使用DB模块
+#### 第二步，在业务场景中使用
 
 ```js
-// 引入上面创建的`DB`模块
-const {DB, DB2} = require('path/to/DB');
+// 引入上面创建的订单数据模块
+const {OrderDB} = require('path/to/db.order');
 
-// 调用一个DB的具体的API
-DB.User.getPhone({
+// 创建一个订单
+OrderDB.create({
     // 动态参数
-}).then(function (content) {
-    // 成功回调
-}, function (error) {
-    // 失败回调
+}).then((content) => {
+    // 成功
+}).catch((error) => {
+    // 失败 or 有异常被捕获
 });
-
-// 调用一个DB的具体的API
-DB.Order.create({
-    // 动态参数
-}).then(function (content) {
-    // 成功回调
-}, function (error) {
-    // 失败回调
-});
-
-// 省略的DB2的代码
 ```
 
-特别注意，在上面的代码中，接收DB模块的输出值时，用的变量是`DB`和`DB2`，而不是`DBContext`和`DBContext2`，因为对于业务模块来说，根本不需要关注DB模块的内部实现层级，DB上下文的概念只存在于DB模块内部，一旦输出到业务模块中，都是等待调用的数据集合的含义。
+简单吗？如此简单！但`NattyDB`绝不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率。
 
 ## 配置
 

@@ -113,7 +113,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it.only('catch error', function (done) {
+        it('catch error', function (done) {
             NattyDB.setGlobal({
                 urlPrefix: host
             });
