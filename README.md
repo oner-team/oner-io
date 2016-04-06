@@ -28,8 +28,13 @@ NattyDB是基于`ES2015`中全局`Promise`对象实现的，所以，如果需�
 npm install lie --save
 ```
 
-> 如果不方便引入`Promise polyfill`实现库，比如项目中已经引入了其他的Promise库，可以直接将现有库的`Promise`构造函数直接赋给`window`对象即可。  
-> 如：`window.Promise = RSVP.Promise;`
+如果不方便引入`Promise polyfill`实现库，比如项目中已经引入了其他的Promise库，可以直接将现有库的`Promise`构造函数直接赋给`window`对象即可，建议采用`polyfill`模式。
+
+```js
+window.Promise = window.Promise || RSVP.Promise;
+```
+
+> 注意：RSVP对`js`异常的捕获不够友好。
 
 ### 版本说明
 
