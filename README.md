@@ -1,4 +1,4 @@
-# NattyDB.js
+# NattyDB
 
 A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
@@ -93,7 +93,7 @@ var NattyDB = require('natty-db');
 const DBContext = new NattyDB.Context({...});
 
 // 使用`DB上下文`创建一个名为`Order`的`DB`，同时配置该`DB`所具有的`API`。
-DBContext.create('OrderDB', {
+DBContext.create('Order', {
     create: {...}, // 创建订单
     close: {...}   // 结束订单
 });
@@ -108,10 +108,10 @@ module.exports = DBContext;
 
 ```js
 // 引入上面创建的订单数据模块
-const {OrderDB} = require('path/to/db.order');
+const DB = require('path/to/db.order');
 
 // 创建一个订单
-OrderDB.create({
+DB.Order.create({
     // 动态参数
 }).then((content) => {
     // 成功
@@ -122,11 +122,12 @@ OrderDB.create({
 
 简单吗？如此简单！但不仅如此！NattyDB不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率，详见下文。
 
-## 配置
 
-#### 配置层级
+## 配置层级
 
 NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
+
+TODO: 配图
 
 ##### 全局配置
 
@@ -143,7 +144,7 @@ NattyDB.getGlobal('jsonp');
 
 ##### 上下文配置
 
-上下文配置就是一个DB上下文实例在初始化时的配置，即传入到NattyDB.Context类的参数。
+上下文配置就是一个DB上下文实例在初始化时的配置，即传入到NattyDB.Context构造函数的参数。
 
 ```js
 let DBContext = new NattyDB.Context({/*上下文配置*/});
@@ -162,23 +163,23 @@ DBContext.create('Order', {
 });
 ```
 
-#### 配置参数
+## 配置参数
 
 上面提到全局配置，上下文配置和接口配置，都可以传入以下参数。
 
 ##### cache
 
 * 类型：Boolean
-* 默认：true
+* 默认：false
 
-是否允许(浏览器默认的)缓存，值为`true`时，会在请求的`url`中加入`noCache`参数，屏蔽浏览器的缓存机制。
+是否允许浏览器默认的缓存，值为`false`时，会在请求的`url`中加入`noCache`参数，屏蔽浏览器的缓存机制。
 
 ##### data
 
 * 类型：Object / Function
 * 默认：{}
 
-请求的默认参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，data参数用于定义该接口的固定参数。
+请求的默认参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，`data`参数用于定义该接口的固定参数。
 
 ##### didRequest
 
@@ -190,16 +191,61 @@ DBContext.create('Order', {
 ##### fit
 
 * 类型：Function
-* 默认：function (response) {return response}
+* 默认：function (response) { return response }
 
-数据结构预处理函数
+数据结构预处理函数，接收完整的后端数据作为参数，只应该用于解决后端数据结构不一致的问题。
+
+NattyDB接受的标准数据结构是
+
+```js
+// 正确
+{
+    success: true,
+    content: {}
+}
+// 错误
+{
+    success: false,
+    error: {}
+}
+```
+
+实际项目中的返回数据结构是
+
+```js
+{
+    hasError: false, // or true
+    content: {},
+    error: 'some message'
+}
+```
+
+这时候需要用`fit`来适配，转换成NattyDB约定的数据结构返回。
+
+```js
+fit: function (response) {
+    let ret = {
+        success: !response.hasError
+    };
+    
+    if (ret.success) {
+        ret.content = response.content;
+    } else {
+        ret.error = {
+            message: response.error;
+        }
+    }
+    return ret;
+}
+```
 
 ##### header
 
 * 类型：Object
 * 默认：{}
+* 注意：只针对非跨域的`ajax`请求有效
 
-自定义ajax请求的header，所以只对ajax请求生效，当ajax请求跨域时，该配置将被忽略。
+自定义`ajax`请求的头部信息。当`ajax`请求跨域时，该配置将被忽略。
 
 ##### ignoreSelfConcurrent
 
