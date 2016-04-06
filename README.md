@@ -2,15 +2,34 @@
 
 A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
+## 特点
+
+* 接口风格和`Fetch`保持一致，但在语义上更加优雅。
+* 以超简洁的配置，赋予接口最常见的，但`Fetch`中不支持的强大功能。
+* 承载一套编码约定，大大提高团队的沟通效率。
+* 同时兼容移动端，PC端和Node环境，PC端最低支持到IE8。
+* 有专门针对移动端的优化版本，而且使用方式完全一致。
+
 ## 安装
 
-安装`natty-db`和`lie`
+安装`natty-db`
 
 ```
-npm install natty-db lie --save
+npm install natty-db --save
 ```
 
-`lie`是`Promise`的`polyfill`实现库，如果需要在非原生支持`Promise`对象的浏览器或`Webview`中使用`NattyDB`，才需要引入`lie`。
+[可选] 安装`ES2015 Promise`的`polyfill`实现库。
+
+NattyDB是基于`ES2015`中全局`Promise`对象实现的，所以，如果需要在非原生支持`Promise`对象的浏览器中使用NattyDB，需要引入`Promise polyfill`实现库。
+
+推荐使用[`lie`](https://github.com/calvinmetcalf/lie)，小而精美，而且对`js`异常的捕获很友好，遵循[Promises/A+ spec](https://promisesaplus.com/)。
+
+```
+npm install lie --save
+```
+
+> 如果不方便引入`Promise polyfill`实现库，比如项目中已经引入了其他的Promise库，可以直接将现有库的`Promise`构造函数直接赋给`window`对象即可。  
+> 如：`window.Promise = RSVP.Promise;`
 
 ### 版本说明
 
@@ -18,29 +37,29 @@ npm install natty-db lie --save
 
 || 文件名 |兼容性|
 |-----------|-------------|---------------|
-|Mobile| natty-db.js |Webkit内核的浏览器|
-|PC| natty-db.pc.js |Webkit内核的浏览器，IE8+|
-|Node|natty-db.node.js|相当于兼容Node环境的PC版|
+|Mobile| natty-db.js (`package.json`中`main`的默认值) |Modern Browser|
+|PC| natty-db.pc.js |Modern Browser，IE8~IE11|
+|Node|natty-db.node.js|Modern Browser，IE8~IE11, Node|
 
 ### 以标签方式引入
 
 #### 移动版：
 
 ```html
-<script src="path/to/lie.polyfill.min.js"></script><!--如果需要-->
+<script src="path/to/lie.polyfill.min.js"></script><!--if needed-->
 <script src="path/to/natty-db.min.js"></script>
 ```
 
 #### PC版：
 
 ```html
-<script src="path/to/lie.polyfill.min.js"></script><!--如果需要-->
+<script src="path/to/lie.polyfill.min.js"></script><!--if needed-->
 <script src="path/to/natty-db.pc.min.js"></script>
 ```
 
 #### 对IE8/9的兼容，需要注意！
 
-如果项目需要兼容`IE8/9`，需要在NattyDB之前引入`es5-shim`和`es5-sham`扩展。
+如果项目需要兼容`IE8/9`浏览器，需要在NattyDB之前引入`es5-shim`和`es5-sham`扩展。
 
 ```html
 <!--[if lt IE 10]>
@@ -56,16 +75,16 @@ npm install natty-db lie --save
 无论是移动版，PC版还是Node版本的NattyDB，都可以使用模块化的方式引入。NattyDB模块默认指向的build版本是node版本。
 
 ```js
-var NattyDB = require('natty-db'); // 默认指向Node版本
+var NattyDB = require('natty-db');
 ```
 
-如果想使用非Node版本，可以通过`Webpack`的`alias`配置，指向到需要的版本。
+如果想使用其他`build`版本，可以通过`Webpack`的`alias`配置，指向到需要的版本。
 
 ## 使用总览
 
 这一节先总览一下使用`NattyDB`的完整流程，这一部分的注释和说明是重点，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
 
-下面的示例假设当前业务的需求是，创建和使用一个名为`订单`的数据模块。
+下面的示例假设当前业务的需求是，创建和使用一个名为`Order`(订单)的数据模块。
 
 #### 第一步，创建名为`Order`的数据模块，如`db.order.js`
 
@@ -101,7 +120,7 @@ OrderDB.create({
 });
 ```
 
-简单吗？如此简单！但`NattyDB`绝不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率。
+简单吗？如此简单！但不仅如此！NattyDB不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率，详见下文。
 
 ## 配置
 

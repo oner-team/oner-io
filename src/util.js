@@ -106,7 +106,7 @@ let originA;
 if(doc) {
     originA = doc.createElement('a');
     originA.href = location.href;
-} 
+}
 let isCrossDomain = (url) => {
     let requestA = doc.createElement('a');
     requestA.href = url;
@@ -125,7 +125,17 @@ let isCrossDomain = (url) => {
             }
         }
     }
-                //alert('2:'+ (originA.hostname !== requestA.hostname || originA.port !== requestA.port || originA.protocol !== requestA.protocol))
+
+    //let log = {
+    //    'originA.hostname': originA.hostname,
+    //    'requestA.hostname': requestA.hostname,
+    //    'originA.port': originA.port,
+    //    'requestA.port': requestA.port,
+    //    'originA.protocol': originA.protocol,
+    //    'requestA.protocol': requestA.protocol
+    //}
+    //
+    //alert(JSON.stringify(log));
 
     // 标准浏览器
     return originA.hostname !== requestA.hostname || originA.port !== requestA.port || originA.protocol !== requestA.protocol;
