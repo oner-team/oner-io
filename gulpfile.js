@@ -54,18 +54,12 @@ function pack(isFallback) {
                 }
             ]
         },
-        externals:  {
-            // rsvp: 'commonjs rsvp' // modules.export = require('rsvp');
-            rsvp: 'var RSVP' // modules.export = RSVP; 项目中的webpack要配配`new webpack.ProvidePlugin`
-        },
+        externals: {},
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
                 __BUILD_FALLBACK__: isFallback
-            }),
-            //new webpack.ProvidePlugin({
-            //    RSVP: 'rsvp'
-            //})
+            })
         ]
     })).pipe(gulp.dest('./dist'));
 }
@@ -92,9 +86,7 @@ function packNodeVersion(isPc) {
                 }
             ]
         },
-        externals:  {
-            rsvp: 'commonjs rsvp' 
-        },
+        externals:  {},
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',

@@ -145,7 +145,6 @@ describe('./ajax', function () {
                 accept: 'json',
                 error: function (status, xhr) {
                     ea.do('error');
-                    !NattyDB.ajax.fallback && expect(status).to.be(500);
                 },
                 complete: function () {
                     ea.do('complete');
@@ -164,7 +163,6 @@ describe('./ajax', function () {
                 accept: 'json',
                 error: function (status, xhr) {
                     ea.do('error');
-                    !isFallback && expect(status).to.be(404);
                 },
                 complete: function () {
                     ea.do('complete');

@@ -71,7 +71,7 @@ describe('./hooks', function(){
                         }
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -99,7 +99,7 @@ describe('./hooks', function(){
                         }
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -122,7 +122,7 @@ describe('./hooks', function(){
                         return resp
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -132,7 +132,7 @@ describe('./hooks', function(){
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
-                    console.log(reason)
+                    //console.log(reason)
                 })
         })
 
@@ -148,7 +148,7 @@ describe('./hooks', function(){
                         return resp
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -158,7 +158,7 @@ describe('./hooks', function(){
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
-                    console.log(reason)
+                    //console.log(reason)
                 })
         })
 
@@ -177,7 +177,7 @@ describe('./hooks', function(){
                         }
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -187,7 +187,7 @@ describe('./hooks', function(){
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
-                    console.log(reason)
+                    //console.log(reason)
                 })
         })
 
@@ -207,7 +207,7 @@ describe('./hooks', function(){
                         }
                     },
                     didRequest(config) {
-                        console.log(config)
+                        //console.log(config)
                         done()
                     }
                 }
@@ -217,7 +217,7 @@ describe('./hooks', function(){
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
-                    console.log(reason)
+                    //console.log(reason)
                 })
         })
 

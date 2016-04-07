@@ -21,6 +21,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('global setting',function() {
+        this.timeout(1000*60);
         let defaultGlobalConfig = NattyDB.getGlobal();
         let defaultGlobalConfigProperties = [
             'data',
@@ -322,7 +323,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('api config', function () {
-
+        this.timeout(1000*60);
         let DBC;
 
         beforeEach('reset NattyDB context', function () {
@@ -509,7 +510,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('request config', function () {
-        //this.timeout(1000*60);
+        this.timeout(1000*60);
         let DBC;
 
         beforeEach('reset', function () {
@@ -640,6 +641,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe("DBC.create", function () {
+        this.timeout(1000*60);
         let DBC = new NattyDB.Context();
 
         it('structure for DBC', function () {
@@ -955,9 +957,14 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
             Order.create().then(function () {
                 // can not go here
-            }, function(error) {
+            })['catch'](function (error) {
                 try {
-                    expect(error.status).to.be(NattyDB.ajax.fallback ? undefined : 404);
+                    if (!NattyDB.ajax.fallback) {
+                        // 即使是现代浏览器,也有status为0的情况
+                        expect(error.status === 0 || error.status === 404).to.be(true);
+                    } else {
+                        expect(error.status).to.be(undefined);
+                    }
                     done();
                 } catch(e) {
                     done(new Error(e.message));
