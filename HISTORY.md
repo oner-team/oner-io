@@ -18,7 +18,7 @@ DBContext.create('Address', {
 
 ## History
 
-#### v1.0.0 / soon
+#### v1.0.0 / 2016-04-07
 
 * 不再强依赖`RSVP`，改为使用`Promise Polyfill`库`lie`。如果项目只运行在原生支撑`Promise`对象的浏览器或`WebView`中，则`NattyDB`可以不需要任何依赖。
 * `package.json`中，`main`的值改为`natty-db.node.js`。
