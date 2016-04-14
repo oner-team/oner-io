@@ -108,14 +108,16 @@ if(doc) {
     originA.href = location.href;
 }
 let isCrossDomain = (url) => {
+
     let requestA = doc.createElement('a');
     requestA.href = url;
     //console.log(originA.protocol + '//' + originA.host + '\n' + requestA.protocol + '//' + requestA.host);
 
     // 如果`url`的值不包含`protocol`和`host`(比如相对路径), 在标准浏览器下, 会自定补全`requestA`对象的`protocal`和`host`属性.
     // 但在IE8~11下, 不会自动补全. 即`requestA.protocol`和`requestA.host`的值都是空的.
+    // 在IE11的不同小版本下, requestA.protocol的值有的是`:`, 有的是空字符串, 太奇葩啦!
     if (__BUILD_FALLBACK__) {
-        if (isIE && requestA.protocol === ':') {
+        if (isIE && (requestA.protocol === ':' || requestA.protocol === '')) {
             if (requestA.hostname === '') {
                 //alert(0)
                 return false;

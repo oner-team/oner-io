@@ -18,6 +18,16 @@ DBContext.create('Address', {
 
 ## History
 
+#### v1.0.1 / 2016-04-14
+
+* 修复`IE11`的一个小版本(11.0.9600.18230)下判断是否跨域不正确的问题。
+
+```js
+let requestA = doc.createElement('a');
+    requestA.href = url;
+// 在IE11的不同小版本下, `requestA.protocol`的值有的是`:`, 有的是空字符串, 太奇葩啦!
+```
+
 #### v1.0.0 / 2016-04-07
 
 * 不再强依赖`RSVP`，改为使用`Promise Polyfill`库`lie`。如果项目只运行在原生支撑`Promise`对象的浏览器或`WebView`中，则`NattyDB`可以不需要任何依赖。
