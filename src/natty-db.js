@@ -287,7 +287,7 @@ class DB {
         config.pending = TRUE;
 
         // 调用 willRequest 钩子
-        config.willRequest.call(t);
+        config.willRequest(vars, config);
 
         let defer = new Defer();
 
@@ -322,7 +322,7 @@ class DB {
                     event.fire(config._contextId + '.reject', [error, config]);
 
                     // 调用 didRequest 钩子
-                    config.didRequest.call(t, config);
+                    config.didRequest(vars, config);
                 }
             }, config.timeout);
         }
@@ -370,7 +370,7 @@ class DB {
         let t = this;
 
         // 调用 didRequest 钩子函数
-        config.didRequest.call(t, config);
+        config.didRequest(vars, config);
 
         // 非标准格式数据的预处理
         response = config.fit(response, vars);

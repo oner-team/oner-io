@@ -809,9 +809,16 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     data: {
                         fixData: 1
                     },
+                    willRequest: function (vars, config) {
+                        vars.data.hookData = 1;
+                        // console.log(vars);
+                        // console.log(config);
+                        // console.log(this);
+                    },
                     process: function (content, vars) {
                         expect(vars.data.fixData).to.be(1);
                         expect(vars.data.liveData).to.be(1);
+                        expect(vars.data.hookData).to.be(1);
                         return {
                             orderId: content.id
                         };
@@ -819,6 +826,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                     fit: function (response, vars) {
                         expect(vars.data.fixData).to.be(1);
                         expect(vars.data.liveData).to.be(1);
+                        expect(vars.data.hookData).to.be(1);
                         return response;
                     }
                 }
