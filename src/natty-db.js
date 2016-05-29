@@ -93,7 +93,16 @@ const defaultGlobalConfig = {
     withCredentials: NULL,
 
     // 请求之前调用的钩子函数
-    willRequest: noop
+    willRequest: noop,
+
+    plugins: [
+        {
+            name: 'storage',
+            install: function() {
+                
+            }
+        }
+    ]
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
@@ -137,7 +146,7 @@ class DB {
         if (config.mock) {
             // dip平台强制使用`GET`方式, 因为不支持`GET`以外的类型
             // TODO 是否拿出去? 和dip平台耦合了
-            config.method = 'GET';
+            // config.method = 'GET';
             config.mockUrl = t.getFullUrl(config.mockUrl, true);
         }
 
@@ -309,7 +318,7 @@ class DB {
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
-                if (config.pending) {
+                if (config.pending && vars.requester) {
                     // 取消请求
                     vars.requester.abort();
                     delete vars.requester;

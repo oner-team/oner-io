@@ -1175,6 +1175,49 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 done();
             }, 1000);
         });
+
+        let storage = function (options) {
+            return {
+                name: 'storage',
+                install: function (api) {
+                    let storage = new NattyStorage(options);
+                }
+            };
+        };
+        it('storage', function (done) {
+            let Taxi = DBC.create('User', {
+                getPhone: {
+                    url: host + 'api/return-success',
+                    plugins: [
+                        
+                    ]
+                }
+            });
+
+            let time = 0;
+
+            // 开始轮询
+            Taxi.getDriverNum.startLoop({
+                data: {},
+                duration: 200
+            }, function (data) {
+                // 成功回掉
+                time++;
+            }, function (error) {
+                // 失败回调
+            });
+
+            setTimeout(function () {
+                expect(time).to.be.above(1);
+                // 验证状态
+                expect(Taxi.getDriverNum.looping).to.be(true);
+                // 停止轮询
+                Taxi.getDriverNum.stopLoop();
+                // 验证状态
+                expect(Taxi.getDriverNum.looping).to.be(false);
+                done();
+            }, 1000);
+        });
     });
 
 
