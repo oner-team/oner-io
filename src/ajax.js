@@ -178,7 +178,12 @@ let ajax = (options) => {
 
     setEvents(xhr, options);
 
-    xhr.open(options.method, appendQueryString(options.url, extend({}, options.mark, options.method === GET ? options.data : {}), options.cache, options.traditional));
+    xhr.open(options.method, appendQueryString(
+        options.url,
+        extend({}, options.mark, options.method === GET ? options.data : {}),
+        options.cache,
+        options.traditional
+    ));
 
     // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的

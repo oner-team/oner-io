@@ -39,7 +39,7 @@ function pack(isFallback) {
 
             // 下面三个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 正好和`gulp`的约定完美对接
             // NOTE: 如果需要构建`umd`模块，则这三个配置项必须同时使用：library, libraryTarget, umdNamedDefine
-            library: 'NattyDB',
+            library: 'NattyFetch',
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
@@ -54,7 +54,9 @@ function pack(isFallback) {
                 }
             ]
         },
-        externals: {},
+        externals: {
+            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+        },
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
@@ -86,7 +88,9 @@ function packNodeVersion(isPc) {
                 }
             ]
         },
-        externals:  {},
+        externals:  {
+            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+        },
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
@@ -135,7 +139,8 @@ gulp.task('test-pack', ['del-test-dist'], function() {
             ]
         },
         externals:  {
-            'natty-db': 'var NattyDB' // 相当于 modules.export = NattyDB;
+            'natty-fetch': 'var NattyFetch', // 相当于 modules.export = NattyFetch;
+            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
         },
         plugins: [
             new webpack.DefinePlugin({

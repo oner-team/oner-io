@@ -89,6 +89,9 @@ Didi.namespace('user', {
 			storage({
 				type: 'localStorage', // sessionStorage
 				version: '1.0'
+			}),
+			retry({
+				time: 3
 			})
 		]
 	}

@@ -1,10 +1,15 @@
 "use strict";
 const {host} = require('./config');
+const NattyFetch = require('natty-fetch');
 
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {appendQueryString, isAbsoluteUrl, isNumber, loadScript, param, decodeParam, isIE, isCrossDomain} = NattyDB._util;
+var {
+    appendQueryString, isAbsoluteUrl, isNumber,
+    loadScript, param, decodeParam, isIE, isCrossDomain,
+    sortPlainObjectKey
+} = NattyFetch._util;
 
 describe('./util', function () {
     describe('param', function () {
@@ -27,7 +32,7 @@ describe('./util', function () {
         });
     });
     describe('appendQueryString', function () {
-        it("appendQueryString('./p', {}, fales)", function () {
+        it.skip("appendQueryString('./p', {}, fales)", function () {
             expect(appendQueryString('./p', {}, false).indexOf('./p?__noCache=')).to.be(0);
         });
         it("appendQueryString('./p', {}, true)", function () {
@@ -156,4 +161,32 @@ describe('./util', function () {
             expect(isCrossDomain('https://www.foo.com/json')).to.be(true);
         });
     });
+
+    describe('isSameQueryStringFromObject', function () {
+
+        let isSameQueryStringFromObject = (obj1, obj2) => {
+            return JSON.stringify(sortPlainObjectKey(obj1)) === JSON.stringify(sortPlainObjectKey(obj2));
+        };
+
+        it('turn to the same query string', function () {
+            // 两个对象, 只有键的顺序不一样, 应该转出一样的`query string`
+            expect(isSameQueryStringFromObject({
+                c: 'c',
+                b: 'b',
+                a: {
+                    c:'c',
+                    a:'a'
+                },
+                d: ['b', 'a']
+            }, {
+                b: 'b',
+                c: 'c',
+                d: ['b', 'a'],
+                a: {
+                    a:'a',
+                    c:'c'
+                }
+            })).to.be(true);
+        });
+    })
 });

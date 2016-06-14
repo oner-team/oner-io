@@ -52,5 +52,8 @@
     "dev": "gulp watch",
     "build": "gulp pack-commonjs && gulp min"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "natty-storage": "^1.0.0-rc3"
+  }
 }

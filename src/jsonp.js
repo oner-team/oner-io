@@ -67,8 +67,9 @@ let jsonp = (options) => {
     };
 
     // 生成`url`
-    let url = appendQueryString(options.url, extend({
-        [options.flag]: callbackName
+    let url = appendQueryString(
+        options.url,
+        extend({[options.flag]: callbackName
     }, options.mark, options.data), options.cache, options.traditional);
 
     // 插入脚本

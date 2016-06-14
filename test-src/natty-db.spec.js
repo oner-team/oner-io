@@ -7,22 +7,22 @@ const ExpectAction = require('./expect-action');
 const expect = require('expect.js');
 
 // require('natty-db')已被`webpack`映射到全局`NattyDB`对象
-const NattyDB = require('natty-db');
+const NattyFetch = require('natty-fetch');
 
 let VERSION;
 __BUILD_VERSION__
 
-describe('NattyDB v' + VERSION + ' Unit Test', function() {
+describe('v' + VERSION + ' Unit Test', function() {
 
     describe('static',function() {
         it('version v' + VERSION, function() {
-            expect(NattyDB.version).to.equal(VERSION);
+            expect(NattyFetch.version).to.equal(VERSION);
         });
     });
 
     describe('global setting',function() {
-        this.timeout(1000*60);
-        let defaultGlobalConfig = NattyDB.getGlobal();
+        this.timeout(1000*30);
+        let defaultGlobalConfig = NattyFetch.getGlobal();
         let defaultGlobalConfigProperties = [
             'data',
             'fit',
@@ -44,10 +44,10 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             'traditional'
         ];
 
-        let emptyEvent = NattyDB._event;
+        let emptyEvent = NattyFetch._event;
 
         let resetNattyDBGlobalConfig = function () {
-            NattyDB.setGlobal(defaultGlobalConfig);
+            NattyFetch.setGlobal(defaultGlobalConfig);
         };
 
         beforeEach(function () {
@@ -57,39 +57,39 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         afterEach(function () {
             // 清理所有事件
             let i;
-            for (i in NattyDB._event) {
+            for (i in NattyFetch._event) {
                 if (i.indexOf('__') === 0) {
-                    delete NattyDB._event[i];
+                    delete NattyFetch._event[i];
                 }
             }
         });
 
-        it('check default global config properties: `NattyDB.getGlobal()`',function() {
+        it('check default global config properties: `NattyFetch.getGlobal()`',function() {
             defaultGlobalConfigProperties.forEach(function (property) {
                 expect(defaultGlobalConfig).to.have.key(property);
             });
         });
 
-        it('check `NattyDB.getGlobal("property")`', function () {
-            expect(NattyDB.getGlobal('jsonp')).to.be(false);
+        it('check `NattyFetch.getGlobal("property")`', function () {
+            expect(NattyFetch.getGlobal('jsonp')).to.be(false);
         });
 
-        it('check `NattyDB.setGlobal(obj)`', function () {
-            NattyDB.setGlobal({
+        it('check `NattyFetch.setGlobal(obj)`', function () {
+            NattyFetch.setGlobal({
                 data: {
                     '_csrf_token': 1
                 }
             });
-            expect(NattyDB.getGlobal('data')).to.eql({
+            expect(NattyFetch.getGlobal('data')).to.eql({
                 '_csrf_token': 1
             });
             // 还原
-            NattyDB.setGlobal({data: {}});
+            NattyFetch.setGlobal({data: {}});
         });
 
         it('Context instance would inherit and extend the global config', function () {
             let urlPrefix = 'http://test.com/api';
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: urlPrefix
             });
 
@@ -103,23 +103,23 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         it('Context instance would inherit and extend the global config', function () {
             let urlPrefix = 'http://test.com/api';
-            NattyDB.setGlobal({
+            NattyFetch.setGlobal({
                 urlPrefix: urlPrefix
             });
 
-            let DBC = new NattyDB.Context();
+            let DBC = new NattyFetch.Context();
             let Order = DBC.create('Order', {
                 create: {}
             });
             expect(Order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it('catch error', function (done) {
-            NattyDB.setGlobal({
+        it.skip('catch error', function (done) {
+            NattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            let DBC = new NattyDB.Context();
+            let DBC = new NattyFetch.Context();
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
@@ -141,11 +141,11 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('check global `resolve`', function (done) {
-            NattyDB.setGlobal({
+            NattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyDB.on('resolve', function (data, config) {
+            NattyFetch.on('resolve', function (data, config) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -155,7 +155,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
 
 
-            let DBC = new NattyDB.Context();
+            let DBC = new NattyFetch.Context();
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/order-create',
@@ -166,11 +166,11 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('check global `reject`', function (done) {
-            NattyDB.setGlobal({
+            NattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyDB.on('reject', function (error, config) {
+            NattyFetch.on('reject', function (error, config) {
                 try {
                     expect(error.code).to.be(1);
                     done();
@@ -179,7 +179,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let DBC = new NattyDB.Context();
+            let DBC = new NattyFetch.Context();
             let Order = DBC.create('Order', {
                 create: {
                     url: 'api/return-error',
@@ -190,7 +190,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('check context `resolve`', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: host
             });
 
@@ -213,7 +213,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         it('check context `reject`', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: host
             });
 
@@ -237,16 +237,16 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         it('check both global and context `resolve`', function (done) {
             let globalResolve = false;
-            NattyDB.setGlobal({
+            NattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyDB.on('resolve', function (content) {
+            NattyFetch.on('resolve', function (content) {
                 //console.log(1, content);
                 globalResolve = true;
             });
 
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
             });
 
             DBC.on('resolve', function (content) {
@@ -271,17 +271,17 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         it('check both global and context `reject`', function (done) {
             let globalReject = false;
-            NattyDB.setGlobal({
+            NattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyDB.on('reject', function (error) {
+            NattyFetch.on('reject', function (error) {
                 //console.log(1, error);
                 globalReject = true;
             });
 
 
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: host
             });
 
@@ -307,11 +307,11 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
         //it('`blacklist` for global options', function () {
         //    // 在全局的配置上声明了全局配置 不应该被接口配置继承
-        //    NattyDB.setGlobal({
+        //    NattyFetch.setGlobal({
         //        reject: function(){},
         //        resolve: function(){}
         //    });
-        //    let DBC = new NattyDB.Context();
+        //    let DBC = new NattyFetch.Context();
         //    // 在接口的配置上声明了全局配置 不应该生效
         //    let Order = DBC.create('Order', {
         //        pay: {}
@@ -323,11 +323,11 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe('api config', function () {
-        this.timeout(1000*60);
+        this.timeout(1000*30);
         let DBC;
 
         beforeEach('reset NattyDB context', function () {
-            DBC = new NattyDB.Context({
+            DBC = new NattyFetch.Context({
                 urlPrefix: host,
                 jsonp: true,
                 mock: false
@@ -367,19 +367,19 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             expect(Order.close.config.mock).to.be(false);
         });
 
-        it('`mock` and `method` option', function () {
-            let Order = DBC.create('Order', {
-                pay: {
-                    mock: true,
-                    method: 'POST' // 当`mock`为`true`时 `method`的配置会被纠正到`GET`
-                }
-            });
-
-            expect(Order.pay.config.method).to.be('GET');
-        });
+        // it('`mock` and `method` option', function () {
+        //     let Order = DBC.create('Order', {
+        //         pay: {
+        //             mock: true,
+        //             method: 'POST' // 当`mock`为`true`时 `method`的配置会被纠正到`GET`
+        //         }
+        //     });
+        //
+        //     expect(Order.pay.config.method).to.be('GET');
+        // });
 
         it('`mock` value from global', function () {
-            let DBCWithoutMock  = new NattyDB.Context();
+            let DBCWithoutMock  = new NattyFetch.Context();
             let Order = DBCWithoutMock.create('Order', {
                 pay: {
                     // 这个mock等于全局mock值
@@ -390,7 +390,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
 
         //it('`blacklist` for API options', function () {
-        //    let DBC  = new NattyDB.Context();
+        //    let DBC  = new NattyFetch.Context();
         //    // 在接口的配置上声明了全局配置 不应该生效
         //    let Order = DBC.create('Order', {
         //        pay: {
@@ -404,7 +404,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         //
         //it('`blacklist` for Context options', function () {
         //    // 在上下文的配置上声明了全局配置 不应该被接口配置继承
-        //    let DBC  = new NattyDB.Context({
+        //    let DBC  = new NattyFetch.Context({
         //        reject: function(){},
         //        resolve: function(){}
         //    });
@@ -422,7 +422,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
 
         it('`mockUrlPrefix` value from context', function () {
-            let DBC  = new NattyDB.Context({
+            let DBC  = new NattyFetch.Context({
                 // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
                 mock: true,
                 mockUrlPrefix: './mock/'
@@ -509,12 +509,12 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
         });
     });
 
-    describe('request config', function () {
-        this.timeout(1000*60);
+    describe.skip('request config', function () {
+        this.timeout(1000*30);
         let DBC;
 
         beforeEach('reset', function () {
-            DBC = new NattyDB.Context();
+            DBC = new NattyFetch.Context();
         });
         // 当使用request参数时, 只有data, retry, ignoreSelfConcurrent起作用
         it('`request` config with success', function (done) {
@@ -641,8 +641,8 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
     });
 
     describe("DBC.create", function () {
-        this.timeout(1000*60);
-        let DBC = new NattyDB.Context();
+        this.timeout(1000*30);
+        let DBC = new NattyFetch.Context();
 
         it('structure for DBC', function () {
             DBC.create('Order', {
@@ -668,16 +668,16 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
 
     describe('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        //NattyDB.setGlobal({
+        //NattyFetch.setGlobal({
         //    cache: false,
         //    traditional: true
         //});
 
-        this.timeout(1000*60);
+        this.timeout(1000*30);
         let DBC;
 
         beforeEach('reset', function () {
-            DBC = new NattyDB.Context({
+            DBC = new NattyFetch.Context({
                 urlPrefix: host,
                 mock: false
             });
@@ -948,7 +948,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(error.status).to.be(NattyDB.ajax.fallback ? undefined : 500);
+                    expect(error.status).to.be(NattyFetch.ajax.fallback ? undefined : 500);
                     done();
                 } catch(e) {
                     done(new Error(e.message));
@@ -967,7 +967,7 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
                 // can not go here
             })['catch'](function (error) {
                 try {
-                    if (!NattyDB.ajax.fallback) {
+                    if (!NattyFetch.ajax.fallback) {
                         // 即使是现代浏览器,也有status为0的情况
                         expect(error.status === 0 || error.status === 404).to.be(true);
                     } else {
@@ -990,6 +990,33 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             });
 
             Order.create().then(function (data) {
+                try {
+                    expect(data.id).to.be(1);
+                    done();
+                } catch(e) {
+                    done(new Error(e.message));
+                }
+            }, function() {
+                // can not go here
+            });
+        });
+
+        it('`GET` with fn-data resolving after retry', function (done) {
+            let Order = DBC.create('Order', {
+                create: {
+                    url: host + 'api/retry-success',
+                    method: 'GET',
+                    retry: 2
+                }
+            });
+
+            let count = 0;
+
+            Order.create(function () {
+                return {
+                    count: count++
+                }
+            }).then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1070,7 +1097,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             // 伪造的promise对象要保证支持链式调用
             expect(dummyPromise.then()).to.be(dummyPromise);
             expect(dummyPromise.then().catch()).to.be(dummyPromise);
-            expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
 
         // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有返回, 则取消掉第一次请求(即: 返回时不响应)
@@ -1152,94 +1178,21 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             }, 300);
         });
 
-        it('loop', function (done) {
-            let Taxi = DBC.create('Taxi', {
-                getDriverNum: {
-                    url: host + 'api/return-success'
-                }
-            });
-
-            let time = 0;
-
-            // 开始轮询
-            Taxi.getDriverNum.startLoop({
-                data: {},
-                duration: 200
-            }, function (data) {
-                // 成功回掉
-                time++;
-            }, function (error) {
-                // 失败回调
-            });
-
-            setTimeout(function () {
-                expect(time).to.be.above(1);
-                // 验证状态
-                expect(Taxi.getDriverNum.looping).to.be(true);
-                // 停止轮询
-                Taxi.getDriverNum.stopLoop();
-                // 验证状态
-                expect(Taxi.getDriverNum.looping).to.be(false);
-                done();
-            }, 1000);
-        });
-
-        let storage = function (options) {
-            return {
-                name: 'storage',
-                install: function (api) {
-                    let storage = new NattyStorage(options);
-                }
-            };
-        };
-        it('storage', function (done) {
-            let Taxi = DBC.create('User', {
-                getPhone: {
-                    url: host + 'api/return-success',
-                    plugins: [
-                        
-                    ]
-                }
-            });
-
-            let time = 0;
-
-            // 开始轮询
-            Taxi.getDriverNum.startLoop({
-                data: {},
-                duration: 200
-            }, function (data) {
-                // 成功回掉
-                time++;
-            }, function (error) {
-                // 失败回调
-            });
-
-            setTimeout(function () {
-                expect(time).to.be.above(1);
-                // 验证状态
-                expect(Taxi.getDriverNum.looping).to.be(true);
-                // 停止轮询
-                Taxi.getDriverNum.stopLoop();
-                // 验证状态
-                expect(Taxi.getDriverNum.looping).to.be(false);
-                done();
-            }, 1000);
-        });
+        
     });
-
+    
 
     describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        //NattyDB.setGlobal({
+        //NattyFetch.setGlobal({
         //    cache: false
         //});
 
-        this.timeout(1000*60);
+        this.timeout(1000*30);
         let DBC;
 
         beforeEach('reset', function () {
-            DBC = new NattyDB.Context({
+            DBC = new NattyFetch.Context({
                 urlPrefix: host,
                 mock: false
             });
@@ -1433,7 +1386,6 @@ describe('NattyDB v' + VERSION + ' Unit Test', function() {
             // 伪造的promise对象要保证支持链式调用
             expect(dummyPromise.then()).to.be(dummyPromise);
             expect(dummyPromise.then().catch()).to.be(dummyPromise);
-            expect(dummyPromise.then().catch().finally()).to.be(dummyPromise);
         });
     });
 

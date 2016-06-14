@@ -182,6 +182,15 @@ app.all('/api/:test', function (req, res) {
             });
             break;
 
+        case 'return-stamp':
+            res.json({
+                success: true,
+                content: {
+                    time: +new Date()
+                }
+            });
+            break;
+
         default:
             res.json({
                 success: true,
@@ -194,7 +203,7 @@ app.all('/api/:test', function (req, res) {
 
 });
 
-var server = app.listen(8001, function () {
+var server = app.listen(8010, function () {
     var host = server.address().address;
     var port = server.address().port;
 

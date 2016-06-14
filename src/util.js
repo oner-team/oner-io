@@ -5,6 +5,20 @@ const NULL = null;
 const toString = Object.prototype.toString;
 const ARRAY_TYPE = '[object Array]';
 const OBJECT_TYPE = '[object Object]';
+const TRUE = true;
+
+/**
+ * 伪造的`promise`对象
+ * NOTE 伪造的promise对象要支持链式调用 保证和`new Promise`返回的对象行为一致
+ *      dummyPromise.then().catch().finally()
+ */
+let dummyPromise = {
+    dummy: TRUE
+};
+dummyPromise.then = dummyPromise['catch'] = () => {
+    // NOTE 这里用了剪头函数 不能用`return this`
+    return dummyPromise;
+};
 
 /**
  * 判断是否是IE8~11, 不包含Edge
@@ -85,6 +99,16 @@ let isWindow = (v) => {
 let isPlainObject = (v) => {
     return v !== NULL && isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype;
 };
+
+let isEmptyObject = (v) => {
+    let count = 0;
+    for (let i in v) {
+        if (v.hasOwnProperty(i)) {
+            count++;
+        }
+    }
+    return count === 0;
+}
 
 let isArray = Array.isArray;
 if (__BUILD_FALLBACK__) {
@@ -191,7 +215,32 @@ let each = (v, fn) => {
     }
 };
 
-//
+/**
+ * 将对象的`键`排序后 返回一个新对象
+ *
+ * @param obj {Object} 被操作的对象
+ * @returns {Object} 返回的新对象
+ * @case 这个函数用于对比两次请求的参数是否一致
+ */
+let sortPlainObjectKey = (obj) => {
+    let clone = {};
+    let key;
+    let keyArray = [];
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            keyArray.push(key);
+            if (isPlainObject(obj[key])) {
+                obj[key] = sortPlainObjectKey(obj[key]);
+            }
+        }
+    }
+    keyArray.sort();
+    for (let i=0, l=keyArray.length; i<l; i++) {
+        clone[keyArray[i]] = obj[keyArray[i]];
+    }
+    return clone;
+};
+
 let serialize = (params, obj, traditional, scope) => {
     let type, array = isArray(obj), hash = isPlainObject(obj);
     each(obj, function(value, key) {
@@ -242,21 +291,12 @@ let decodeParam = (str) => {
 
 // 给URL追加查询字符串
 let appendQueryString = (url, obj, cache, traditional) => {
-    //let kv = [];
-
     // 是否追加noCache参数
-    if (!cache) {
-        obj.__noCache = makeRandom();
-    }
+    // if (!cache) {
+    //     obj.__noCache = makeRandom();
+    // }
 
     let queryString = param(obj, traditional);
-    //!cache && kv.push('noCache=' + makeRandom());
-
-    //for (let key in obj) {
-    //    if (obj.hasOwnProperty(key)) {
-    //        kv.push(escape(key) + '=' + escape(obj[key]));
-    //    }
-    //}
 
     if (queryString) {
         return url + (~url.indexOf('?') ? '&' : '?') + queryString;
@@ -266,20 +306,24 @@ let appendQueryString = (url, obj, cache, traditional) => {
 };
 
 module.exports = {
-    isIE,
-    extend: redo(extend),
-    each,
-    makeRandom,
     appendQueryString,
-    noop,
-    isCrossDomain,
-    isAbsoluteUrl,
-    isRelativeUrl,
-    isBoolean,
-    isFunction,
-    isNumber,
-    isArray,
-    param,
     decodeParam,
+    dummyPromise,
+    each,
+    extend: redo(extend),
+    isAbsoluteUrl,
+    isArray,
+    isBoolean,
+    isCrossDomain,
+    isEmptyObject,
+    isFunction,
+    isIE,
+    isNumber,
+    isPlainObject,
+    isRelativeUrl,
+    makeRandom,
+    noop,
+    sortPlainObjectKey,
+    param,
     runAsFn
 };

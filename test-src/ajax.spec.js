@@ -5,20 +5,20 @@ const expect = require('expect.js');
 const ExpectAction = require('./expect-action');
 
 const {host} = require('./config');
+const NattyFetch = require('natty-fetch');
+let {ajax} = NattyFetch;
 
-let {ajax} = NattyDB;
-
-let isFallback = NattyDB.ajax.fallback;
+let isFallback = NattyFetch.ajax.fallback;
 
 describe('./ajax', function () {
 
     describe('dependent detects', function () {
         it('support `CORS`', function () {
-            expect(NattyDB.ajax.supportCORS).to.be(true);
+            expect(NattyFetch.ajax.supportCORS).to.be(true);
         });
     });
 
-    describe('browser detects：NOT used in NattyDB', function () {
+    describe('browser detects：NOT used in NattyFetch', function () {
         let xhr = new XMLHttpRequest();
 
         let methods = ['loadstart', 'load', 'progress', 'error', 'timeout'];

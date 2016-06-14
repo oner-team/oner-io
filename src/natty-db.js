@@ -1,15 +1,23 @@
 "use strict";
 
+const NattyStorage = require('natty-storage');
+
 const Defer = require('./defer');
 const ajax = require('./ajax');
 const jsonp = require('./jsonp');
 const util = require('./util');
 const event = require('./event');
 
+// 内置插件
+const pluginLoop = require('./plugin.loop');
+const pluginSoon = require('./plugin.soon');
+
 const {
     extend, runAsFn, isAbsoluteUrl,
     isRelativeUrl, noop, isBoolean,
-    isNumber, isArray, isFunction, each
+    isNumber, isArray, isFunction,
+    sortPlainObjectKey, isEmptyObject,
+    isPlainObject, dummyPromise
 } = util;
 
 const NULL = null;
@@ -17,24 +25,8 @@ const EMPTY = '';
 const TRUE = true;
 const FALSE = !TRUE;
 
-/**
- * 伪造的`promise`对象
- * NOTE 伪造的promise对象要支持链式调用 保证和`new Promise`返回的对象行为一致
- *      dummyPromise.then().catch().finally()
- */
-let dummyPromise = {
-    dummy: TRUE
-};
-dummyPromise.then = dummyPromise['catch'] = dummyPromise['finally'] = () => {
-    // NOTE 这里用了剪头函数 不能用`return this`
-    return dummyPromise;
-};
-
 // 全局默认配置
 const defaultGlobalConfig = {
-
-    // 是否缓存
-    cache: false,
 
     // 默认参数
     data: {},
@@ -53,7 +45,7 @@ const defaultGlobalConfig = {
 
     // 有两种格式配置`jsonp`的值
     // {Boolean}
-    // {Array} eg: [true, 'cb', 'j{id}']
+    // {Array} eg: [TRUE, 'cb', 'j{id}']
     jsonp: FALSE,
 
     // 是否开启log信息
@@ -90,19 +82,19 @@ const defaultGlobalConfig = {
     // 全局`url`前缀
     urlPrefix: EMPTY,
 
+    // 是否在`url`上添加时间戳, 用于避免浏览器的304缓存
+    urlStamp: TRUE,
+
     withCredentials: NULL,
 
     // 请求之前调用的钩子函数
     willRequest: noop,
 
-    plugins: [
-        {
-            name: 'storage',
-            install: function() {
-                
-            }
-        }
-    ]
+    // 扩展: storage
+    storage: false,
+
+    // plugin
+    plugins: false
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
@@ -117,6 +109,7 @@ class DB {
 
         t.cache = {};
         t.name = name;
+
         for (let API in APIs) {
             t[API] = t.createAPI(extend({
                 DBName: name,
@@ -147,7 +140,7 @@ class DB {
             // dip平台强制使用`GET`方式, 因为不支持`GET`以外的类型
             // TODO 是否拿出去? 和dip平台耦合了
             // config.method = 'GET';
-            config.mockUrl = t.getFullUrl(config.mockUrl, true);
+            config.mockUrl = t.getFullUrl(config.mockUrl, TRUE);
         }
 
         config.url = t.getFullUrl(options.url);
@@ -165,9 +158,33 @@ class DB {
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
         if (!config.mock && !!config.url.match(/\.jsonp(\?.*)?$/)) {
-            config.jsonp = true;
+            config.jsonp = TRUE;
         }
 
+        // 开启`storage`的前提条件
+        let storagePrecondition = config.method === 'GET' || config.jsonp;
+
+        if (!storagePrecondition && config.storage === TRUE) {
+            throw new Error('A `' + config.method + '` request CAN NOT use `storage` which is only for `GET/jsonp` request! Please check the options for `' + config.DBName + '.' + config.API + '`');
+        }
+
+        // 简易开启缓存的写法
+        if (config.storage === TRUE) {
+            config.storage = {};
+        }
+
+        // 决定什么情况下缓存可以开启
+        config.storageUseable = isPlainObject(config.storage) &&
+            (config.method === 'GET' || config.jsonp) &&
+            NattyStorage.support[config.storage.type || 'localStorage'];
+
+        // 创建缓存实例
+        if (config.storageUseable) {
+            config.storage = new NattyStorage(extend({
+                key: config.method + ' ' + config.DBName + '.' + config.API
+            }, config.storage));
+        }
+        
         return config;
     }
 
@@ -197,52 +214,89 @@ class DB {
                 return dummyPromise;
             }
 
-            if (config.retry === 0) {
-                //C.log('request');
-                return t.request(data, config);
-            } else {
-                return t.tryRequest(data, config);
+            if (config.overrideSelfConcurrent && config._lastRequester) {
+                config._lastRequester.abort();
+                delete config._lastRequester;
             }
+
+            // 一次请求的私有相关数据
+            let vars = {
+                mark: {
+                    __api: t.name + '.' + config.API
+                }
+            };
+
+            if (config.mock) {
+                vars.mark.__mock = true;
+            }
+
+            // `data`必须在请求发生时实时创建
+            data = extend({}, config.data, runAsFn(data));
+
+            // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
+            vars.data = data;
+
+            return t.fetch(vars, config);
         };
 
         api.config = config;
-        t.addLoopSupport(api);
+
+        // 启动插件
+        let plugins = isArray(options.plugins) ? options.plugins : [];
+        for (let i = 0, l = plugins.length; i<l; i++) {
+            plugins[i].call(t, api);
+        }
 
         return api;
     }
 
+
+    fetch(vars, config) {
+        let t = this;
+        if (config.retry === 0) {
+            return t.request(vars, config);
+        } else {
+            return t.tryRequest(vars, config);
+        }
+    }
+
     /**
-     * 创建轮询支持
-     * @param api {Function} 需要轮询的函数
+     * 请求数据(从storage或者从网络)
+     * @param vars {Object} 发送的数据
+     * @param config {Object} 已经处理完善的请求配置
+     * @returns {Object} defer对象
      */
-    addLoopSupport(api) {
-        let loopTimer = null;
-        api.looping = FALSE;
-        // 开启轮询
-        api.startLoop = (options, resolveFn = noop, rejectFn = noop) => {
-            if (!options.duration || !isNumber(options.duration)) {
-                throw new Error('Illegal `duration` value for `startLoop` method.');
-                return api;
+    request(vars, config) {
+        let t = this;
+
+        return new Promise(function (resolve, reject) {
+            if (config.storageUseable) {
+
+                // 只有GET和JSONP才会有storage生效
+                vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
+
+                config.storage.has(vars.queryString).then(function (data) {
+                    // console.warn('has cached: ', hasValue);
+                    if (data.has) {
+                        // 调用 willRequest 钩子
+                        config.willRequest(vars, config, 'storage');
+                        return data.value;
+                    } else {
+                        return t.remoteRequest(vars, config);
+                    }
+                }).then(function (data) {
+                    resolve(data);
+                }).catch(function (e) {
+                    reject(e);
+                });
+            } else {
+                t.remoteRequest(vars, config).then(function (data) {
+                    resolve(data);
+                }).catch(function (e) {
+                    reject(e);
+                });
             }
-
-            let sleepAndRequest = () => {
-                api.looping = TRUE;
-                loopTimer = setTimeout(() => {
-                    api(options.data).then(resolveFn, rejectFn);
-                    sleepAndRequest();
-                }, options.duration);
-            };
-
-            // NOTE 轮询过程中是不响应服务器端错误的 所以第二个参数是`noop`
-            api(options.data).then(resolveFn, rejectFn);
-            sleepAndRequest();
-        };
-        // 停止轮询
-        api.stopLoop = () => {
-            clearTimeout(loopTimer);
-            api.looping = FALSE;
-            loopTimer = null;
-        };
+        });
     }
 
     /**
@@ -256,47 +310,20 @@ class DB {
         return (this.context[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context[prefixKey] + url : url;
     }
 
-    /**
-     * 发起请求
-     * @param data {Object} 发送的数据
-     * @param config {Object} 已经处理完善的请求配置
-     * @param retryTime {undefined|Number} 如果没有重试 将是undefined值 见`createAPI`方法
-     *                                     如果有重试 将是重试的当前次数 见`tryRequest`方法
-     * @returns {Object} defer对象
+	/**
+     * 发起网络请求
+     * @param vars
+     * @param config
+     * @returns {Promise}
      */
-    request(data, config, retryTime) {
+    remoteRequest(vars, config) {
         let t = this;
 
-        if (config.overrideSelfConcurrent && config._lastRequester) {
-            config._lastRequester.abort();
-            delete config._lastRequester;
-        }
-
-        // 一次请求的私有相关数据
-        let vars = {
-            mark: {
-                __api: t.name + '.' + config.API
-            }
-        };
-
-        // 更新的重试次数
-        vars.mark.__retryTime = retryTime;
-
-        if (config.mock) {
-            vars.m = 1;
-        };
-
-        // `data`必须在请求发生时实时创建
-        data = extend({}, config.data, runAsFn(data));
-
-        // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
-        vars.data = data;
+        // 调用 willRequest 钩子
+        config.willRequest(vars, config, 'remote');
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
         config.pending = TRUE;
-
-        // 调用 willRequest 钩子
-        config.willRequest(vars, config);
 
         let defer = new Defer();
 
@@ -335,38 +362,39 @@ class DB {
                 }
             }, config.timeout);
         }
-
         return defer.promise;
     }
 
     /**
      * 重试功能的实现
-     * @param data {Object} 发送的数据
+     * @param vars {Object} 发送的数据
      * @param config
      * @returns {Object} defer对象
      */
-    tryRequest(data, config) {
+    tryRequest(vars, config) {
         let t = this;
 
-        let defer = new Defer();
-        let retryTime = 0;
-        let request = () => {
-            t.request(data, config, retryTime).then((content) => {
-                defer.resolve(content);
-                event.fire('g.resolve', [content, config], config);
-                event.fire(config._contextId + '.resolve', [content, config], config);
-            }, (error) => {
-                if (retryTime === config.retry) {
-                    defer.reject(error);
-                } else {
-                    retryTime++;
-                    request();
-                }
-            });
-        };
+        return new Promise(function (resolve, reject) {
+            let retryTime = 0;
+            let request = () => {
+                // 更新的重试次数
+                vars.mark.__retryTime = retryTime;
+                t.request(vars, config).then((content) => {
+                    resolve(content);
+                    event.fire('g.resolve', [content, config], config);
+                    event.fire(config._contextId + '.resolve', [content, config], config);
+                }, (error) => {
+                    if (retryTime === config.retry) {
+                        reject(error);
+                    } else {
+                        retryTime++;
+                        request();
+                    }
+                });
+            };
 
-        request();
-        return defer.promise;
+            request();
+        });
     }
 
     /**
@@ -387,10 +415,22 @@ class DB {
         if (response.success) {
             // 数据处理
             let content = config.process(response.content, vars);
+            
+            let resolveDefer = function () {
+                defer.resolve(content);
+                event.fire('g.resolve', [content, config], config);
+                event.fire(config._contextId + '.resolve', [content, config], config);
+            }
 
-            defer.resolve(content);
-            event.fire('g.resolve', [content, config], config);
-            event.fire(config._contextId + '.resolve', [content, config], config);
+            if (config.storageUseable) {
+                config.storage.set(vars.queryString, content).then(function () {
+                    resolveDefer();
+                }).catch(function (e) {
+                    resolveDefer();
+                });
+            } else {
+                resolveDefer();
+            }
         } else {
             let error = extend({
                 message: 'Processing Failed: ' + config.DBName + '.' + config.API
@@ -522,87 +562,6 @@ class DB {
  *     优雅的
  *     功能增强的
  *     底层隔离的
- *
- * 创建一个上下文
- *     let DBC = new NattyDB.Context({
- *          urlPrefix: 'xxx',
- *          mock: false,
- *          data: {
- *              token: 'xxx
- *          },
- *          timeout: 30000
- *     });
- * 创建一个DB
- *     let User = DBC.create('User', {
- *         getPhone: {
- *             url: 'xxx',
- *             mock: false,
- *             mockUrl: 'path',
- *
- *             method: 'GET',                // GET|POST
- *             data: {},                     // 固定参数
- *             header: {},                   // 非jsonp时才生效
- *             timeout: 5000,                // 如果超时了，会触发error
- *
- *             jsonp: false,                 // true
- *             jsonp: [true, 'cb', 'j{id}'], // 自定义jsonp的query string
- *
- *             fit: fn,
- *             process: fn,
- *
- *             retry: 0,
- *             ignoreSelfConcurrent: true,
- *
- *             log: true
- *         }
- *     });
- *
- * 使用
- *     User.getPhone({
- *         // 动态参数
- *     }).then(function () {
- *         // 成功回调
- *     }, function (error) {
- *         // 失败回调
- *         if (error.status == 404) {} // ajax方法才有error.status
- *         if (error.status == 500) {} // ajax方法才有error.status
- *         if (error.status == 0)      // ajax方法才有error.status 0表示不确定的错误 可能是跨域时使用了非法Header
- *         if (error.timeout) {
- *             console.log(error.message)
- *         }
- *
- *         // 服务器端返回的错误
- *         if (error.code == 10001) {}
- *     });
- *
- *     // 动态参数也可以是函数
- *     User.getPhone(function() {
- *         return {}
- *     }).then(function(){
- *         // 成功回调
- *     });
- *
- *     // 发起轮询
- *     // NOTE 轮询过程中是不响应服务器端错误的
- *     Driver.getDistance.startLoop({
- *         // 轮询发送的请求数据
- *         data: {},
- *         // 轮询发送的请求数据也支持函数
- *         data: function() {
- *             return {};
- *         },
- *
- *         // 间隔时间
- *         duration: 5000,
- *
- *         // 轮询的响应回调
- *         process: function(data) {}
- *     });
- *
- *     // 停止轮询
- *     // NOTE 关闭轮询的唯一方法就是stopLoop方法
- *     Driver.getDistance.stopLoop();
- *
  */
 class Context {
     /**
@@ -685,6 +644,10 @@ let NattyDB = {
         if (!isFunction(fn)) return;
         event.on('g.' + name, fn);
         return this;
+    },
+    plugin: {
+        loop: pluginLoop,
+        soon: pluginSoon
     }
 };
 

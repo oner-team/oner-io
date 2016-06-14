@@ -1,12 +1,15 @@
 const expect = require('expect.js')
 const config = require('./config');
+const NattyFetch = require('natty-fetch');
 
 describe('./hooks', function(){
 
     describe('willRequest', function(){
 
+        this.timeout(1000*60);
+
         it('ajax willRequest call', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host,
                 willRequest() {
                     done()
@@ -31,7 +34,7 @@ describe('./hooks', function(){
         })
 
         it('jsonp willRequest call', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host,
                 willRequest() {
                     done()
@@ -58,7 +61,7 @@ describe('./hooks', function(){
     describe('didRequest', function(){
 
         it('ajax success didRequest', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host
             })
             DBC.create('Api', {
@@ -84,7 +87,7 @@ describe('./hooks', function(){
         })
 
         it('jsonp success didRequest long time', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host
             })
             DBC.create('Api', {
@@ -112,7 +115,7 @@ describe('./hooks', function(){
         })
 
         it('ajax error didRequest', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host
             })
             DBC.create('Api', {
@@ -137,7 +140,7 @@ describe('./hooks', function(){
         })
 
         it('jsonp error didRequest', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host,
                 jsonp: true
             })
@@ -163,7 +166,7 @@ describe('./hooks', function(){
         })
 
         it('ajax timeout didRequest', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host,
                 timeout: 500
             })
@@ -192,7 +195,7 @@ describe('./hooks', function(){
         })
 
         it('jsonp timeout didRequest', function (done) {
-            let DBC = new NattyDB.Context({
+            let DBC = new NattyFetch.Context({
                 urlPrefix: config.host,
                 jsonp: true,
                 timeout: 500
