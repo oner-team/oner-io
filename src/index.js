@@ -1,1 +1,1 @@
-module.exports = require('./natty-db');
+module.exports = require('./natty-fetch');

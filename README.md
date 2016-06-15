@@ -1,4 +1,4 @@
-# NattyDB
+# NattyFetch
 
 A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
@@ -12,15 +12,15 @@ A natty semantic data-fetching tool for project that no longer needs to use jQue
 
 ## 安装
 
-安装`natty-db`
+安装`natty-fetch`
 
 ```
-npm install natty-db --save
+npm install natty-fetch@1.1.0-rc3 --save
 ```
 
 [可选] 安装`ES2015 Promise`的`polyfill`实现库。
 
-NattyDB是基于`ES2015`中全局`Promise`对象实现的，所以，如果需要在非原生支持`Promise`对象的浏览器中使用NattyDB，需要引入`Promise polyfill`实现库。
+NattyFetch是基于`ES2015`中全局`Promise`对象实现的，所以，如果需要在非原生支持`Promise`对象的浏览器中使用NattyFetch，需要引入`Promise polyfill`实现库。
 
 推荐使用[`lie`](https://github.com/calvinmetcalf/lie)，小而精美，而且对`js`异常的捕获很友好，遵循[Promises/A+ spec](https://promisesaplus.com/)。
 
@@ -38,13 +38,11 @@ window.Promise = window.Promise || RSVP.Promise;
 
 ### 版本说明
 
-`NattyDB`包含三个`build`版本，请根据项目具体需求来选用。
+`NattyFetch@2.0.0-rc1`目前只支持移动端使用。PC端兼容版正在开发中。
 
 || 文件名 |兼容性|
 |-----------|-------------|---------------|
-|Mobile| natty-db.js (`package.json`中`main`的默认值) |Modern Browser|
-|PC| natty-db.pc.js |Modern Browser，IE8~IE11|
-|Node|natty-db.node.js|Modern Browser，IE8~IE11, Node|
+|Mobile| natty-fetch.js (`package.json`中`main`的默认值) |Modern Browser|
 
 ### 以标签方式引入
 
@@ -52,19 +50,19 @@ window.Promise = window.Promise || RSVP.Promise;
 
 ```html
 <script src="path/to/lie.polyfill.min.js"></script><!--if needed-->
-<script src="path/to/natty-db.min.js"></script>
+<script src="path/to/natty-fetch.min.js"></script>
 ```
 
-#### PC版：
+#### PC版(暂不可用)：
 
 ```html
 <script src="path/to/lie.polyfill.min.js"></script><!--if needed-->
-<script src="path/to/natty-db.pc.min.js"></script>
+<script src="path/to/natty-fetch.pc.min.js"></script>
 ```
 
 #### 对IE8/9的兼容，需要注意！
 
-如果项目需要兼容`IE8/9`浏览器，需要在NattyDB之前引入`es5-shim`和`es5-sham`扩展。
+如果项目需要兼容`IE8/9`浏览器，需要在NattyFetch之前引入`es5-shim`和`es5-sham`扩展。
 
 ```html
 <!--[if lt IE 10]>
@@ -73,21 +71,21 @@ window.Promise = window.Promise || RSVP.Promise;
 <![endif]-->
 ```
 
-> `NattyDB`最初是为了一个基于`React`的项目而开发的，所以使用了和项目一样的开发环境，即`ES6 + Webpack + Babel`组合，而经过`Babel`编译后的代码，如果想运行在`IE8/9`浏览上，就需要引入`es5-shim`和`es5-sham`扩展。
+> `NattyFetch`最初是为了一个基于`React`的项目而开发的，所以使用了和项目一样的开发环境，即`ES6 + Webpack + Babel`组合，而经过`Babel`编译后的代码，如果想运行在`IE8/9`浏览上，就需要引入`es5-shim`和`es5-sham`扩展。
 
 ### 以模块方式引入
 
-无论是移动版，PC版还是Node版本的NattyDB，都可以使用模块化的方式引入。NattyDB模块默认指向的build版本是node版本。
+无论是移动版，PC版还是Node版本的NattyFetch，都可以使用模块化的方式引入。NattyFetch模块默认指向的build版本是node版本。
 
 ```js
-var NattyDB = require('natty-db');
+var NattyFetch = require('natty-fetch');
 ```
 
 如果想使用其他`build`版本，可以通过`Webpack`的`alias`配置，指向到需要的版本。
 
 ## 使用总览
 
-这一节先总览一下使用`NattyDB`的完整流程，这一部分的注释和说明是重点，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
+这一节先总览一下使用`NattyFetch`的完整流程，这一部分的注释和说明是重点，其中`...`的部分表示详细配置，这里先不用关注，下文会展开讲。
 
 下面的示例假设当前业务的需求是，创建和使用一个名为`Order`(订单)的数据模块。
 
@@ -95,19 +93,31 @@ var NattyDB = require('natty-db');
 
 ```js
 // 创建一个`DB上下文`，用于多个`DB`共享配置。
-const DBContext = new NattyDB.Context({...});
+const DBContext = new NattyFetch.Context({
+    urlPrefix: 'https://abc.com/api/',
+    jsonp: true,
+    // 更多配置见下面的`配置参数`一节
+});
 
 // 使用`DB上下文`创建一个名为`Order`的`DB`，同时配置该`DB`所具有的`API`。
 DBContext.create('Order', {
-    create: {...}, // 创建订单
-    close: {...}   // 结束订单
+    // 创建订单接口
+    create: {
+        url: 'createOrder',
+        // 更多配置见下面的`配置参数`一节
+    },
+    // 关闭订单接口
+    close: {
+        url: 'closeOrder',
+        // 更多配置见下面的`配置参数`一节
+    }
 });
 
 // 输出`DB上下文`
 module.exports = DBContext;
 ```
 
-特别注意，一个数据模块的输出值，永远是一个或多个`DB`上下文对象，这是NattyDB的使用约定。
+特别注意，一个数据模块的输出值，永远是一个或多个`DB`上下文对象，这是`NattyFetch`的使用约定。
 
 #### 第二步，在业务场景中使用
 
@@ -125,34 +135,34 @@ DB.Order.create({
 });
 ```
 
-简单吗？如此简单！但不仅如此！NattyDB不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率，详见下文。
+简单吗？如此简单！但不仅如此！NattyFetch不是`Fetch`接口的简单封装，而是承载了更多的强大配置和使用约定，从以下几个方面提高个人和团队的开发效率，详见下文。
 
 
 ## 配置层级
 
-NattyDB中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
+NattyFetch中一共有三个层级的配置，由上至下分别是全局配置(Global Setting)，上下文配置(Context Setting)和接口配置(API Setting)，上游配置作为下游配置的默认值，同时又被下游配置所覆盖。
 
 TODO: 配图
 
 ##### 全局配置
 
-操作NattyDB最顶配置有两个方法：`setGlobal` 和 `getGlobal`
+操作NattyFetch最顶配置有两个方法：`setGlobal` 和 `getGlobal`
 
 ```js
 // 设置
-NattyDB.setGlobal({/*全局配置*/});
+NattyFetch.setGlobal({/*全局配置*/});
 // 获取所有全局配置
-NattyDB.getGlobal();
+NattyFetch.getGlobal();
 // 获取一项全局配置
-NattyDB.getGlobal('jsonp');
+NattyFetch.getGlobal('jsonp');
 ```
 
 ##### 上下文配置
 
-上下文配置就是一个DB上下文实例在初始化时的配置，即传入到NattyDB.Context构造函数的参数。
+上下文配置就是一个DB上下文实例在初始化时的配置，即传入到NattyFetch.Context构造函数的参数。
 
 ```js
-let DBContext = new NattyDB.Context({/*上下文配置*/});
+let DBContext = new NattyFetch.Context({/*上下文配置*/});
 ```
 
 ##### 接口配置
@@ -200,7 +210,7 @@ DBContext.create('Order', {
 
 数据结构预处理函数，接收完整的后端数据作为参数，只应该用于解决后端数据结构不一致的问题。
 
-NattyDB接受的标准数据结构是
+NattyFetch接受的标准数据结构是
 
 ```js
 // 正确
@@ -225,7 +235,7 @@ NattyDB接受的标准数据结构是
 }
 ```
 
-这时候需要用`fit`来适配，转换成NattyDB约定的数据结构返回。
+这时候需要用`fit`来适配，转换成NattyFetch约定的数据结构返回。
 
 ```js
 fit: function (response) {
@@ -259,7 +269,7 @@ fit: function (response) {
 
 是否忽略接口自身的并发请求，即是否开启请求锁。
 
-示例：假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在NattyDB中，只需要一个参数即可开启请求锁。
+示例：假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在NattyFetch中，只需要一个参数即可开启请求锁。
 
 ```js
 DBContext.create('Order', {
@@ -288,7 +298,7 @@ DBContext.create('Order', {
 
 配置ajax的请求方式。
 
-> 如果浏览器是IE8/9，则NattyDB内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
+> 如果浏览器是IE8/9，则NattyFetch内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
 
 ##### mock
 
@@ -388,9 +398,9 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 #### 数据结构约定
 
-请记住NattyDB在数据结构上的约定，当一个项目的服务端数据结构不一致的时候，比如需要对接多个系统，这里的约定就是将各种数据结构统一后的焦点。
+请记住NattyFetch在数据结构上的约定，当一个项目的服务端数据结构不一致的时候，比如需要对接多个系统，这里的约定就是将各种数据结构统一后的焦点。
 
-NattyDB内部接受的数据结构约定如下：
+NattyFetch内部接受的数据结构约定如下：
 
 ```js
 {
@@ -408,12 +418,12 @@ NattyDB内部接受的数据结构约定如下：
 * 以`content`键值表示数据正确时的数据内容。格式**必须**是一个对象。
 * 以`error`键值表示数据有错误时的错误信息，格式**必须**是一个对象。
 
-在NattyDB内部，严格按照上面约定的结构接收和处理数据。项目中可以通过适配函数`fit`将数据结构方便地转换成约定的格式。`fit`函数的使用详见下文。
+在NattyFetch内部，严格按照上面约定的结构接收和处理数据。项目中可以通过适配函数`fit`将数据结构方便地转换成约定的格式。`fit`函数的使用详见下文。
 
 
 #### 语义化约定
 
-NattyDB中约定的语义化，是指一个数据接口在业务场景下被调用时，应该更贴近自然语言，让人一眼即懂。语义化的具体约定表现针对DB和API的命名约定。
+NattyFetch中约定的语义化，是指一个数据接口在业务场景下被调用时，应该更贴近自然语言，让人一眼即懂。语义化的具体约定表现针对DB和API的命名约定。
 
 假设有一组数据接口，它们有共同的宿主或行为目标，那这里的宿主或目标就可以被设计成一个DB，而这些接口就是这个DB下的一套API。
 
@@ -440,9 +450,9 @@ DB.User.getPhone({...}).then(...);
 定义场景：假设文件名是`db.js`
 
 ```js
-let NattyDB = require('natty-db');
+let NattyFetch = require('natty-fetch');
 // 上下文的概念下文会详细讲，这里只知道所有DB都有上下文即可。
-let DBContext = new NattyDB.Context({...});
+let DBContext = new NattyFetch.Context({...});
 // 定义DB
 DBContext.create('User', {
   getPhone: {...},
@@ -510,7 +520,7 @@ DB.Driver.getDistance.looping; // true or false
 $ npm run server
 ```
 
-启动实时编译的开发环境，并生成非压缩版的`natty-db.js`文件
+启动实时编译的开发环境，并生成非压缩版的`natty-fetch.js`文件
 
 ```bash
 $ npm run dev
@@ -518,7 +528,7 @@ $ npm run dev
 
 ## 构建
 
-生成用于发布压缩版的`natty-db.js`文件。
+生成用于发布压缩版的`natty-fetch.js`文件。
 
 ```bash
 $ npm run build
@@ -531,7 +541,7 @@ $ npm run build
 
 ## 常见问答
 
-#### Q：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyDB？
+#### Q：我的项目需要对接两个不同的后端系统，但两个系统返回的数据结构完全不同，该如何使用NattyFetch？
 
 假设两个系统分别用`A`和`B`表示，返回是数据格式分别如下(仅使用数据正确的情况举例，数据有错的情况同理)：
 
@@ -551,15 +561,15 @@ $ npm run build
 }
 ```
 
-针对上面的两种数据结构，在NattyDB中可以有两种方案可以选择：
+针对上面的两种数据结构，在NattyFetch中可以有两种方案可以选择：
 
 一：如果项目中对`A`和`B`两个系统的依赖有主次之分，比如以`A`系统为主，则可以把针对`A`系统的数据结构适配作为全局配置。然后用一个新的数据上下文(Context)配置`B`系统的数据结构。如：
 
 ```js
-let NattyDB = require('natty-db');
+let NattyFetch = require('natty-fetch');
 
 // 把A系统的配置作为全局配置
-NattyDB.setGlobal({
+NattyFetch.setGlobal({
     // A系统的数据结构适配函数
     fit: function (response) {
         return {
@@ -571,11 +581,11 @@ NattyDB.setGlobal({
 });
 
 // 如果创建新的DB上下文时没有配置fit函数，则会继承全局(即A系统)的
-let systemAContext = new NattyDB.Context();
+let systemAContext = new NattyFetch.Context();
 systemAContext.create('Foo', {...});
 
 // 创建适用于B系统的DB上下文
-let systemBContext = new NattyDB.Context({
+let systemBContext = new NattyFetch.Context({
     // B系统的数据结构适配函数
     fit: function () {
         return {
@@ -594,10 +604,10 @@ module.exports = {systemAContext, systemBContext};
 二：如果`A`和`B`两个系统分不出主次，那建议直接为两个系统分别创建各自的DB上下文，代码如下：
 
 ```js
-let NattyDB = require('natty-db');
+let NattyFetch = require('natty-fetch');
 
 // 适用于A系统的DB上下文
-let systemAContext = new NattyDB.Context({
+let systemAContext = new NattyFetch.Context({
     fit: function () {
         return {
             success: response.success,
@@ -608,7 +618,7 @@ let systemAContext = new NattyDB.Context({
 });
 
 // 适用于B系统的DB上下文
-let systemBContext = new NattyDB.Context({
+let systemBContext = new NattyFetch.Context({
     fit: function () {
         return {
             success: !response.hasError, // 适配点
@@ -623,34 +633,34 @@ module.exports = {systemAContext, systemBContext};
 
 #### Q：当前项目是大型项目，一个DB上下文中包含的DB数量有很多，可以拆分成多个模块吗，拆分后又如何共享全局配置的？
 
-在设计NattyDB的时候就已经考虑了大型项目，一个数据模块的粒度，即可以是单个DB上下文，也可以是多个DB上下文，甚至可以是单个DB(如果这个DB太多接口)。至于拆分成多个模块以后如何共享全局配置，这个就是模块化编程的常(经)见(典)问题了。下面的代码仅供参考，不属于NattyDB本身的文档。
+在设计NattyFetch的时候就已经考虑了大型项目，一个数据模块的粒度，即可以是单个DB上下文，也可以是多个DB上下文，甚至可以是单个DB(如果这个DB太多接口)。至于拆分成多个模块以后如何共享全局配置，这个就是模块化编程的常(经)见(典)问题了。下面的代码仅供参考，不属于NattyFetch本身的文档。
 
-方式一：将NattyDB模块设置为全局变(对)量(象)共享。(如果不想引入全局变量，请直接看方式二)
+方式一：将NattyFetch模块设置为全局变(对)量(象)共享。(如果不想引入全局变量，请直接看方式二)
 
 ```js
-// 将NattyDB挂载到全局
-let NattyDB = window.NattyDB = require('natty-db');
+// 将NattyFetch挂载到全局
+let NattyFetch = window.NattyFetch = require('natty-fetch');
 
 // 设置全局配置
-NattyDB.setGlobal({...});
+NattyFetch.setGlobal({...});
 ```
 
-其他的数据模块都直接使用全局NattyDB变(对)量(象)
+其他的数据模块都直接使用全局NattyFetch变(对)量(象)
 
 ```js
-let FooContext = new NattyDB.Context();
+let FooContext = new NattyFetch.Context();
 FooContext.create('Foo', {...});
 module.exports = {FooContext};
 ```
 
-方式二：为项目添加一个DB模块总入口，然后将NattyDB模块传入各个子级的DB模块。
+方式二：为项目添加一个DB模块总入口，然后将NattyFetch模块传入各个子级的DB模块。
 
 DB模块总入口代码：`DB.js`
 
 ```js
-let NattyDB = require('natty-db');
-// 将NattyDB共享到子级模块中
-let FooDBContext = require('./FooDBContext').init(NattyDB);
+let NattyFetch = require('natty-fetch');
+// 将NattyFetch共享到子级模块中
+let FooDBContext = require('./FooDBContext').init(NattyFetch);
 // DB上下文也可以共享到子级模块中
 let HooDB = require('./HooDB').init(FooDBContext);
 module.exports = {FooDBContext}
@@ -659,8 +669,8 @@ module.exports = {FooDBContext}
 `FooDBContext.js`中的代码
 
 ```js
-module.exports = function init(NattyDB) {
-    let FooDBContext = new NattyDB.Context({...});
+module.exports = function init(NattyFetch) {
+    let FooDBContext = new NattyFetch.Context({...});
     FooDBContext.create('Foo', {...});
     return FooDBContext;
 };
@@ -683,7 +693,7 @@ module.exports = function init(DBContext) {
 
 ## Issues
 
-[https://github.com/Jias/natty-db/issues](https://github.com/Jias/natty-db/issues)
+[https://github.com/Jias/natty-fetch/issues](https://github.com/Jias/natty-fetch/issues)
 
 ## Credits
 

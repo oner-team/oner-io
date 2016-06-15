@@ -33,8 +33,8 @@ function pack(isFallback) {
         output: {
             // 不要配置path，会报错
             //path: 'dist',
-            filename: !isFallback ? 'natty-db.js' : 'natty-db.pc.js',
-            sourceMapFilename: !isFallback ? 'natty-db.js.map' : 'natty-db.pc.js.map',
+            filename: !isFallback ? 'natty-fetch.js' : 'natty-fetch.pc.js',
+            sourceMapFilename: !isFallback ? 'natty-fetch.js.map' : 'natty-fetch.pc.js.map',
             sourcePrefix: '',
 
             // 下面三个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 正好和`gulp`的约定完美对接
@@ -55,7 +55,14 @@ function pack(isFallback) {
             ]
         },
         externals: {
-            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            'natty-storage': {
+                root: 'NattyStorage',
+                var: 'NattyStorage',
+                commonjs: 'natty-storage',
+                commonjs2: 'natty-storage',
+                amd: 'natty-storage'
+            }
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -66,7 +73,7 @@ function pack(isFallback) {
     })).pipe(gulp.dest('./dist'));
 }
 
-// pack natty-db.node.js
+// pack natty-fetch.node.js
 function packNodeVersion(isPc) {
     var indexFile = isPc ? 'src/index.pc.js' : 'src/index.js';
 
@@ -74,7 +81,7 @@ function packNodeVersion(isPc) {
         output: {
             // 不要配置path，会报错
             //path: 'dist',
-            filename: isPc ? 'natty-db.pc.node.js' : 'natty-db.node.js',
+            filename: isPc ? 'natty-fetch.pc.node.js' : 'natty-fetch.node.js',
             sourcePrefix: '',
             libraryTarget: 'commonjs'
         },
@@ -89,7 +96,14 @@ function packNodeVersion(isPc) {
             ]
         },
         externals:  {
-            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            'natty-storage': {
+                root: 'NattyStorage',
+                var: 'NattyStorage',
+                commonjs: 'natty-storage',
+                commonjs2: 'natty-storage',
+                amd: 'natty-storage'
+            }
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -100,13 +114,13 @@ function packNodeVersion(isPc) {
     })).pipe(gulp.dest('./dist'));
 }
 
-// pack natty-db.js
+// pack natty-fetch.js
 gulp.task('pack-normal-version', ['delete-dist-dir'], function() {
     return pack(false);
 });
 
 gulp.task('pack', ['pack-normal-version'], function() {
-    // pack fallback version for natty-db.js
+    // pack fallback version for natty-fetch.js
     return pack(true);
 });
 
@@ -139,8 +153,22 @@ gulp.task('test-pack', ['del-test-dist'], function() {
             ]
         },
         externals:  {
-            'natty-fetch': 'var NattyFetch', // 相当于 modules.export = NattyFetch;
-            'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-fetch': 'var NattyFetch', // 相当于 modules.export = NattyFetch;
+            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            'natty-fetch': {
+                root: 'NattyFetch',
+                var: 'NattyFetch',
+                commonjs: 'natty-fetch',
+                commonjs2: 'natty-fetch',
+                amd: 'natty-fetch'
+            },
+            'natty-storage': {
+                root: 'NattyStorage',
+                var: 'NattyStorage',
+                commonjs: 'natty-storage',
+                commonjs2: 'natty-storage',
+                amd: 'natty-storage'
+            }
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -158,10 +186,10 @@ gulp.task('del-test-dist', function (done) {
 
 gulp.task('min', function () {
     return gulp.src([
-        'dist/natty-db.js',
-        'dist/natty-db.pc.js',
-        'dist/natty-db.node.js',
-        'dist/natty-db.pc.node.js'
+        'dist/natty-fetch.js',
+        'dist/natty-fetch.pc.js',
+        'dist/natty-fetch.node.js',
+        'dist/natty-fetch.pc.node.js'
     ]).pipe(uglify()).pipe(rename(function (path) {
         console.log(path);
         path.basename += '.min';

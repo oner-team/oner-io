@@ -51,7 +51,7 @@ app.all('/api/:test', function (req, res) {
             res.send('window.__test__ = 1;');
             break;
         case 'return-json':
-            res.json({tool:'natty-db'});
+            res.json({tool:'natty-fetch'});
             break;
         case 'return-html':
             res.send('<div>html</div>');

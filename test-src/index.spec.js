@@ -1,6 +1,6 @@
 
 //C.debug = false;
-require('./natty-db.spec.js');
+require('./natty-fetch.spec.js');
 require('./util.spec');
 require('./ajax.spec');
 require('./event.spec');

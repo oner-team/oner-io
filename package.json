@@ -1,10 +1,10 @@
 {
-  "name": "natty-db",
-  "version": "1.0.2",
+  "name": "natty-fetch",
+  "version": "1.1.0-rc3",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
-  "repository": "https://github.com/Jias/natty-db.git",
+  "repository": "https://github.com/Jias/natty-fetch.git",
   "author": "gnosaij",
-  "main": "dist/natty-db.pc.node.min.js",
+  "main": "dist/natty-fetch.js",
   "files": [
     "dist",
     "src",
@@ -13,7 +13,7 @@
     "LICENSE"
   ],
   "keywords": [
-    "natty-db",
+    "natty-fetch",
     "data",
     "database",
     "db",

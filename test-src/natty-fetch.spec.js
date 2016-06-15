@@ -6,13 +6,14 @@ const ExpectAction = require('./expect-action');
 // https://github.com/Automattic/expect.js
 const expect = require('expect.js');
 
-// require('natty-db')已被`webpack`映射到全局`NattyDB`对象
+// require('natty-fetch')已被`webpack`映射到全局`NattyDB`对象
 const NattyFetch = require('natty-fetch');
 
 let VERSION;
 __BUILD_VERSION__
 
-describe('v' + VERSION + ' Unit Test', function() {
+
+describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
     describe('static',function() {
         it('version v' + VERSION, function() {

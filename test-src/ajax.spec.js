@@ -55,7 +55,7 @@ describe('./ajax', function () {
                 },
                 accept: 'json',
                 success: function (res, xhr) {
-                    expect(res).to.eql({tool: 'natty-db'});
+                    expect(res).to.eql({tool: 'natty-fetch'});
                     done();
                 }
             });
