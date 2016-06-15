@@ -394,6 +394,68 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 钩子函数，会在请求执行前调用。
 
+##### plugins
+
+* 类型：Array
+* 默认：[]
+* 可用值：
+  - NattyFetch.plugin.soon
+  - NattyFetch.plugin.loop
+
+`soon`插件：在`storage`开启的情况下，会马上使用`storage`缓存的数据执行回调，并同时发起远程请求，并将请求回来的新数据同步到`storage`中，再第二次执行回调。
+
+```js
+let Order = DBContext.create('Order', {
+    getList: {
+        url: '...',
+        storage: true,
+        plugins: [
+            NattyFetch.plugin.soon
+        ]
+    }
+});
+
+Order.getList.soon({}, function(content){
+    // 如果是首次请求，该回调只会执行一次，`content`来自远程接口
+    // 如果是非首次请求，该回调会执行两次，`content`分别来自缓存和远程接口
+}, function(error){
+    // 任何异常
+})
+```
+
+`loop`插件：创建轮询请求从来就没有这么简单过！
+
+```js
+Driver = DBContext.create('Driver', {
+    getDistance: {
+        url: '...',
+        plugins: [
+            NattyFetch.plugin.loop
+        ]
+    }
+});
+
+// 开始轮询
+Driver.getDistance.startLoop({
+  // 轮询使用的参数
+  data: {...},
+  // 间隔时间
+  duration: 5000
+}, function (content) {
+  // 成功回调
+}, function (error) {
+  // 失败回调
+});
+
+// 结束轮询
+Driver.getDistance.stopLoop();
+
+// 轮询状态
+Driver.getDistance.looping; // true or false
+```
+
+配置可用的插件。
+
 ## 编码约定
 
 #### 数据结构约定
@@ -487,30 +549,6 @@ DB.User.getNickName({...}).then(function (content) {
 #### DB模块设计约定
 
 其实在上文的"使用流程总览"一节中已经有过说明
-
-## 轮询请求
-
-创建轮询请求从来就没有这么简单过！
-
-```js
-// 开始轮询
-DB.Driver.getDistance.startLoop({
-  // 轮询使用的参数
-  data: {...},
-  // 间隔时间
-  duration: 5000
-}, function (content) {
-  // 成功回调
-}, function (error) {
-  // 失败回调
-});
-
-// 结束轮询
-DB.Driver.getDistance.stopLoop();
-
-// 轮询状态
-DB.Driver.getDistance.looping; // true or false
-```
 
 ## 开发(Develop)
 
