@@ -5,12 +5,6 @@ const NattyFetch = require('natty-fetch');
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
-var {
-    appendQueryString, isAbsoluteUrl, isNumber,
-    loadScript, param, decodeParam, isIE, isCrossDomain,
-    sortPlainObjectKey
-} = NattyFetch._util;
-
 describe('plugin soon', function () {
     it('`soon` method with `storage` is open', function (done) {
         let DBC = new NattyFetch.Context({
