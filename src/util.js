@@ -72,6 +72,11 @@ let isBoolean = (v) => {
     return typeof v === BOOLEAN;
 };
 
+const STRING = 'string';
+let isString = (v) => {
+    return typeof v === STRING;
+};
+
 const FUNCTION = 'function';
 let isFunction = (v) => {
     return typeof v === FUNCTION;
@@ -290,12 +295,7 @@ let decodeParam = (str) => {
 };
 
 // 给URL追加查询字符串
-let appendQueryString = (url, obj, cache, traditional) => {
-    // 是否追加noCache参数
-    // if (!cache) {
-    //     obj.__noCache = makeRandom();
-    // }
-
+let appendQueryString = (url, obj, traditional) => {
     let queryString = param(obj, traditional);
 
     if (queryString) {
@@ -321,6 +321,7 @@ module.exports = {
     isNumber,
     isPlainObject,
     isRelativeUrl,
+    isString,
     makeRandom,
     noop,
     sortPlainObjectKey,

@@ -7,23 +7,25 @@ const ExpectAction = require('./expect-action');
 const expect = require('expect.js');
 
 // require('natty-fetch')已被`webpack`映射到全局`NattyDB`对象
-const NattyFetch = require('natty-fetch');
+const nattyFetch = require('natty-fetch');
+
+let noop = function () {};
 
 let VERSION;
 __BUILD_VERSION__
 
 
-describe('NattyFetch v' + VERSION + ' Unit Test', function() {
+describe('nattyFetch v' + VERSION + ' Unit Test', function() {
 
     describe('static',function() {
         it('version v' + VERSION, function() {
-            expect(NattyFetch.version).to.equal(VERSION);
+            expect(nattyFetch.version).to.equal(VERSION);
         });
     });
 
     describe('global setting',function() {
         this.timeout(1000*30);
-        let defaultGlobalConfig = NattyFetch.getGlobal();
+        let defaultGlobalConfig = nattyFetch.getGlobal();
         let defaultGlobalConfigProperties = [
             'data',
             'fit',
@@ -35,7 +37,6 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             'mock',
             'mockUrl',
             'mockUrlPrefix',
-            //'once',
             'process',
             'retry',
             'timeout',
@@ -45,10 +46,10 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             'traditional'
         ];
 
-        let emptyEvent = NattyFetch._event;
+        let emptyEvent = nattyFetch._event;
 
         let resetNattyDBGlobalConfig = function () {
-            NattyFetch.setGlobal(defaultGlobalConfig);
+            nattyFetch.setGlobal(defaultGlobalConfig);
         };
 
         beforeEach(function () {
@@ -58,76 +59,79 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         afterEach(function () {
             // 清理所有事件
             let i;
-            for (i in NattyFetch._event) {
+            for (i in nattyFetch._event) {
                 if (i.indexOf('__') === 0) {
-                    delete NattyFetch._event[i];
+                    delete nattyFetch._event[i];
                 }
             }
         });
 
-        it('check default global config properties: `NattyFetch.getGlobal()`',function() {
+        it('check default global config properties: `nattyFetch.getGlobal()`',function() {
             defaultGlobalConfigProperties.forEach(function (property) {
                 expect(defaultGlobalConfig).to.have.key(property);
             });
         });
 
-        it('check `NattyFetch.getGlobal("property")`', function () {
-            expect(NattyFetch.getGlobal('jsonp')).to.be(false);
+        it('check `nattyFetch.getGlobal("property")`', function () {
+            expect(nattyFetch.getGlobal('jsonp')).to.be(false);
         });
 
-        it('check `NattyFetch.setGlobal(obj)`', function () {
-            NattyFetch.setGlobal({
+        it('check `nattyFetch.setGlobal(obj)`', function () {
+            nattyFetch.setGlobal({
                 data: {
                     '_csrf_token': 1
                 }
             });
-            expect(NattyFetch.getGlobal('data')).to.eql({
+            expect(nattyFetch.getGlobal('data')).to.eql({
                 '_csrf_token': 1
             });
             // 还原
-            NattyFetch.setGlobal({data: {}});
+            nattyFetch.setGlobal({data: {}});
         });
 
         it('Context instance would inherit and extend the global config', function () {
+
             let urlPrefix = 'http://test.com/api';
-            let DBC = new NattyFetch.Context({
-                urlPrefix: urlPrefix
+            let context = nattyFetch.context({
+                urlPrefix
             });
 
             // 继承了所有的全局配置
-            defaultGlobalConfigProperties.forEach(function (property) {
-                expect(DBC.config).to.have.key(property);
-            });
+            // defaultGlobalConfigProperties.forEach(function (property) {
+            //     expect(DBC.config).to.have.key(property);
+            // });
             // 也扩展了全局配置
-            expect(DBC.config.urlPrefix).to.be(urlPrefix);
+            expect(context._config.urlPrefix).to.be(urlPrefix);
         });
 
-        it('Context instance would inherit and extend the global config', function () {
+        it('Context instance would inherit and extend the global config 2', function () {
             let urlPrefix = 'http://test.com/api';
-            NattyFetch.setGlobal({
+            nattyFetch.setGlobal({
                 urlPrefix: urlPrefix
             });
 
-            let DBC = new NattyFetch.Context();
-            let Order = DBC.create('Order', {
+            let context = nattyFetch.context();
+
+            context.create('order', {
                 create: {}
             });
-            expect(Order.create.config.urlPrefix).to.be(urlPrefix);
+
+            expect(context.api.order.create.config.urlPrefix).to.be(urlPrefix);
         });
 
-        it.skip('catch error', function (done) {
-            NattyFetch.setGlobal({
+        it('catch error', function (done) {
+            nattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            let DBC = new NattyFetch.Context();
-            let Order = DBC.create('Order', {
+            let context = new nattyFetch.context();
+            context.create('order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {
+            context.api.order.create().then(function(data) {
                 // 调用一个不存在的函数, 触发一个js错误
                 notExistedFn();
             })['catch'](function (error) {
@@ -142,11 +146,11 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('check global `resolve`', function (done) {
-            NattyFetch.setGlobal({
+            nattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyFetch.on('resolve', function (data, config) {
+            nattyFetch.on('resolve', function (data, config) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -156,22 +160,23 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
 
 
-            let DBC = new NattyFetch.Context();
-            let Order = DBC.create('Order', {
+            let context = nattyFetch.context();
+            context.create('order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+
+            context.api.order.create().then(function(data) {}, function () {});
         });
 
         it('check global `reject`', function (done) {
-            NattyFetch.setGlobal({
+            nattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyFetch.on('reject', function (error, config) {
+            nattyFetch.on('reject', function (error, config) {
                 try {
                     expect(error.code).to.be(1);
                     done();
@@ -180,22 +185,22 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let DBC = new NattyFetch.Context();
-            let Order = DBC.create('Order', {
+            let context = nattyFetch.context();
+            context.create('order', {
                 create: {
                     url: 'api/return-error',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {}, function () {});
         });
 
         it('check context `resolve`', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: host
             });
 
-            DBC.on('resolve', function (data, config) {
+            context.on('resolve', function (data, config) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -204,21 +209,21 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {}, function () {});
         });
 
         it('check context `reject`', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: host
             });
 
-            DBC.on('reject', function (error, config) {
+            context.on('reject', function (error, config) {
                 try {
                     expect(error.code).to.be(1);
                     done();
@@ -227,30 +232,29 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: 'api/return-error',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {}, function () {});
         });
 
         it('check both global and context `resolve`', function (done) {
             let globalResolve = false;
-            NattyFetch.setGlobal({
+            nattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyFetch.on('resolve', function (content) {
+            nattyFetch.on('resolve', function (content) {
                 //console.log(1, content);
                 globalResolve = true;
             });
 
-            let DBC = new NattyFetch.Context({
-            });
+            let context = nattyFetch.context({});
 
-            DBC.on('resolve', function (content) {
+            context.on('resolve', function (content) {
                 //console.log(2, content);
                 try {
                     expect(globalResolve).to.be(true);
@@ -261,32 +265,32 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {}, function () {});
         });
 
         it('check both global and context `reject`', function (done) {
             let globalReject = false;
-            NattyFetch.setGlobal({
+            nattyFetch.setGlobal({
                 urlPrefix: host
             });
 
-            NattyFetch.on('reject', function (error) {
+            nattyFetch.on('reject', function (error) {
                 //console.log(1, error);
                 globalReject = true;
             });
 
 
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: host
             });
 
-            DBC.on('reject', function (error, config) {
+            context.on('reject', function (error, config) {
                 //console.log(2, error);
                 try {
                     expect(globalReject).to.be(true);
@@ -297,38 +301,23 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: 'api/return-error',
                     method: 'POST'
                 }
             });
-            Order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {}, function () {});
         });
-
-        //it('`blacklist` for global options', function () {
-        //    // 在全局的配置上声明了全局配置 不应该被接口配置继承
-        //    NattyFetch.setGlobal({
-        //        reject: function(){},
-        //        resolve: function(){}
-        //    });
-        //    let DBC = new NattyFetch.Context();
-        //    // 在接口的配置上声明了全局配置 不应该生效
-        //    let Order = DBC.create('Order', {
-        //        pay: {}
-        //    });
-        //
-        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
-        //});
 
     });
 
     describe('api config', function () {
         this.timeout(1000*30);
-        let DBC;
+        let context;
 
         beforeEach('reset NattyDB context', function () {
-            DBC = new NattyFetch.Context({
+            context = nattyFetch.context({
                 urlPrefix: host,
                 jsonp: true,
                 mock: false
@@ -336,7 +325,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('both object and function can be used as api\'s config', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 // api 对应 配置
                 pay: {},
                 // api 对应 返回配置的函数
@@ -345,13 +334,13 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order).to.be.a('object');
-            expect(Order.pay).to.be.a('function');
-            expect(Order.create).to.be.a('function');
+            expect(context.api.order).to.be.a('object');
+            expect(context.api.order.pay).to.be.a('function');
+            expect(context.api.order.create).to.be.a('function');
         });
 
         it('`mock` option', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 pay: {
                     mock: true
                 },
@@ -363,72 +352,30 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order.pay.config.mock).to.be(true);
-            expect(Order.create.config.mock).to.be(false);
-            expect(Order.close.config.mock).to.be(false);
+            expect(context.api.order.pay.config.mock).to.be(true);
+            expect(context.api.order.create.config.mock).to.be(false);
+            expect(context.api.order.close.config.mock).to.be(false);
         });
 
-        // it('`mock` and `method` option', function () {
-        //     let Order = DBC.create('Order', {
-        //         pay: {
-        //             mock: true,
-        //             method: 'POST' // 当`mock`为`true`时 `method`的配置会被纠正到`GET`
-        //         }
-        //     });
-        //
-        //     expect(Order.pay.config.method).to.be('GET');
-        // });
-
         it('`mock` value from global', function () {
-            let DBCWithoutMock  = new NattyFetch.Context();
-            let Order = DBCWithoutMock.create('Order', {
+            let context = nattyFetch.context();
+            context.create('order', {
                 pay: {
                     // 这个mock等于全局mock值
                 }
             });
 
-            expect(Order.pay.config.mock).to.be(false);
+            expect(context.api.order.pay.config.mock).to.be(false);
         });
-
-        //it('`blacklist` for API options', function () {
-        //    let DBC  = new NattyFetch.Context();
-        //    // 在接口的配置上声明了全局配置 不应该生效
-        //    let Order = DBC.create('Order', {
-        //        pay: {
-        //            reject: function(){},
-        //            resolve: function(){}
-        //        }
-        //    });
-        //
-        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
-        //});
-        //
-        //it('`blacklist` for Context options', function () {
-        //    // 在上下文的配置上声明了全局配置 不应该被接口配置继承
-        //    let DBC  = new NattyFetch.Context({
-        //        reject: function(){},
-        //        resolve: function(){}
-        //    });
-        //    // 在接口的配置上声明了全局配置 不应该生效
-        //    let Order = DBC.create('Order', {
-        //        pay: {}
-        //    });
-        //
-        //    expect(Order.pay.config).not.to.have.keys(['reject', 'resolve']);
-        //});
-
-
-
-
 
 
         it('`mockUrlPrefix` value from context', function () {
-            let DBC  = new NattyFetch.Context({
+            let context  = nattyFetch.context({
                 // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
                 mock: true,
                 mockUrlPrefix: './mock/'
             });
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 pay: {
                     mockUrl: 'pay'
                 },
@@ -440,13 +387,13 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order.pay.config.mockUrl).to.be('./mock/pay');
-            expect(Order.create.config.mockUrl).to.be('../create');
-            expect(Order.close.config.mockUrl).to.be('https://www.demo.com/close');
+            expect(context.api.order.pay.config.mockUrl).to.be('./mock/pay');
+            expect(context.api.order.create.config.mockUrl).to.be('../create');
+            expect(context.api.order.close.config.mockUrl).to.be('https://www.demo.com/close');
         });
 
         it('`jsonp` option', () => {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 pay: {
                     url: 'path'
                 },
@@ -468,15 +415,15 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order.pay.config.jsonp).to.be(true);
-            expect(Order.transfer.config.jsonp).to.be(false);
-            expect(Order.create.config.jsonp).to.be(true);
-            expect(Order.close.config.jsonp).to.be(true);
-            expect(Order.delay.config.jsonp).to.be(false);
+            expect(context.api.order.pay.config.jsonp).to.be(true);
+            expect(context.api.order.transfer.config.jsonp).to.be(false);
+            expect(context.api.order.create.config.jsonp).to.be(true);
+            expect(context.api.order.close.config.jsonp).to.be(true);
+            expect(context.api.order.delay.config.jsonp).to.be(false);
         });
 
         it('auto `urlPrefix`', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 method1: {
                     url: 'path'
                 },
@@ -500,22 +447,22 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            expect(Order.method1.config.url).to.equal(host + 'path');
-            expect(Order.method2.config.url).to.be('//foo.com/path');
-            expect(Order.method3.config.url).to.be('http://foo.com/path');
-            expect(Order.method4.config.url).to.be('https://foo.com/path');
-            expect(Order.method5.config.url).to.be('./path');
-            expect(Order.method6.config.url).to.be('../path');
-            expect(Order.method7.config.url).to.be('/path');
+            expect(context.api.order.method1.config.url).to.equal(host + 'path');
+            expect(context.api.order.method2.config.url).to.be('//foo.com/path');
+            expect(context.api.order.method3.config.url).to.be('http://foo.com/path');
+            expect(context.api.order.method4.config.url).to.be('https://foo.com/path');
+            expect(context.api.order.method5.config.url).to.be('./path');
+            expect(context.api.order.method6.config.url).to.be('../path');
+            expect(context.api.order.method7.config.url).to.be('/path');
         });
     });
 
     describe.skip('request config', function () {
         this.timeout(1000*30);
-        let DBC;
+        let context;
 
         beforeEach('reset', function () {
-            DBC = new NattyFetch.Context();
+            context = nattyFetch.context();
         });
         // 当使用request参数时, 只有data, retry, ignoreSelfConcurrent起作用
         it('`request` config with success', function (done) {
@@ -524,7 +471,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     successFn({id: 1});
                 }, 200);
             };
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 getSign: {
                     data: {
                         a: 1
@@ -540,7 +487,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.getSign({
+            context.api.order.getSign({
                 b: 1
             }).then(function (content) {
                 expect(content.id).to.be(1);
@@ -554,7 +501,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     errorFn({message: 1});
                 }, 200);
             };
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 getSign: {
                     request: function (data, config, defer, retryTime) {
                         getPayId(function (content) {
@@ -566,7 +513,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.getSign().then(function (content) {
+            context.api.order.getSign().then(function (content) {
             }, function (error) {
                 expect(error.message).to.be(1);
                 done();
@@ -579,7 +526,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     errorFn({message: 1});
                 }, 200);
             };
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 getSign: {
                     retry: 1,
                     request: function (data, config, defer, retryTime) {
@@ -594,7 +541,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.getSign().then(function (content) {
+            context.api.order.getSign().then(function (content) {
             }, function (error) {
                 expect(error.message).to.be(1);
                 done();
@@ -610,7 +557,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }, 200);
             };
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 getSign: {
                     ignoreSelfConcurrent: true,
                     request: function (data, config, defer, retryTime) {
@@ -625,12 +572,12 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.getSign().then(function (content) {
+            context.api.order.getSign().then(function (content) {
             }, function (error) {
                 expect(error.message).to.be(1);
             });
 
-            Order.getSign().then(function (content) {
+            context.api.order.getSign().then(function (content) {
             }, function (error) {
             });
 
@@ -641,44 +588,18 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
     });
 
-    describe("DBC.create", function () {
-        this.timeout(1000*30);
-        let DBC = new NattyFetch.Context();
-
-        it('structure for DBC', function () {
-            DBC.create('Order', {
-                create: {}
-            });
-
-            DBC.create('User', {
-                getPhone: {}
-            });
-            expect(DBC).to.have.keys(['Order', 'User', 'config']);
-        });
-
-        it('create existed DB should throw error', function () {
-            // crete相同的DB
-            let createExistedDB = function () {
-                DBC.create('Order', {
-                    create: {}
-                })
-            };
-            expect(createExistedDB).to.throwError();
-        });
-    });
-
     describe('ajax', function() {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        //NattyFetch.setGlobal({
+        //nattyFetch.setGlobal({
         //    cache: false,
         //    traditional: true
         //});
 
         this.timeout(1000*30);
-        let DBC;
+        let context;
 
         beforeEach('reset', function () {
-            DBC = new NattyFetch.Context({
+            context = nattyFetch.context({
                 urlPrefix: host,
                 mock: false
             });
@@ -686,7 +607,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
         it('play with standard data structure', function (done) {
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: 'api/order-create',
                     method: 'POST',
@@ -694,7 +615,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function(data) {
+            context.api.order.create().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -704,60 +625,8 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it.skip('play with standard data structure with cookie', function (done) {
-
-            let Order = DBC.create('Order', {
-                create: {
-                    url: 'api/return-cookie',
-                    method: 'POST',
-                    //traditional: true
-                }
-            });
-
-            let cookieTime = new Date().getTime();
-            cookie.set('cookieTime', cookieTime);
-
-            Order.create().then(function(data) {
-                try {
-                    expect(data.cookieTime).to.be(cookieTime);
-                    done();
-                } catch(e) {
-                    done(new Error(e.message));
-                }
-            });
-        });
-
-        //it('once', function (done) {
-        //    let User = DBC.create('User', {
-        //        getPhone: {
-        //            url: 'api/once',
-        //            once: true
-        //        }
-        //    });
-        //
-        //    User.getPhone().then(function(data) {
-        //        try {
-        //            expect(data.phone).to.be(1);
-        //            done();
-        //        } catch(e) {
-        //            done(new Error(e.message));
-        //        }
-        //    });
-        //
-        //    setTimeout(function () {
-        //        User.getPhone().then(function(data) {
-        //            try {
-        //                expect(data.phone).to.be(1);
-        //                done();
-        //            } catch(e) {
-        //                done(new Error(e.message));
-        //            }
-        //        });
-        //    }, 1000);
-        //});
-
         it('play with non-standard data structure by `fit`', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create-non-standard',
                     method: 'POST',
@@ -769,7 +638,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     }
                 }
             });
-            Order.create().then(function(data) {
+            context.api.order.create().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -780,7 +649,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('process data', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create',
                     method: 'POST',
@@ -791,7 +660,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     }
                 }
             });
-            Order.create().then(function(data) {
+            context.api.order.create().then(function(data) {
                 try {
                     expect(data.orderId).to.be(1);
                     done();
@@ -803,7 +672,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
         // 固定参数和动态参数 在process和fix方法中都可以正确获取到
         it('`vars.data` in process or fix method', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create',
                     method: 'POST',
@@ -833,7 +702,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create({
+            context.api.order.create({
                 liveData: 1
             }).then(function(data) {
                 try {
@@ -847,7 +716,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
 
         it('skip process data when it is mocking ', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     mock: true,
                     mockUrl: host + 'api/order-create',
@@ -862,7 +731,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     }
                 }
             });
-            Order.create().then(function(data) {
+            context.api.order.create().then(function(data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -872,8 +741,8 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with disabled header [NOTE: IE的行已被标准化]', function (done) {
-            let Order = DBC.create('Order', {
+        it('error by requesting cross-domain with disabled header [NOTE: IE的行为已被标准化]', function (done) {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/order-create',
@@ -882,7 +751,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -895,7 +764,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('error by timeout', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/timeout',
@@ -903,7 +772,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     timeout: 100
                 }
             });
-            Order.create().then(function () {
+            context.api.order.create().then(function () {
                 // can not go here
             }, function(error) {
                 try {
@@ -916,7 +785,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('pending status checking', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/timeout',
@@ -924,32 +793,32 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     timeout: 200
                 }
             });
-            Order.create().then(function () {
+            context.api.order.create().then(function () {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(Order.create.config.pending).to.be(false);
+                    expect(context.api.order.create.config.pending).to.be(false);
                     done();
                 } catch(e) {
                     done(new Error(e.message));
                 }
             });
-            expect(Order.create.config.pending).to.be(true);
+            expect(context.api.order.create.config.pending).to.be(true);
         });
 
         it('error by 500', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/500',
                     method: 'POST'
                 }
             });
-            Order.create().then(function () {
+            context.api.order.create().then(function () {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(error.status).to.be(NattyFetch.ajax.fallback ? undefined : 500);
+                    expect(error.status).to.be(nattyFetch.ajax.fallback ? undefined : 500);
                     done();
                 } catch(e) {
                     done(new Error(e.message));
@@ -958,17 +827,17 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('error by 404', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/404',
                     method: 'POST'
                 }
             });
-            Order.create().then(function () {
+            context.api.order.create().then(function () {
                 // can not go here
             })['catch'](function (error) {
                 try {
-                    if (!NattyFetch.ajax.fallback) {
+                    if (!nattyFetch.ajax.fallback) {
                         // 即使是现代浏览器,也有status为0的情况
                         expect(error.status === 0 || error.status === 404).to.be(true);
                     } else {
@@ -982,7 +851,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('`GET` resolving after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/retry-success',
                     method: 'GET',
@@ -990,7 +859,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1003,7 +872,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('`GET` with fn-data resolving after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/retry-success',
                     method: 'GET',
@@ -1013,7 +882,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
             let count = 0;
 
-            Order.create(function () {
+            context.api.order.create(function () {
                 return {
                     count: count++
                 }
@@ -1030,7 +899,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('`POST` resolving after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/retry-success',
                     method: 'POST',
@@ -1038,7 +907,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1051,13 +920,13 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('rejecting after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/return-error',
                     retry: 1
                 }
             });
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 // can not go here
             }, function(error) {
                 try {
@@ -1072,7 +941,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         // 连发两次请求，第二次应该被忽略
         it('ignore seft concurrent', function (done) {
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     cache: false,
                     url: host + 'api/timeout', // 请求延迟返回的接口
@@ -1080,7 +949,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1090,7 +959,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
 
             // 第一次请求未完成之前 第二次请求返回的是一个伪造的promise对象
-            let dummyPromise = Order.create().then(function(){
+            let dummyPromise = context.api.order.create().then(function(){
                 throw new Error('unexpected `resolved`');
             });
             expect(dummyPromise).to.have.property('dummy');
@@ -1103,7 +972,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有返回, 则取消掉第一次请求(即: 返回时不响应)
         it('override seft concurrent(XHR)', function (done) {
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     cache: false,
                     url: host + 'api/timeout', // 请求延迟返回的接口
@@ -1118,7 +987,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             let count = 0;
 
             // 第一次请求, 不应该有响应
-            Order.create({
+            context.api.order.create({
                 d: 1
             }).then(function (data) {
                 count++
@@ -1126,7 +995,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
             // 第二次请求, 只响应这次请求
             setTimeout(function(){
-                Order.create({
+                context.api.order.create({
                     d:2
                 }).then(function (data) {
                     try {
@@ -1142,7 +1011,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有响应, 则取消掉第一次请求(的响应)
         it('override seft concurrent(JSONP)', function (done) {
 
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     cache: false,
                     jsonp: true,
@@ -1158,7 +1027,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             let count = 0;
 
             // 第一次请求, 不应该有响应
-            Order.create({
+            context.api.order.create({
                 d: 1
             }).then(function (data) {
                 count++
@@ -1166,7 +1035,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
             // 第二次请求, 只响应这次请求
             setTimeout(function(){
-                Order.create({
+                context.api.order.create({
                     d:2
                 }).then(function (data) {
                     try {
@@ -1178,63 +1047,61 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 });
             }, 300);
         });
-
-        
     });
     
 
     describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-        //NattyFetch.setGlobal({
+        //nattyFetch.setGlobal({
         //    cache: false
         //});
 
         this.timeout(1000*30);
-        let DBC;
+        let context;
 
         beforeEach('reset', function () {
-            DBC = new NattyFetch.Context({
+            context = nattyFetch.context({
                 urlPrefix: host,
                 mock: false
             });
         });
 
         it('check default jsonpCallbackQuery', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create',
                     jsonp: true
                 }
             });
 
-            expect(Order.create.config.jsonpCallbackQuery).to.be(undefined);
+            expect(context.api.order.create.config.jsonpCallbackQuery).to.be(undefined);
         });
 
         it('check custom jsonpCallbackQuery', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create',
                     jsonp: [true, 'cb', 'j{id}']
                 }
             });
 
-            expect(Order.create.config.jsonp).to.be(true);
-            expect(Order.create.config.jsonpFlag).to.be('cb');
-            expect(Order.create.config.jsonpCallbackName).to.be('j{id}');
+            expect(context.api.order.create.config.jsonp).to.be(true);
+            expect(context.api.order.create.config.jsonpFlag).to.be('cb');
+            expect(context.api.order.create.config.jsonpCallbackName).to.be('j{id}');
         });
 
         it('auto detect jsonp option', function () {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/order-create.jsonp'
                 }
             });
 
-            expect(Order.create.config.jsonp).to.be(true);
+            expect(context.api.order.create.config.jsonp).to.be(true);
         });
 
         it('jsonp response.success is true', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     traditional: true,
                     data: {
@@ -1246,7 +1113,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
 
                 try {
                     expect(data.id).to.be(1);
@@ -1258,7 +1125,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('jsonp response.success is false ', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/jsonp-order-create-error',
@@ -1266,7 +1133,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 // can not go here
             }, function (error) {
                 try {
@@ -1280,14 +1147,14 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
 
         // jsonp无法使用状态吗识别出具体的404、500等错误，都统一成`无法连接`的错误信息
         it('jsonp with error url', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'error-url',
                     jsonp: true
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 // can not go here
             }, function (error) {
                 try {
@@ -1300,7 +1167,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('jsonp timeout', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/jsonp-timeout',
@@ -1308,7 +1175,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                     timeout: 300
                 }
             });
-            Order.create().then(function () {
+            context.api.order.create().then(function () {
                 // can not go here
             }, function(error) {
                 try {
@@ -1321,7 +1188,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('`JSONP` resolving after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/jsonp-retry-success',
                     jsonp: true,
@@ -1329,7 +1196,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
 
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1342,14 +1209,14 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('rejecting after retry', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/jsonp-error',
                     jsonp: true,
                     retry: 1
                 }
             });
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 // can not go here
             }, function(error) {
                 try {
@@ -1362,7 +1229,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
         });
 
         it('ignore self concurrent', function (done) {
-            let Order = DBC.create('Order', {
+            context.create('order', {
                 create: {
                     url: host + 'api/jsonp-timeout', // 请求延迟返回的接口
                     jsonp: true,
@@ -1371,7 +1238,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
 
             // 连发两次请求，第二次应该被忽略
-            Order.create().then(function (data) {
+            context.api.order.create().then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();
@@ -1381,7 +1248,7 @@ describe('NattyFetch v' + VERSION + ' Unit Test', function() {
             });
 
             // 第一次请求未完成之前 第二次请求返回的是一个伪造的promise对象
-            let dummyPromise = Order.create();
+            let dummyPromise = context.api.order.create();
             expect(dummyPromise).to.have.property('dummy');
 
             // 伪造的promise对象要保证支持链式调用

@@ -1,6 +1,6 @@
 "use strict";
 const {host} = require('./config');
-const NattyFetch = require('natty-fetch');
+const nattyFetch = require('natty-fetch');
 
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
@@ -9,16 +9,16 @@ var expect = require('expect.js');
 describe('plugin loop', function () {
     it('loop', function (done) {
 
-        let DBC = new NattyFetch.Context({
+        let context = nattyFetch.context({
             urlPrefix: host,
             mock: false
         });
 
-        let Taxi = DBC.create('Taxi', {
+        context.create('taxi', {
             getDriverNum: {
                 url: host + 'api/return-success',
                 plugins: [
-                    NattyFetch.plugin.loop
+                    nattyFetch.plugin.loop
                 ]
             }
         });
@@ -26,7 +26,7 @@ describe('plugin loop', function () {
         let time = 0;
 
         // 开始轮询
-        Taxi.getDriverNum.startLoop({
+        context.api.taxi.getDriverNum.startLoop({
             data: {},
             duration: 200
         }, function (data) {
@@ -39,11 +39,11 @@ describe('plugin loop', function () {
         setTimeout(function () {
             expect(time).to.be.above(1);
             // 验证状态
-            expect(Taxi.getDriverNum.looping).to.be(true);
+            expect(context.api.taxi.getDriverNum.looping).to.be(true);
             // 停止轮询
-            Taxi.getDriverNum.stopLoop();
+            context.api.taxi.getDriverNum.stopLoop();
             // 验证状态
-            expect(Taxi.getDriverNum.looping).to.be(false);
+            expect(context.api.taxi.getDriverNum.looping).to.be(false);
             done();
         }, 1000);
     });

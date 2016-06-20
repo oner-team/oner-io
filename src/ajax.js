@@ -1,4 +1,5 @@
 /**
+ * file: ajax.js
  * ref https://xhr.spec.whatwg.org
  * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
  * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
@@ -151,7 +152,6 @@ let defaultOptions = {
     data: null,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
-    cache: true,
     success: noop,
     error: noop,
     complete: noop,
@@ -163,8 +163,7 @@ let defaultOptions = {
 let ajax = (options) => {
 
     options = extend({}, defaultOptions, options);
-
-
+    
     // 如果跨域了, 则禁止发送自定义的`header`信息
     if (isCrossDomain(options.url)) {
         // 重置`header`, 统一浏览器的行为.
@@ -181,7 +180,6 @@ let ajax = (options) => {
     xhr.open(options.method, appendQueryString(
         options.url,
         extend({}, options.mark, options.method === GET ? options.data : {}),
-        options.cache,
         options.traditional
     ));
 

@@ -1,15 +1,15 @@
 "use strict";
 const {host} = require('./config');
-const NattyFetch = require('natty-fetch');
+const nattyFetch = require('natty-fetch');
 
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
 var {
     appendQueryString, isAbsoluteUrl, isNumber,
-    loadScript, param, decodeParam, isIE, isCrossDomain,
+    param, decodeParam, isIE, isCrossDomain,
     sortPlainObjectKey
-} = NattyFetch._util;
+} = nattyFetch._util;
 
 describe('./util', function () {
     describe('param', function () {
@@ -32,17 +32,14 @@ describe('./util', function () {
         });
     });
     describe('appendQueryString', function () {
-        it.skip("appendQueryString('./p', {}, fales)", function () {
-            expect(appendQueryString('./p', {}, false).indexOf('./p?__noCache=')).to.be(0);
+        it("appendQueryString('./p', {})", function () {
+            expect(appendQueryString('./p', {})).to.be('./p');
         });
-        it("appendQueryString('./p', {}, true)", function () {
-            expect(appendQueryString('./p', {}, true)).to.be('./p');
+        it("appendQueryString('./p', {foo:'foo'})", function () {
+            expect(appendQueryString('./p', {foo:'foo'})).to.be('./p?foo=foo');
         });
-        it("appendQueryString('./p', {foo:'foo'}, true)", function () {
-            expect(appendQueryString('./p', {foo:'foo'}, true)).to.be('./p?foo=foo');
-        });
-        it("appendQueryString('./p?bar=bar', {foo:'foo'}, true)", function () {
-            expect(appendQueryString('./p?bar=bar', {foo:'foo'}, true)).to.be('./p?bar=bar&foo=foo');
+        it("appendQueryString('./p?bar=bar', {foo:'foo'})", function () {
+            expect(appendQueryString('./p?bar=bar', {foo:'foo'})).to.be('./p?bar=bar&foo=foo');
          });
     });
     describe('isAbsoluteUrl', function () {

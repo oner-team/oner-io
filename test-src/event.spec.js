@@ -1,6 +1,6 @@
 const expect = require('expect.js')
 const config = require('./config');
-const NattyFetch = require('natty-fetch');
+const nattyFetch = require('natty-fetch');
 
 describe('./hooks', function(){
 
@@ -9,13 +9,13 @@ describe('./hooks', function(){
         this.timeout(1000*60);
 
         it('ajax willRequest call', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host,
                 willRequest() {
                     done()
                 }
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/return-json',
                     fit(resp) {
@@ -26,21 +26,17 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
-                .getApi()
-                .then((content) => {
-                })
+            context.api.getApi().then((content) => {})
         })
 
         it('jsonp willRequest call', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host,
                 willRequest() {
                     done()
                 }
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/jsonp-order-create',
                     jsonp: true,
@@ -49,11 +45,7 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
-                .getApi()
-                .then((content) => {
-                })
+            context.api.getApi().then((content) => {})
         })
 
     })
@@ -61,10 +53,10 @@ describe('./hooks', function(){
     describe('didRequest', function(){
 
         it('ajax success didRequest', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/return-json',
                     fit(resp) {
@@ -79,18 +71,18 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 })
         })
 
         it('jsonp success didRequest long time', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/jsonp-timeout',
                     jsonp: true,
@@ -107,18 +99,18 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 })
         })
 
         it('ajax error didRequest', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/return-error',
                     fit(resp) {
@@ -130,8 +122,8 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
@@ -140,11 +132,11 @@ describe('./hooks', function(){
         })
 
         it('jsonp error didRequest', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host,
                 jsonp: true
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/jsonp-order-create-error',
                     fit(resp) {
@@ -156,8 +148,8 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
@@ -166,11 +158,11 @@ describe('./hooks', function(){
         })
 
         it('ajax timeout didRequest', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host,
                 timeout: 500
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/timeout',
                     fit(resp) {
@@ -185,8 +177,8 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 }, (reason) => {
@@ -195,12 +187,12 @@ describe('./hooks', function(){
         })
 
         it('jsonp timeout didRequest', function (done) {
-            let DBC = new NattyFetch.Context({
+            let context = nattyFetch.context({
                 urlPrefix: config.host,
                 jsonp: true,
                 timeout: 500
             })
-            DBC.create('Api', {
+            context.create({
                 getApi: {
                     url: 'api/jsonp-timeout',
                     fit(resp) {
@@ -215,8 +207,8 @@ describe('./hooks', function(){
                     }
                 }
             })
-            DBC
-                .Api
+            context
+                .api
                 .getApi()
                 .then((content) => {
                 }, (reason) => {

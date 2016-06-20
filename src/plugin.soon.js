@@ -35,37 +35,37 @@ module.exports = function(api) {
         // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
         vars.data = data;
 
-        if (config.storageUseable) {
+        if (api.storageUseable) {
 
             // 只有GET和JSONP才会有storage生效
             vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
 
-            config.storage.has(vars.queryString).then(function (data) {
+            api.storage.has(vars.queryString).then(function (result) {
                 // console.warn('has cached: ', hasValue);
-                if (data.has) {
+                if (result.has) {
                     // 调用 willRequest 钩子
                     config.willRequest(vars, config, 'storage');
                     successFn({
                         fromStorage: TRUE,
-                        data: data.value
+                        content: result.value
                     });
                 }
 
                 // 在`storage`可用的情况下, 远程请求返回的数据会同步到`storage`
                 return t.remoteRequest(vars, config);
-            }).then(function (data) {
+            }).then(function (content) {
                 successFn({
                     fromStorage: FALSE,
-                    data
+                    content
                 });
             }).catch(function (e) {
                 errorFn(e);
             });
         } else {
-            t.remoteRequest(vars, config).then(function (data) {
+            t.remoteRequest(vars, config).then(function (content) {
                 successFn({
                     fromStorage: FALSE,
-                    data
+                    content
                 });
             }).catch(function (e) {
                 errorFn(e);

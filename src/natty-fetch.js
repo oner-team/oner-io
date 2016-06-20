@@ -1,10 +1,12 @@
 "use strict";
 
-const NattyStorage = require('natty-storage');
+const nattyStorage = require('natty-storage');
+
+// 下面两个配置了webpack的alias
+const ajax = require('ajax');
+const jsonp = require('jsonp');
 
 const Defer = require('./defer');
-const ajax = require('./ajax');
-const jsonp = require('./jsonp');
 const util = require('./util');
 const event = require('./event');
 
@@ -15,9 +17,10 @@ const pluginSoon = require('./plugin.soon');
 const {
     extend, runAsFn, isAbsoluteUrl,
     isRelativeUrl, noop, isBoolean,
-    isNumber, isArray, isFunction,
+    isArray, isFunction,
     sortPlainObjectKey, isEmptyObject,
-    isPlainObject, dummyPromise
+    isPlainObject, dummyPromise,
+    isString
 } = util;
 
 const NULL = null;
@@ -93,29 +96,76 @@ const defaultGlobalConfig = {
     // 扩展: storage
     storage: false,
 
-    // plugin
+    // 插件
+    // 目前只支持两种插件
+    // plugins: [
+    //     nattyFetch.plugin.loop
+    //     nattyFetch.plugin.soon
+    // ]
     plugins: false
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
 
-let blackListForApiOptions = [];
-
-class DB {
-    // TODO 检查参数合法性
-    constructor(name, APIs, context) {
+class API {
+    constructor(path, options, context) {
         let t = this;
         t.context = context;
+        t._path = path;
 
-        t.cache = {};
-        t.name = name;
+        let config = t.processAPIOptions(options);
 
-        for (let API in APIs) {
-            t[API] = t.createAPI(extend({
-                DBName: name,
-                API: API
-            }, runAsFn(APIs[API])));
+        /**
+         * 一个`DB`的`api`的实现
+         * @param data {Object|Function}
+         * @returns {Object} Promise Object
+         */
+        let api = (data) => {
+            // 是否忽略自身的并发请求
+            if (config.ignoreSelfConcurrent && config.pending) {
+                return dummyPromise;
+            }
+
+            if (config.overrideSelfConcurrent && config._lastRequester) {
+                config._lastRequester.abort();
+                delete config._lastRequester;
+            }
+
+            // 一次请求的私有相关数据
+            let vars = {
+                mark: {
+                    __api: path
+                }
+            };
+
+            if (config.mock) {
+                vars.mark.__mock = TRUE;
+            }
+
+            if (config.urlStamp) {
+                vars.mark.__stamp = +new Date();
+            }
+
+            // `data`必须在请求发生时实时创建
+            data = extend({}, config.data, runAsFn(data));
+
+            // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
+            vars.data = data;
+
+            return t.fetch(vars, config);
+        };
+
+        api.config = config;
+
+        // 启动插件
+        let plugins = isArray(options.plugins) ? options.plugins : [];
+        for (let i = 0, l = plugins.length; i<l; i++) {
+            plugins[i].call(t, api);
         }
+
+        t.api = api;
+
+        t.initStorage();
     }
 
     /**
@@ -126,11 +176,6 @@ class DB {
 
         let t = this;
         let config = extend({}, t.context, options);
-
-        // 过滤掉接口的黑名单配置
-        //each(blackListForApiOptions, (option) => {
-        //    delete  config[option];
-        //});
 
         // 标记是否正在等待请求返回
         //C.log('init pending value')
@@ -161,11 +206,20 @@ class DB {
             config.jsonp = TRUE;
         }
 
+        return config;
+    }
+
+    initStorage() {
+        let t = this;
+        let config = t.api.config;
+
         // 开启`storage`的前提条件
         let storagePrecondition = config.method === 'GET' || config.jsonp;
 
+        // 不满足`storage`使用条件的情况下, 开启`storage`将抛出错误
         if (!storagePrecondition && config.storage === TRUE) {
-            throw new Error('A `' + config.method + '` request CAN NOT use `storage` which is only for `GET/jsonp` request! Please check the options for `' + config.DBName + '.' + config.API + '`');
+            throw new Error('A `' + config.method + '` request CAN NOT use `storage` which is only for `GET/jsonp`' +
+                ' request! Please check the options for `' + t._path + '`');
         }
 
         // 简易开启缓存的写法
@@ -174,82 +228,27 @@ class DB {
         }
 
         // 决定什么情况下缓存可以开启
-        config.storageUseable = isPlainObject(config.storage) &&
-            (config.method === 'GET' || config.jsonp) &&
-            NattyStorage.support[config.storage.type || 'localStorage'];
+        t.api.storageUseable = isPlainObject(config.storage)
+            && (config.method === 'GET' || config.jsonp)
+            && nattyStorage.support[config.storage.type || 'localStorage'];
 
         // 创建缓存实例
-        if (config.storageUseable) {
-            config.storage = new NattyStorage(extend({
-                key: config.method + ' ' + config.DBName + '.' + config.API
-            }, config.storage));
+        if (t.api.storageUseable) {
+            // `key`和`tag`的选择原则:
+            // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
+            // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
+            t.api.storage = nattyStorage(extend({
+                key: [config._contextId, t._path].join('_')
+            }, config.storage, {
+                async: TRUE,
+                tag: [
+                    config.storage.tag,
+                    config.jsonp ? 'jsonp' : config.method,
+                    config.url
+                ].join('_') // 使用者的tag和内部的tag, 要同时生效
+            }));
         }
-        
-        return config;
     }
-
-    /**
-     * 创建一个`api`方法
-     * @param options {Object} 一个`DB`的`api`的配置参数
-     * @returns {Function} `api`方法
-     * @note 一个`DB`对应若干个`api`函数
-     * @note 一个api的构成如下:
-     *    api.config {Object}
-     *    api.looping {Boolean}
-     *    api.startLoop {Function}
-     *    api.stopLoop {Function}
-     */
-    createAPI(options) {
-        let t = this;
-        let config = t.processAPIOptions(options);
-
-        /**
-         * 一个`DB`的`api`的实现
-         * @param data {Object|Function}
-         * @returns {Object} Promise Object
-         */
-        let api = (data) => {
-            // 是否忽略自身的并发请求
-            if (config.ignoreSelfConcurrent && config.pending) {
-                return dummyPromise;
-            }
-
-            if (config.overrideSelfConcurrent && config._lastRequester) {
-                config._lastRequester.abort();
-                delete config._lastRequester;
-            }
-
-            // 一次请求的私有相关数据
-            let vars = {
-                mark: {
-                    __api: t.name + '.' + config.API
-                }
-            };
-
-            if (config.mock) {
-                vars.mark.__mock = true;
-            }
-
-            // `data`必须在请求发生时实时创建
-            data = extend({}, config.data, runAsFn(data));
-
-            // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
-            vars.data = data;
-
-            return t.fetch(vars, config);
-        };
-
-        api.config = config;
-
-        // 启动插件
-        let plugins = isArray(options.plugins) ? options.plugins : [];
-        for (let i = 0, l = plugins.length; i<l; i++) {
-            plugins[i].call(t, api);
-        }
-
-        return api;
-    }
-
 
     fetch(vars, config) {
         let t = this;
@@ -270,12 +269,12 @@ class DB {
         let t = this;
 
         return new Promise(function (resolve, reject) {
-            if (config.storageUseable) {
+            if (t.api.storageUseable) {
 
                 // 只有GET和JSONP才会有storage生效
                 vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
 
-                config.storage.has(vars.queryString).then(function (data) {
+                t.api.storage.has(vars.queryString).then(function (data) {
                     // console.warn('has cached: ', hasValue);
                     if (data.has) {
                         // 调用 willRequest 钩子
@@ -310,7 +309,7 @@ class DB {
         return (this.context[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context[prefixKey] + url : url;
     }
 
-	/**
+    /**
      * 发起网络请求
      * @param vars
      * @param config
@@ -415,15 +414,15 @@ class DB {
         if (response.success) {
             // 数据处理
             let content = config.process(response.content, vars);
-            
+
             let resolveDefer = function () {
                 defer.resolve(content);
                 event.fire('g.resolve', [content, config], config);
                 event.fire(config._contextId + '.resolve', [content, config], config);
             }
 
-            if (config.storageUseable) {
-                config.storage.set(vars.queryString, content).then(function () {
+            if (t.api.storageUseable) {
+                t.api.storage.set(vars.queryString, content).then(function () {
                     resolveDefer();
                 }).catch(function (e) {
                     resolveDefer();
@@ -433,7 +432,7 @@ class DB {
             }
         } else {
             let error = extend({
-                message: 'Processing Failed: ' + config.DBName + '.' + config.API
+                message: 'Processing Failed: ' + t._path
             }, response.error);
             // NOTE response是只读的对象!!!
             defer.reject(error);
@@ -533,7 +532,7 @@ class DB {
             error(e) {
                 defer.reject({
                     message: 'Not Accessable JSONP `'
-                //    TODO show url
+                    //    TODO show url
                 });
             },
             complete() {
@@ -552,10 +551,6 @@ class DB {
     }
 }
 
-
-// 设计说明：
-//  1 jsonp不是"数据类型" 但很多人沟通时不经意使用"数据类型"这个词 因为jQuery/zepto的配置就是使用`dataType: 'jsonp'`
-
 /**
  * 关键词
  *     语意化的
@@ -563,61 +558,79 @@ class DB {
  *     功能增强的
  *     底层隔离的
  */
-class Context {
-    /**
-     * @param options 一个DB实例的通用配置
-     */
-    constructor(options) {
-        let t = this;
-        options = options || {};
-        let contextId = 'c' + Context.count++;
-        t.contextId = contextId;
+let context = (function () {
+    let count = 0;
 
-        t.config = extend({}, runtimeGlobalConfig, options, {
-            _contextId: contextId
-        });
-    }
+    return function(contextId, options) {
 
-    /**
-     * 创建一个`DB`
-     * @param DBName {String} `DB`的名称 不可重复
-     * @param APIs {Object} 该`DB`下的`api`配置
-     * @returns {Object} 返回创建好的`DB`实例
-     */
-    create(DBName, APIs) {
-        let t = this;
-        // NOTE 强制不允许重复的DB名称
-        if (t[DBName]) {
-            throw new Error('DB: "' + DBName + '" is existed! ');
-            return;
+        if (isString(contextId)) {
+            options = options || {};
+        } else {
+            options = contextId || {}
+            contextId = 'c' + count++;
         }
 
-        return t[DBName] = new DB(DBName, APIs, t.config);
-    }
+        let storage = nattyStorage({
+            type: 'variable',
+            key: contextId
+        });
 
-    // 绑定上下文事件
-    on(name, fn) {
-        if (!isFunction(fn)) return;
-        event.on(this.contextId + '.' + name, fn);
-        return this;
-    }
-}
+        let ctx = {};
 
-// 用于给DB上下文命名
-// 如: 第一个和第二个上下文的`resolve`的事件 在event中的记录分别是:
-//     c1.resolve
-//     c2.resolve
-Context.count = 0;
+        ctx.api = storage.get();
+
+        ctx._contextId = contextId;
+
+        ctx._config = extend({}, runtimeGlobalConfig, options, {
+            _contextId: contextId
+        });
+
+        /**
+         * 创建api
+         * @param namespace {String} optional
+         * @param APIs {Object} 该`namespace`下的`api`配置
+         */
+        ctx.create = function(namespace, APIs) {
+            let hasNamespace = arguments.length === 2 && isString(namespace);
+
+            if (!hasNamespace) {
+                APIs = namespace;
+            }
+
+            for (let path in APIs) {
+                storage.set(
+                    hasNamespace ? namespace + '.' + path : path,
+                    new API(hasNamespace ? namespace + '.' + path : path, runAsFn(APIs[path]), ctx._config).api
+                );
+            }
+
+            ctx.api = storage.get();
+        }
+
+        // 绑定上下文事件
+        ctx.on = function(name, fn) {
+            if (!isFunction(fn)) return;
+            event.on(ctx._contextId + '.' + name, fn);
+            return ctx;
+        }
+
+        return ctx;
+    }
+})();
 
 let VERSION;
 __BUILD_VERSION__
 
-let NattyDB = {
-    onlyForHTML5: TRUE,
+let ONLY_FOR_MODERN_BROWSER
+__BUILD_ONLY_FOR_MODERN_BROWSER__
+
+let nattyFetch = {
+    onlyForModern: ONLY_FOR_MODERN_BROWSER,
     version: VERSION,
-    Context,
+    // Context,
     _util: util,
     _event: event,
+    context,
     ajax,
     jsonp,
 
@@ -645,6 +658,10 @@ let NattyDB = {
         event.on('g.' + name, fn);
         return this;
     },
+
+    /**
+     * 插件名称空间
+     */
     plugin: {
         loop: pluginLoop,
         soon: pluginSoon
@@ -652,6 +669,6 @@ let NattyDB = {
 };
 
 // 内部直接将运行时的全局配置初始化到默认值
-NattyDB.setGlobal(defaultGlobalConfig);
+nattyFetch.setGlobal(defaultGlobalConfig);
 
-module.exports = NattyDB;
+module.exports = nattyFetch;

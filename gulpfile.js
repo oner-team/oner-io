@@ -1,5 +1,8 @@
 var pkg = require('./package');
 
+var path = require('path');
+console.log('root:' + path.resolve('./src'));
+
 var gulp = require('gulp');
 
 // 下面的模块才有`DefinePlugin`
@@ -26,25 +29,34 @@ gulp.task('delete-dist-dir', function (cb) {
     });
 });
 
-function pack(isFallback) {
-    var indexFile = isFallback ? 'src/index.pc.js' : 'src/index.js';
+function pack(isPc) {
 
-    return gulp.src(indexFile).pipe(webpackStream({
+    return gulp.src('src/index.js').pipe(webpackStream({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
-            filename: !isFallback ? 'natty-fetch.js' : 'natty-fetch.pc.js',
-            sourceMapFilename: !isFallback ? 'natty-fetch.js.map' : 'natty-fetch.pc.js.map',
+            filename: !isPc ? 'natty-fetch.js' : 'natty-fetch.pc.js',
+            sourceMapFilename: !isPc ? 'natty-fetch.js.map' : 'natty-fetch.pc.js.map',
             sourcePrefix: '',
 
             // 下面三个配置项说明`webpack`的最佳实战是: 只设置唯一的`entry`, 正好和`gulp`的约定完美对接
             // NOTE: 如果需要构建`umd`模块，则这三个配置项必须同时使用：library, libraryTarget, umdNamedDefine
-            library: 'NattyFetch',
+            library: 'nattyFetch',
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
         // 这个配置要和 output.sourceMapFilename 一起使用
         devtool: '#source-map',
+        resolve: {
+            root: path.resolve('./src'),
+            alias: isPc ? {
+                'ajax': './ajax.pc.js',
+                'jsonp': './jsonp.pc.js'
+            } : {
+                'ajax': './ajax.js',
+                'jsonp': './jsonp.js'
+            },
+        },
         module: {
             loaders: [
                 {
@@ -55,10 +67,10 @@ function pack(isFallback) {
             ]
         },
         externals: {
-            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-storage': 'var nattyStorage' // 相当于 modules.export = nattyStorage;
             'natty-storage': {
-                root: 'NattyStorage',
-                var: 'NattyStorage',
+                root: 'nattyStorage',
+                var: 'nattyStorage',
                 commonjs: 'natty-storage',
                 commonjs2: 'natty-storage',
                 amd: 'natty-storage'
@@ -67,7 +79,8 @@ function pack(isFallback) {
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
-                __BUILD_FALLBACK__: isFallback
+                __BUILD_FALLBACK__: isPc,
+                __BUILD_ONLY_FOR_MODERN_BROWSER__: 'ONLY_FOR_MODERN_BROWSER = ' + (isPc ? 'false' : 'true')
             })
         ]
     })).pipe(gulp.dest('./dist'));
@@ -75,15 +88,24 @@ function pack(isFallback) {
 
 // pack natty-fetch.node.js
 function packNodeVersion(isPc) {
-    var indexFile = isPc ? 'src/index.pc.js' : 'src/index.js';
 
-    return gulp.src(indexFile).pipe(webpackStream({
+    return gulp.src('src/index.js').pipe(webpackStream({
         output: {
             // 不要配置path，会报错
             //path: 'dist',
             filename: isPc ? 'natty-fetch.pc.node.js' : 'natty-fetch.node.js',
             sourcePrefix: '',
             libraryTarget: 'commonjs'
+        },
+        resolve: {
+            root: path.resolve('./src'),
+            alias: isPc ? {
+                'ajax': './ajax.pc.js',
+                'jsonp': './jsonp.pc.js'
+            } : {
+                'ajax': './ajax.js',
+                'jsonp': './jsonp.js'
+            },
         },
         // 这个配置要和 output.sourceMapFilename 一起使用
         module: {
@@ -96,10 +118,10 @@ function packNodeVersion(isPc) {
             ]
         },
         externals:  {
-            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-storage': 'var nattyStorage' // 相当于 modules.export = nattyStorage;
             'natty-storage': {
-                root: 'NattyStorage',
-                var: 'NattyStorage',
+                root: 'nattyStorage',
+                var: 'nattyStorage',
                 commonjs: 'natty-storage',
                 commonjs2: 'natty-storage',
                 amd: 'natty-storage'
@@ -108,23 +130,24 @@ function packNodeVersion(isPc) {
         plugins: [
             new webpack.DefinePlugin({
                 __BUILD_VERSION__: 'VERSION = "' + pkg.version + '"',
-                __BUILD_FALLBACK__: isPc
-            }),
+                __BUILD_FALLBACK__: isPc,
+                __BUILD_ONLY_FOR_MODERN_BROWSER__: 'ONLY_FOR_MODERN_BROWSER = ' + (isPc ? 'false' : 'true')
+            })
         ]
     })).pipe(gulp.dest('./dist'));
 }
 
 // pack natty-fetch.js
-gulp.task('pack-normal-version', ['delete-dist-dir'], function() {
+gulp.task('pack', function() {
     return pack(false);
 });
 
-gulp.task('pack', ['pack-normal-version'], function() {
-    // pack fallback version for natty-fetch.js
+// pack natty-fetch.pc.js
+gulp.task('pack-pc', function() {
     return pack(true);
 });
 
-gulp.task('pack-commonjs', ['pack'], function() {
+gulp.task('pack-commonjs', function() {
     packNodeVersion(true);
     packNodeVersion(false);
 });
@@ -153,18 +176,18 @@ gulp.task('test-pack', ['del-test-dist'], function() {
             ]
         },
         externals:  {
-            // 'natty-fetch': 'var NattyFetch', // 相当于 modules.export = NattyFetch;
-            // 'natty-storage': 'var NattyStorage' // 相当于 modules.export = NattyStorage;
+            // 'natty-fetch': 'var nattyFetch', // 相当于 modules.export = nattyFetch;
+            // 'natty-storage': 'var nattyStorage' // 相当于 modules.export = nattyStorage;
             'natty-fetch': {
-                root: 'NattyFetch',
-                var: 'NattyFetch',
+                root: 'nattyFetch',
+                var: 'nattyFetch',
                 commonjs: 'natty-fetch',
                 commonjs2: 'natty-fetch',
                 amd: 'natty-fetch'
             },
             'natty-storage': {
-                root: 'NattyStorage',
-                var: 'NattyStorage',
+                root: 'nattyStorage',
+                var: 'nattyStorage',
                 commonjs: 'natty-storage',
                 commonjs2: 'natty-storage',
                 amd: 'natty-storage'

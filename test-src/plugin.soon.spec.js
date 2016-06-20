@@ -1,13 +1,13 @@
 "use strict";
 const {host} = require('./config');
-const NattyFetch = require('natty-fetch');
+const nattyFetch = require('natty-fetch');
 
 // https://github.com/Automattic/expect.js
 var expect = require('expect.js');
 
 describe('plugin soon', function () {
     it('`soon` method with `storage` is open', function (done) {
-        let DBC = new NattyFetch.Context({
+        let context = nattyFetch.context({
             urlPrefix: host,
             mock: false
         });
@@ -16,8 +16,8 @@ describe('plugin soon', function () {
         let innerCount = 0;
         let requestCount = 0;
 
-        let Foo = DBC.create('Foo', {
-            get: {
+        context.create({
+            'foo.get': {
                 url: host + 'api/return-stamp',
                 storage: true,
                 willRequest: function (vars, config, from) {
@@ -26,7 +26,7 @@ describe('plugin soon', function () {
                     }
                 },
                 plugins: [
-                    NattyFetch.plugin.soon
+                    nattyFetch.plugin.soon
                 ]
             }
         });
@@ -34,14 +34,14 @@ describe('plugin soon', function () {
         // 外层请求, 首次请求没有storage缓存, success回调只应该执行一次, 数据来自远程服务器
         let outerData;
         let innerDataFromStorage;
-        Foo.get.soon({
+        context.api.foo.get.soon({
             q: 1
         }, function (data) {
             outerCount++;
             outerData = data;
             // console.log('data', JSON.stringify(data));
             // 内层请求, 参数一致, 应该有storage缓存, success回调只应该执行2次,
-            Foo.get.soon({
+            context.api.foo.get.soon({
                 q:1
             }, function (data2) {
                 innerCount++;
@@ -61,8 +61,8 @@ describe('plugin soon', function () {
                 expect(requestCount).to.be(2);
                 expect(outerData.fromStorage).to.be(false);
                 expect(innerDataFromStorage.fromStorage).to.be(true);
-                expect(JSON.stringify(outerData.data)).to.be(JSON.stringify(innerDataFromStorage.data));
-                Foo.get.config.storage.destroy();
+                expect(JSON.stringify(outerData.content)).to.be(JSON.stringify(innerDataFromStorage.content));
+                context.api.foo.get.storage.destroy();
                 done();
             } catch (e) {
                 done(e);
@@ -72,7 +72,7 @@ describe('plugin soon', function () {
 
     it('`soon` method with `storage` is closed', function (done) {
 
-        let DBC = new NattyFetch.Context({
+        let context = nattyFetch.context({
             urlPrefix: host,
             mock: false
         });
@@ -81,8 +81,8 @@ describe('plugin soon', function () {
         let innerCount = 0;
         let requestCount = 0;
 
-        let Foo = DBC.create('Foo', {
-            get: {
+        context.create({
+            'foo.get': {
                 url: host + 'api/return-stamp',
                 storage: false,
                 willRequest: function (vars, config, from) {
@@ -91,7 +91,7 @@ describe('plugin soon', function () {
                     }
                 },
                 plugins: [
-                    NattyFetch.plugin.soon
+                    nattyFetch.plugin.soon
                 ]
             }
         });
@@ -99,14 +99,14 @@ describe('plugin soon', function () {
         // 外层请求, 首次请求没有storage缓存, success回调只应该执行一次, 数据来自远程服务器
         let outerData;
         let innerDataFromStorage;
-        Foo.get.soon({
+        context.api.foo.get.soon({
             q: 1
         }, function (data) {
             outerCount++;
             outerData = data;
             // console.log('data', JSON.stringify(data));
             // 内层请求, 参数一致, 应该有storage缓存, success回调只应该执行2次,
-            Foo.get.soon({
+            context.api.foo.get.soon({
                 q:1
             }, function (data2) {
                 innerCount++;
@@ -124,7 +124,7 @@ describe('plugin soon', function () {
                 expect(requestCount).to.be(2);
                 expect(outerData.fromStorage).to.be(false);
                 expect(innerDataFromStorage.fromStorage).to.be(false);
-                expect(JSON.stringify(outerData.data)).not.to.be(JSON.stringify(innerDataFromStorage.data));
+                expect(JSON.stringify(outerData.content)).not.to.be(JSON.stringify(innerDataFromStorage.content));
                 done();
             } catch (e) {
                 done(e);

@@ -5,30 +5,32 @@ const expect = require('expect.js');
 const ExpectAction = require('./expect-action');
 
 const {host} = require('./config');
-const NattyFetch = require('natty-fetch');
-let {ajax} = NattyFetch;
-
-let isFallback = NattyFetch.ajax.fallback;
+const nattyFetch = require('natty-fetch');
+let {ajax} = nattyFetch;
 
 describe('./ajax', function () {
 
     describe('dependent detects', function () {
         it('support `CORS`', function () {
-            expect(NattyFetch.ajax.supportCORS).to.be(true);
+            expect(nattyFetch.ajax.supportCORS).to.be(true);
         });
     });
 
-    describe('browser detects：NOT used in NattyFetch', function () {
+    describe('browser detects：NOT used in nattyFetch', function () {
         let xhr = new XMLHttpRequest();
 
         let methods = ['loadstart', 'load', 'progress', 'error', 'timeout'];
 
         methods.forEach(function (method) {
-            it('support `' + method + '` event: ' + ('on' + method in xhr));
+            it('support `' + method + '` event: ' + ('on' + method in xhr), function () {
+                
+            });
         });
 
         // http://enable-cors.org/index.html
-        it('support `CORS`: ' + ('withCredentials' in xhr));
+        it('support `CORS`: ' + ('withCredentials' in xhr), function () {
+            
+        });
     });
 
     describe('post', function () {
