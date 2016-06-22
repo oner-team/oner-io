@@ -1,15 +1,12 @@
 "use strict";
 
 const {host} = require('./config');
-const ExpectAction = require('./expect-action');
 
 // https://github.com/Automattic/expect.js
 const expect = require('expect.js');
 
 // require('natty-fetch')已被`webpack`映射到全局`NattyDB`对象
 const nattyFetch = require('natty-fetch');
-
-let noop = function () {};
 
 let VERSION;
 __BUILD_VERSION__
@@ -24,7 +21,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
     });
 
     describe('global setting',function() {
-        this.timeout(1000*30);
+        this.timeout(1000*10);
         let defaultGlobalConfig = nattyFetch.getGlobal();
         let defaultGlobalConfigProperties = [
             'data',
@@ -155,9 +152,10 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
+
 
 
             let context = nattyFetch.context();
@@ -181,7 +179,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.code).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -205,7 +203,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -215,7 +213,11 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     method: 'POST'
                 }
             });
-            context.api.order.create().then(function(data) {}, function () {});
+            context.api.order.create().then(function(data) {
+                console.log('okk');
+            }, function () {
+
+            });
         });
 
         it('check context `reject`', function (done) {
@@ -228,7 +230,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.code).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -261,7 +263,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(content.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -297,7 +299,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.code).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -313,7 +315,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
     });
 
     describe('api config', function () {
-        this.timeout(1000*30);
+        this.timeout(1000*10);
         let context;
 
         beforeEach('reset NattyDB context', function () {
@@ -458,7 +460,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
     });
 
     describe.skip('request config', function () {
-        this.timeout(1000*30);
+        this.timeout(1000*10);
         let context;
 
         beforeEach('reset', function () {
@@ -595,7 +597,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
         //    traditional: true
         //});
 
-        this.timeout(1000*30);
+        this.timeout(1000*10);
         let context;
 
         beforeEach('reset', function () {
@@ -620,7 +622,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -643,7 +645,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -665,7 +667,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.orderId).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -709,7 +711,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.orderId).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -736,7 +738,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -779,7 +781,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.timeout).to.be(true);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -797,13 +799,13 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(context.api.order.create.config.pending).to.be(false);
+                    expect(context.api.order.create.pending).to.be(false);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
-            expect(context.api.order.create.config.pending).to.be(true);
+            expect(context.api.order.create.pending).to.be(true);
         });
 
         it('error by 500', function (done) {
@@ -821,7 +823,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.status).to.be(nattyFetch.ajax.fallback ? undefined : 500);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -845,7 +847,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     }
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -864,7 +866,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             }, function() {
                 // can not go here
@@ -891,7 +893,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             }, function() {
                 // can not go here
@@ -912,7 +914,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             }, function() {
                 // can not go here
@@ -933,7 +935,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.code).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -954,7 +956,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 
@@ -1002,7 +1004,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                         expect(count).to.be(0);
                         done();
                     } catch (e) {
-                        done(new Error(e.message));
+                        done(e);
                     }
                 });
             }, 300);
@@ -1042,7 +1044,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                         expect(count).to.be(0);
                         done();
                     } catch (e) {
-                        done(new Error(e.message));
+                        done(e);
                     }
                 });
             }, 300);
@@ -1056,7 +1058,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
         //    cache: false
         //});
 
-        this.timeout(1000*30);
+        this.timeout(1000*10);
         let context;
 
         beforeEach('reset', function () {
@@ -1119,7 +1121,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -1140,7 +1142,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error).to.have.property('message');
                     done();
                 } catch (e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -1161,7 +1163,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.message).to.contain('Not Accessable JSONP');
                     done();
                 } catch (e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -1182,7 +1184,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.timeout).to.be(true);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -1201,7 +1203,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             }, function() {
                 // can not go here
@@ -1223,7 +1225,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(error.code).to.be(1);
                     done();
                 } catch(e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
         });
@@ -1243,7 +1245,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
-                    done(new Error(e.message));
+                    done(e);
                 }
             });
 

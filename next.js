@@ -25,12 +25,9 @@ Didi.namespace('user', {
 	}
 });
 
-let Didi = NattyFetch.context({
-	// 滴滴的系统参数
-	urlPrefix: 'didi/'
-});
 
-let Finance = NattyFetch.context({
+
+let context = nattyFetch.context({
 	// 财务的系统参数
 	urlPrefix: 'finance/'
 });
@@ -47,8 +44,13 @@ Didi.create('user', {
 	getPos: {}
 });
 
+let context = nattyFetch.context({
+	// 滴滴的系统参数
+	urlPrefix: 'didi/'
+});
+
 // 现在添加一种写法, 以`路径`方式定义接口, 有没有`namespace`自己决定, 定义多层也没关系
-Didi.create({
+context.create({
 	// 不定义`namespace`
 	// 使用场景: Didi.getDriverNum().then().catch();
 	'getDriverNum': {},
@@ -68,6 +70,19 @@ Didi.create({
 	'taxi.order.create': {},
 	'specialCar.order.create': {}
 });
+
+module.exports = context.api;
+
+
+
+
+
+
+
+
+
+
+
 
 
 // 使用场景
@@ -175,6 +190,14 @@ stop();
 // or
 Didi.driver.getDistance.stopLoop();
 
+
+let api = nattyFetch({
+	url: 'xxx'
+});
+
+api().then(function () {
+	
+});
 
 
 

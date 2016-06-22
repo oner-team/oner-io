@@ -6,6 +6,7 @@ const toString = Object.prototype.toString;
 const ARRAY_TYPE = '[object Array]';
 const OBJECT_TYPE = '[object Object]';
 const TRUE = true;
+const FALSE = !TRUE;
 
 /**
  * 伪造的`promise`对象
@@ -178,15 +179,21 @@ let isCrossDomain = (url) => {
  * @param  {Object} supplier
  * @return {Object} 扩展后的receiver对象
  * @note 这个extend方法是定制的, 不要拷贝到其他地方用!!!
+ * @note 这个extend方法是深拷贝方式的!!!
+ * TODO
  */
-let extend = (receiver = {}, supplier = {}) => {
+let extend = (receiver = {}, supplier = {}, deepCopy = FALSE) => {
     for (let key in supplier) {
         // `supplier`中不是未定义的键 都可以执行扩展
         if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
-            if (isArray(supplier[key])) {
-                receiver[key] = [].concat(supplier[key]);
-            } else if (isPlainObject(supplier[key])) {
-                receiver[key] = extend({}, supplier[key]);
+            if (deepCopy === TRUE) {
+                if (isArray(supplier[key])) {
+                    receiver[key] = [].concat(supplier[key]);
+                } else if (isPlainObject(supplier[key])) {
+                    receiver[key] = extend({}, supplier[key]);
+                } else {
+                    receiver[key] = supplier[key];
+                }
             } else {
                 receiver[key] = supplier[key];
             }

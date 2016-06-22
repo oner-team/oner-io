@@ -88,6 +88,7 @@ const defaultGlobalConfig = {
     // 是否在`url`上添加时间戳, 用于避免浏览器的304缓存
     urlStamp: TRUE,
 
+    // TODO 文档中没有暴露
     withCredentials: NULL,
 
     // 请求之前调用的钩子函数
@@ -108,21 +109,22 @@ const defaultGlobalConfig = {
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
 
 class API {
-    constructor(path, options, context) {
+    constructor(path, options, contextConfig, contextId) {
         let t = this;
-        t.context = context;
+        t.contextConfig = contextConfig;
         t._path = path;
 
-        let config = t.processAPIOptions(options);
+        let config = t.config = t.processAPIOptions(options);
 
         /**
          * 一个`DB`的`api`的实现
          * @param data {Object|Function}
          * @returns {Object} Promise Object
          */
-        let api = (data) => {
+        t.api = function (data) {
+            data = data || {};
             // 是否忽略自身的并发请求
-            if (config.ignoreSelfConcurrent && config.pending) {
+            if (config.ignoreSelfConcurrent && t.api.pending) {
                 return dummyPromise;
             }
 
@@ -155,17 +157,21 @@ class API {
             return t.fetch(vars, config);
         };
 
-        api.config = config;
+        t.api.contextId = contextId;
+        t.api._path = path;
+
+        // 标记是否正在等待请求返回
+        t.api.pending = FALSE;
+
+        t.api.config = config;
+
+        t.initStorage();
 
         // 启动插件
         let plugins = isArray(options.plugins) ? options.plugins : [];
         for (let i = 0, l = plugins.length; i<l; i++) {
-            plugins[i].call(t, api);
+            plugins[i].call(t, t.api);
         }
-
-        t.api = api;
-
-        t.initStorage();
     }
 
     /**
@@ -175,20 +181,13 @@ class API {
     processAPIOptions(options) {
 
         let t = this;
-        let config = extend({}, t.context, options);
-
-        // 标记是否正在等待请求返回
-        //C.log('init pending value')
-        config.pending = FALSE;
+        let config = extend({}, t.contextConfig, options);
 
         if (config.mock) {
-            // dip平台强制使用`GET`方式, 因为不支持`GET`以外的类型
-            // TODO 是否拿出去? 和dip平台耦合了
-            // config.method = 'GET';
-            config.mockUrl = t.getFullUrl(config.mockUrl, TRUE);
+            config.mockUrl = t.getFullUrl(config);
         }
 
-        config.url = t.getFullUrl(options.url);
+        config.url = t.getFullUrl(config);
 
         // 按照[boolean, callbackKeyWord, callbackFunctionName]格式处理
         if (isArray(options.jsonp)) {
@@ -211,7 +210,7 @@ class API {
 
     initStorage() {
         let t = this;
-        let config = t.api.config;
+        let config = t.config;
 
         // 开启`storage`的前提条件
         let storagePrecondition = config.method === 'GET' || config.jsonp;
@@ -234,18 +233,18 @@ class API {
 
         // 创建缓存实例
         if (t.api.storageUseable) {
-            // `key`和`tag`的选择原则:
+            // `key`和`id`的选择原则:
             // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
-            // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
+            // 经常变化的值用于`id`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
             t.api.storage = nattyStorage(extend({
-                key: [config._contextId, t._path].join('_')
+                key: [t.api.contextId, t._path].join('_')
             }, config.storage, {
                 async: TRUE,
-                tag: [
-                    config.storage.tag,
+                id: [
+                    config.storage.id,
                     config.jsonp ? 'jsonp' : config.method,
                     config.url
-                ].join('_') // 使用者的tag和内部的tag, 要同时生效
+                ].join('_') // 使用者的`id`和内部的`id`, 要同时生效
             }));
         }
     }
@@ -300,13 +299,13 @@ class API {
 
     /**
      * 获取正式接口的完整`url`
-     * @param url {String}
-     * @param isMock {Boolean} 是否是`mock`模式
+     * @param config {Object}
      */
-    getFullUrl(url, isMock) {
+    getFullUrl(config) {
+        let url = config.mock ? config.mockUrl : config.url;
         if (!url) return EMPTY;
-        let prefixKey = isMock ? 'mockUrlPrefix' : 'urlPrefix';
-        return (this.context[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? this.context[prefixKey] + url : url;
+        let prefixKey = config.mock ? 'mockUrlPrefix' : 'urlPrefix';
+        return (config[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? config[prefixKey] + url : url;
     }
 
     /**
@@ -322,7 +321,7 @@ class API {
         config.willRequest(vars, config, 'remote');
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
-        config.pending = TRUE;
+        t.api.pending = TRUE;
 
         let defer = new Defer();
 
@@ -344,7 +343,7 @@ class API {
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
-                if (config.pending && vars.requester) {
+                if (t.api.pending && vars.requester) {
                     // 取消请求
                     vars.requester.abort();
                     delete vars.requester;
@@ -354,7 +353,7 @@ class API {
                     };
                     defer.reject(error);
                     event.fire('g.reject', [error, config]);
-                    event.fire(config._contextId + '.reject', [error, config]);
+                    event.fire(t.api.contextId + '.reject', [error, config]);
 
                     // 调用 didRequest 钩子
                     config.didRequest(vars, config);
@@ -381,7 +380,7 @@ class API {
                 t.request(vars, config).then((content) => {
                     resolve(content);
                     event.fire('g.resolve', [content, config], config);
-                    event.fire(config._contextId + '.resolve', [content, config], config);
+                    event.fire(t.api.contextId + '.resolve', [content, config], config);
                 }, (error) => {
                     if (retryTime === config.retry) {
                         reject(error);
@@ -418,7 +417,7 @@ class API {
             let resolveDefer = function () {
                 defer.resolve(content);
                 event.fire('g.resolve', [content, config], config);
-                event.fire(config._contextId + '.resolve', [content, config], config);
+                event.fire(t.api.contextId + '.resolve', [content, config], config);
             }
 
             if (t.api.storageUseable) {
@@ -437,7 +436,7 @@ class API {
             // NOTE response是只读的对象!!!
             defer.reject(error);
             event.fire('g.reject', [error, config]);
-            event.fire(config._contextId + '.reject', [error, config]);
+            event.fire(t.api.contextId + '.reject', [error, config]);
         }
     }
 
@@ -493,7 +492,7 @@ class API {
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     //C.log('ajax complete');
 
-                    config.pending = FALSE;
+                    t.api.pending = FALSE;
                     vars.requester = NULL;
 
                     // 如果只响应最新请求
@@ -537,7 +536,7 @@ class API {
             },
             complete() {
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
-                    config.pending = FALSE;
+                    t.api.pending = FALSE;
                     vars.requester = NULL;
 
                     // 如果只响应最新请求
@@ -545,7 +544,6 @@ class API {
                         delete config._lastRequester;
                     }
                 }
-                //console.log('complete: pending:', config.pending);
             }
         });
     }
@@ -581,9 +579,7 @@ let context = (function () {
 
         ctx._contextId = contextId;
 
-        ctx._config = extend({}, runtimeGlobalConfig, options, {
-            _contextId: contextId
-        });
+        ctx._config = extend({}, runtimeGlobalConfig, options);
 
         /**
          * 创建api
@@ -600,7 +596,7 @@ let context = (function () {
             for (let path in APIs) {
                 storage.set(
                     hasNamespace ? namespace + '.' + path : path,
-                    new API(hasNamespace ? namespace + '.' + path : path, runAsFn(APIs[path]), ctx._config).api
+                    new API(hasNamespace ? namespace + '.' + path : path, runAsFn(APIs[path]), ctx._config, contextId).api
                 );
             }
 
@@ -624,7 +620,20 @@ __BUILD_VERSION__
 let ONLY_FOR_MODERN_BROWSER
 __BUILD_ONLY_FOR_MODERN_BROWSER__
 
-let nattyFetch = {
+/**
+ * 简易接口
+ * @param options
+ * @note 这个接口尝试做过共享`api`实例, 但是结果证明不现实, 不科学, 不要再尝试了!
+ *       因为无法共享实例, 所以有些功能是不支持的:
+ *       - ignoreSelfConcurrent
+ *       - overrideSelfConcurrent
+ *       - 所有缓存相关的功能
+ */
+let nattyFetch = function (options) {
+    return new API('', runAsFn(options), defaultGlobalConfig, 'global').api();
+}
+
+extend(nattyFetch, {
     onlyForModern: ONLY_FOR_MODERN_BROWSER,
     version: VERSION,
     // Context,
@@ -666,7 +675,7 @@ let nattyFetch = {
         loop: pluginLoop,
         soon: pluginSoon
     }
-};
+});
 
 // 内部直接将运行时的全局配置初始化到默认值
 nattyFetch.setGlobal(defaultGlobalConfig);
