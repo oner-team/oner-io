@@ -14,13 +14,13 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 
 > `v1.0.2`之前的文档请移步[这里](https://github.com/Jias/natty-fetch/tree/v1.0.2)。
 
-* [安装](https://github.com/Jias/natty-fetch/docs/install.md)
-* [使用总览](https://github.com/Jias/natty-fetch/docs/start.md)
-* [配置层级](https://github.com/Jias/natty-fetch/docs/option_levels.md)
-* [配置选项](https://github.com/Jias/natty-fetch/docs/options.md)
-* [编码约定](https://github.com/Jias/natty-fetch/docs/rules.md)
-* [开发](https://github.com/Jias/natty-fetch/docs/dev.md)
-* [常见问题](https://github.com/Jias/natty-fetch/docs/questions.md)
+* [安装](https://github.com/Jias/natty-fetch/blob/master/docs/install.md)
+* [使用总览](https://github.com/Jias/natty-fetch/blob/master/docs/start.md)
+* [配置层级](https://github.com/Jias/natty-fetch/blob/master/docs/option_levels.md)
+* [配置选项](https://github.com/Jias/natty-fetch/blob/master/docs/options.md)
+* [编码约定](https://github.com/Jias/natty-fetch/blob/master/docs/rules.md)
+* [开发](https://github.com/Jias/natty-fetch/blob/master/docs/dev.md)
+* [常见问题](https://github.com/Jias/natty-fetch/blob/master/docs/questions.md)
 
 ## 兼容性
 
