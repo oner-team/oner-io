@@ -18,16 +18,15 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 
 ## v2.x docs
 
-* [安装](docs/install.md) 100%
-* 使用概览
-  - [项目级](docs/start_for_project.md) 100%
-  - [组件级](docs/start_for_component.md) doing
-* [配置层级](docs/option_levels.md) old 0%
-* [配置选项](docs/options.md) old 0%
-* [编码约定](docs/rules.md) old 0%
-* [开发](docs/dev.md) old 0%
+* [安装](docs/install.md)
+* [使用概览-项目级](docs/start_for_project.md)
+* [使用概览-组件级](docs/start_for_component.md)
+* [配置层级](docs/option_levels.md)
+* [配置选项](docs/options.md) doing
+* [编码约定](docs/rules.md) old
+* [开发](docs/dev.md) old
 * 设计文档(TODO)
-* [常见问题](docs/questions.md) old 0%
+* [常见问题](docs/questions.md) old
 
 ## 兼容性
 

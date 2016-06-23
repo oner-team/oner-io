@@ -1,36 +1,55 @@
-## 配置参数
+## 配置选项
 
-上面提到全局配置，上下文配置和接口配置，都可以传入以下参数。
+`natty-fetch`中【任何】层级的配置都可以传入以下参数。
 
-##### cache
-
-* 类型：Boolean
-* 默认：false
-
-是否允许浏览器默认的缓存，值为`false`时，会在请求的`url`中加入`noCache`参数，屏蔽浏览器的缓存机制。
-
-##### data
+#### data
 
 * 类型：Object / Function
 * 默认：{}
 
-请求的默认参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，`data`参数用于定义该接口的固定参数。
+请求的固定参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，`data`参数用于定义该接口的固定参数。
 
-##### didRequest
+##### 示例一
+
+假设有一个接口，用于获取附近的出租车数量，这个接口接受两种参数，一个是查询半径，一个是地理坐标，很显然，可以把查询半径定义为固定参数，这样在调用接口的时候就不需要反复传入了。
+
+定义接口
+
+```js
+context.create({
+    'taxi.getNumber': {
+        url: 'driver/getNearDrivers'
+        data: {
+            radius: 3 // 固定参数，指定查询半径为3公里
+        }
+    }
+});
+```
+
+调用接口
+
+```js
+db.taxi.getNumber({
+    longitude: 120.0190524487949, // 动态参数：经度
+    latitude:  30.28173475473827, // 动态参数：纬度
+}).then(function(content){...}).catch(function(error){...});
+```
+
+#### didRequest
 
 * 类型：Function
 * 默认：`function(){}`
 
 钩子函数，会在请求执行完成后调用。
 
-##### fit
+#### fit
 
 * 类型：Function
 * 默认：function (response) { return response }
 
 数据结构预处理函数，接收完整的后端数据作为参数，只应该用于解决后端数据结构不一致的问题。
 
-NattyFetch接受的标准数据结构是
+natty-fetch接受的标准数据结构是
 
 ```js
 // 正确
@@ -55,7 +74,7 @@ NattyFetch接受的标准数据结构是
 }
 ```
 
-这时候需要用`fit`来适配，转换成NattyFetch约定的数据结构返回。
+这时候需要用`fit`来适配，转换成natty-fetch约定的数据结构返回。
 
 ```js
 fit: function (response) {
@@ -74,7 +93,7 @@ fit: function (response) {
 }
 ```
 
-##### header
+#### header
 
 * 类型：Object
 * 默认：{}
@@ -82,14 +101,14 @@ fit: function (response) {
 
 自定义`ajax`请求的头部信息。当`ajax`请求跨域时，该配置将被忽略。
 
-##### ignoreSelfConcurrent
+#### ignoreSelfConcurrent
 
 * 类型：Boolean
 * 默认：false
 
 是否忽略接口自身的并发请求，即是否开启请求锁。
 
-示例：假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在NattyFetch中，只需要一个参数即可开启请求锁。
+示例：假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在natty-fetch中，只需要一个参数即可开启请求锁。
 
 ```js
 DBContext.create('Order', {
@@ -102,7 +121,7 @@ DBContext.create('Order', {
 });
 ```
 
-##### jsonp
+#### jsonp
 
 * 类型：Boolean / Array
 * 默认：false
@@ -110,7 +129,7 @@ DBContext.create('Order', {
 
 请求方式是否使用jsonp，当值为true时，默认的url参数形如`?callback=jsonp3879494623`，如果需要自定义jsonp的url参数，可以通过数组参数配置。
 
-##### method
+#### method
 
 * 类型：String
 * 默认：'GET'
@@ -118,23 +137,23 @@ DBContext.create('Order', {
 
 配置ajax的请求方式。
 
-> 如果浏览器是IE8/9，则NattyFetch内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
+> 如果浏览器是IE8/9，则natty-fetch内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
 
-##### mock
+#### mock
 
 * 类型：Boolean
 * 默认：false
 
 是否开启mock模式
 
-##### mockUrl
+#### mockUrl
 
 * 类型：String
 * 默认：''(空字符串)
 
 mock模式开启时的请求地址
 
-##### mockUrlPrefix
+#### mockUrlPrefix
 
 * 类型：String
 * 默认：''(空字符串)
@@ -142,7 +161,7 @@ mock模式开启时的请求地址
 mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
 
 
-##### overrideSelfConcurrent
+#### overrideSelfConcurrent
 
 * 类型：Boolean
 * 默认：false
@@ -165,62 +184,69 @@ DB.City.getSuggestion({key:'a'}).then(...); // 不响应
 DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 ```
 
-##### process
+#### process
 
 * 类型：Function
 * 默认：function (content) {return content}
 
 请求成功时的数据处理函数，该函数接收到的参数是下文的"数据结构约定"中`content`的值。
 
-##### retry
+#### retry
 
 * 类型：Number
 * 默认：0
 
 在请求失败(网络错误，超时，success为false等)时是否进行请求重试。
 
-##### timeout
+#### timeout
 
 * 类型：Number
 * 默认：0
 
 超时时间，0表示不启动超时处理。
 
-##### traditional
+#### traditional
 
 * 类型：Boolean
 * 默认：false
 
 和`jQuery/Zepto`的`param`方法的第二个参数一样的效果。
 
-##### url
+#### url
 
 * 类型：String
 * 默认：''(空字符串)
 
 请求地址
 
-##### urlPrefix
+#### urlPrefix
 
 * 类型：String
 * 默认：''(空字符串)
 
 请求地址前缀，如果url的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
 
-##### willRequest
+#### urlStamp
+
+* 类型：Boolean
+* 默认：true
+
+是否在`url`的`search`中加入时间戳(`__stamp`)参数，屏蔽浏览器默认的缓存(304)机制。
+
+#### willRequest
 
 * 类型：Function
 * 默认：`function(){}`
 
 钩子函数，会在请求执行前调用。
 
-##### plugins
+#### plugins
 
 * 类型：Array
 * 默认：[]
 * 可用值：
-  - NattyFetch.plugin.soon
-  - NattyFetch.plugin.loop
+  - natty-fetch.plugin.soon
+  - natty-fetch.plugin.loop
 
 `soon`插件：在`storage`开启的情况下，会马上使用`storage`缓存的数据执行回调，并同时发起远程请求，并将请求回来的新数据同步到`storage`中，再第二次执行回调。
 
@@ -230,7 +256,7 @@ let Order = DBContext.create('Order', {
         url: '...',
         storage: true,
         plugins: [
-            NattyFetch.plugin.soon
+            natty-fetch.plugin.soon
         ]
     }
 });
@@ -250,7 +276,7 @@ Driver = DBContext.create('Driver', {
     getDistance: {
         url: '...',
         plugins: [
-            NattyFetch.plugin.loop
+            natty-fetch.plugin.loop
         ]
     }
 });
