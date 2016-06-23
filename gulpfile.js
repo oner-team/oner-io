@@ -214,7 +214,6 @@ gulp.task('min', function () {
         'dist/natty-fetch.node.js',
         'dist/natty-fetch.pc.node.js'
     ]).pipe(uglify()).pipe(rename(function (path) {
-        console.log(path);
         path.basename += '.min';
     })).pipe(gulp.dest('./dist'));
 });

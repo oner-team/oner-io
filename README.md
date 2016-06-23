@@ -1,4 +1,6 @@
-# NattyFetch@2.0.0-rc1
+# nattyFetch
+
+[![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch)
 
 A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
@@ -10,17 +12,22 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * 同时兼容移动端和`PC`端，PC端最低支持到`IE8`。
 * 支持配置多个上下文，大型项目的接口管理再也不用乱成一团。
 
-## 文档
+## v1.x docs
 
-> `v1.0.2`之前的文档请移步[这里](https://github.com/Jias/natty-fetch/tree/v1.0.2)。
+`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](tree/v1.0.2)。
 
-* [安装](https://github.com/Jias/natty-fetch/blob/master/docs/install.md)
-* [使用总览](https://github.com/Jias/natty-fetch/blob/master/docs/start.md)
-* [配置层级](https://github.com/Jias/natty-fetch/blob/master/docs/option_levels.md)
-* [配置选项](https://github.com/Jias/natty-fetch/blob/master/docs/options.md)
-* [编码约定](https://github.com/Jias/natty-fetch/blob/master/docs/rules.md)
-* [开发](https://github.com/Jias/natty-fetch/blob/master/docs/dev.md)
-* [常见问题](https://github.com/Jias/natty-fetch/blob/master/docs/questions.md)
+## v2.x docs
+
+* [安装](docs/install.md) 100%
+* 使用概览
+  - [项目级](docs/start_for_project.md) 100%
+  - [组件级](docs/start_for_component.md) doing
+* [配置层级](docs/option_levels.md) old 0%
+* [配置选项](docs/options.md) old 0%
+* [编码约定](docs/rules.md) old 0%
+* [开发](docs/dev.md) old 0%
+* 设计文档(TODO)
+* [常见问题](docs/questions.md) old 0%
 
 ## 兼容性
 

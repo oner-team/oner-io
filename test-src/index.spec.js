@@ -1,5 +1,8 @@
 
 //C.debug = false;
+const nattyFetch = require('natty-fetch')
+
+
 require('./natty-fetch.spec.js');
 require('./util.spec');
 require('./ajax.spec');

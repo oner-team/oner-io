@@ -33,7 +33,7 @@ describe('nattyFetch method', function () {
             });
         });
 
-        it.skip('play with non-standard data structure by `fit`', function (done) {
+        it('play with non-standard data structure by `fit`', function (done) {
             nattyFetch({
                 url: host + 'api/order-create-non-standard',
                 method: 'POST',

@@ -13,6 +13,7 @@
 * `NattyDB.Context`类变为`nattyFetch.context`静态方法
 * `NattyDB.onlyForHTML5`变为`nattyFetch.onlyForModern`
 * 删除了有歧义的`cache`配置，由`urlStamp`替代
+* 不再强制提取接口的名称空间，也不限制接口的名称空间层级，解决众口难调的使用习惯。
 
 ### v1.0.2 / 2016-05-27
 

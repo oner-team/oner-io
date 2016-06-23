@@ -2,6 +2,11 @@
 
 const nattyStorage = require('natty-storage');
 
+if (nattyStorage === undefined) {
+    console.warn('Please install the `natty-storage` script which is required by `natty-fetch`, go on with' +
+        ' https://www.npmjs.com/package/natty-storage');
+}
+
 // 下面两个配置了webpack的alias
 const ajax = require('ajax');
 const jsonp = require('jsonp');
