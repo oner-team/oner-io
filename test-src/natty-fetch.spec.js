@@ -214,7 +214,6 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                 }
             });
             context.api.order.create().then(function(data) {
-                console.log('okk');
             }, function () {
 
             });
@@ -681,7 +680,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     data: {
                         fixData: 1
                     },
-                    willRequest: function (vars, config) {
+                    willFetch: function (vars, config) {
                         vars.data.hookData = 1;
                         // console.log(vars);
                         // console.log(config);

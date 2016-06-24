@@ -4,14 +4,14 @@ const nattyFetch = require('natty-fetch');
 
 describe('./hooks', function(){
 
-    describe('willRequest', function(){
+    describe('willFetch', function(){
 
         this.timeout(1000*60);
 
-        it('ajax willRequest call', function (done) {
+        it('ajax willFetch call', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
-                willRequest() {
+                willFetch() {
                     done()
                 }
             })
@@ -29,10 +29,10 @@ describe('./hooks', function(){
             context.api.getApi().then((content) => {})
         })
 
-        it('jsonp willRequest call', function (done) {
+        it('jsonp willFetch call', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
-                willRequest() {
+                willFetch() {
                     done()
                 }
             })
@@ -50,9 +50,9 @@ describe('./hooks', function(){
 
     })
 
-    describe('didRequest', function(){
+    describe('didFetch', function(){
 
-        it('ajax success didRequest', function (done) {
+        it('ajax success didFetch', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host
             })
@@ -65,7 +65,7 @@ describe('./hooks', function(){
                             content: resp
                         }
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }
@@ -78,7 +78,7 @@ describe('./hooks', function(){
                 })
         })
 
-        it('jsonp success didRequest long time', function (done) {
+        it('jsonp success didFetch long time', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host
             })
@@ -93,7 +93,7 @@ describe('./hooks', function(){
                             content: resp
                         }
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }
@@ -106,7 +106,7 @@ describe('./hooks', function(){
                 })
         })
 
-        it('ajax error didRequest', function (done) {
+        it('ajax error didFetch', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host
             })
@@ -116,7 +116,7 @@ describe('./hooks', function(){
                     fit(resp) {
                         return resp
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }
@@ -131,7 +131,7 @@ describe('./hooks', function(){
                 })
         })
 
-        it('jsonp error didRequest', function (done) {
+        it('jsonp error didFetch', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
                 jsonp: true
@@ -142,7 +142,7 @@ describe('./hooks', function(){
                     fit(resp) {
                         return resp
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }
@@ -157,7 +157,7 @@ describe('./hooks', function(){
                 })
         })
 
-        it('ajax timeout didRequest', function (done) {
+        it('ajax timeout didFetch', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
                 timeout: 500
@@ -171,7 +171,7 @@ describe('./hooks', function(){
                             content: resp
                         }
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }
@@ -186,7 +186,7 @@ describe('./hooks', function(){
                 })
         })
 
-        it('jsonp timeout didRequest', function (done) {
+        it('jsonp timeout didFetch', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
                 jsonp: true,
@@ -201,7 +201,7 @@ describe('./hooks', function(){
                             content: resp
                         }
                     },
-                    didRequest(config) {
+                    didFetch(config) {
                         //console.log(config)
                         done()
                     }

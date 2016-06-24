@@ -20,7 +20,7 @@ describe('plugin soon', function () {
             'foo.get': {
                 url: host + 'api/return-stamp',
                 storage: true,
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestCount++;
                     }
@@ -34,13 +34,14 @@ describe('plugin soon', function () {
         // 外层请求, 首次请求没有storage缓存, success回调只应该执行一次, 数据来自远程服务器
         let outerData;
         let innerDataFromStorage;
+        
         context.api.foo.get.soon({
             q: 1
         }, function (data) {
             outerCount++;
             outerData = data;
             // console.log('data', JSON.stringify(data));
-            // 内层请求, 参数一致, 应该有storage缓存, success回调只应该执行2次,
+            // 内层请求, 参数一致, 应该有storage缓存, success回调应该执行2次,
             context.api.foo.get.soon({
                 q:1
             }, function (data2) {
@@ -85,7 +86,7 @@ describe('plugin soon', function () {
             'foo.get': {
                 url: host + 'api/return-stamp',
                 storage: false,
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestCount++;
                     }
@@ -105,7 +106,7 @@ describe('plugin soon', function () {
             outerCount++;
             outerData = data;
             // console.log('data', JSON.stringify(data));
-            // 内层请求, 参数一致, 应该有storage缓存, success回调只应该执行2次,
+            // 内层请求, 没有storage缓存, success回调只应该执行一次,
             context.api.foo.get.soon({
                 q:1
             }, function (data2) {

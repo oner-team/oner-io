@@ -48,7 +48,12 @@ let context = nattyFetch.ontext(options);
 module.exports = context.api;
 ```
 
-#### 5. (按需)升级接口名称定义的方式
+#### 5. 升级两个Hook的名称
+
+* `willRequest`改为`willFetch`
+* `didRequest`改为`didFetch`
+
+#### 6. (按需)升级接口名称的定义方式
 
 `v1.x`中的`context.create()`方法强制所有接口都要提取一层名称空间，出现了以下情况：
 
@@ -56,7 +61,7 @@ module.exports = context.api;
 1. 令一些不习惯使用名称空间的开发者不舒服。
 1. 令一些具有代码洁癖的开发者感觉仅有的一层名称空间不够用，太死板，不足以好好地维护接口的层级，好吧。
 
-😌 如果项目中没有上面的三种情况，可以略过这部分的升级。[`context.create()`](context_create.md)方法的灵活性完全兼容`v1.x`的接口定义方式。
+😌 如果项目中没有上面的三种情况，可以略过这部分的升级。[`context.create()`](clear_api.md)方法的灵活性完全兼容`v1.x`的接口定义方式。
 
 ##### 对于前2点，从`v2.x`开始，不强制提取接口的名称空间
 
@@ -115,7 +120,7 @@ db.systemA.moduleB.getList().then().catch();
 ```
 ##### 总结，接口的方法名如何声明，决定了接口在业务场景下如何使用，按需索取吧。
 
-#### 6. (按需)升级轮询接口
+#### 7. (按需)升级轮询接口
 
 `v1.x`中，所有接口都默认添加了轮询方法，浪费资源。
 

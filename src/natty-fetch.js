@@ -40,7 +40,7 @@ const defaultGlobalConfig = {
     data: {},
 
     // 请求完成钩子函数
-    didRequest: noop,
+    didFetch: noop,
 
     // 预处理回调
     fit: noop,
@@ -97,7 +97,7 @@ const defaultGlobalConfig = {
     withCredentials: NULL,
 
     // 请求之前调用的钩子函数
-    willRequest: noop,
+    willFetch: noop,
 
     // 扩展: storage
     storage: false,
@@ -138,28 +138,13 @@ class API {
                 delete config._lastRequester;
             }
 
-            // 一次请求的私有相关数据
-            let vars = {
-                mark: {
-                    __api: path
-                }
-            };
+            let vars = t.makeVars(data);
 
-            if (config.mock) {
-                vars.mark.__mock = TRUE;
+            if (config.retry === 0) {
+                return t.request(vars, config);
+            } else {
+                return t.tryRequest(vars, config);
             }
-
-            if (config.urlStamp) {
-                vars.mark.__stamp = +new Date();
-            }
-
-            // `data`必须在请求发生时实时创建
-            data = extend({}, config.data, runAsFn(data));
-
-            // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
-            vars.data = data;
-
-            return t.fetch(vars, config);
         };
 
         t.api.contextId = contextId;
@@ -177,6 +162,34 @@ class API {
         for (let i = 0, l = plugins.length; i<l; i++) {
             plugins[i].call(t, t.api);
         }
+    }
+
+    makeVars(data) {
+        let t = this;
+        let config = t.config;
+
+        // 一次请求的私有相关数据
+        let vars = {
+            mark: {
+                __api: t._path
+            }
+        };
+
+        if (config.mock) {
+            vars.mark.__mock = TRUE;
+        }
+
+        if (config.urlStamp) {
+            vars.mark.__stamp = +new Date();
+        }
+
+        // `data`必须在请求发生时实时创建
+        data = extend({}, config.data, runAsFn(data));
+
+        // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
+        vars.data = data;
+
+        return vars;
     }
 
     /**
@@ -254,15 +267,6 @@ class API {
         }
     }
 
-    fetch(vars, config) {
-        let t = this;
-        if (config.retry === 0) {
-            return t.request(vars, config);
-        } else {
-            return t.tryRequest(vars, config);
-        }
-    }
-
     /**
      * 请求数据(从storage或者从网络)
      * @param vars {Object} 发送的数据
@@ -281,8 +285,8 @@ class API {
                 t.api.storage.has(vars.queryString).then(function (data) {
                     // console.warn('has cached: ', hasValue);
                     if (data.has) {
-                        // 调用 willRequest 钩子
-                        config.willRequest(vars, config, 'storage');
+                        // 调用 willFetch 钩子
+                        config.willFetch(vars, config, 'storage');
                         return data.value;
                     } else {
                         return t.remoteRequest(vars, config);
@@ -322,8 +326,8 @@ class API {
     remoteRequest(vars, config) {
         let t = this;
 
-        // 调用 willRequest 钩子
-        config.willRequest(vars, config, 'remote');
+        // 调用 willFetch 钩子
+        config.willFetch(vars, config, 'remote');
 
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
         t.api.pending = TRUE;
@@ -360,8 +364,8 @@ class API {
                     event.fire('g.reject', [error, config]);
                     event.fire(t.api.contextId + '.reject', [error, config]);
 
-                    // 调用 didRequest 钩子
-                    config.didRequest(vars, config);
+                    // 调用 didFetch 钩子
+                    config.didFetch(vars, config);
                 }
             }, config.timeout);
         }
@@ -409,8 +413,8 @@ class API {
     processResponse(vars, config, defer, response) {
         let t = this;
 
-        // 调用 didRequest 钩子函数
-        config.didRequest(vars, config);
+        // 调用 didFetch 钩子函数
+        config.didFetch(vars, config);
 
         // 非标准格式数据的预处理
         response = config.fit(response, vars);
@@ -635,7 +639,7 @@ __BUILD_ONLY_FOR_MODERN_BROWSER__
  *       - 所有缓存相关的功能
  */
 let nattyFetch = function (options) {
-    return new API('', runAsFn(options), defaultGlobalConfig, 'global').api();
+    return new API('nattyFetch', runAsFn(options), defaultGlobalConfig, 'global').api();
 }
 
 extend(nattyFetch, {

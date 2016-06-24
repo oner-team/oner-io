@@ -81,7 +81,7 @@ describe('nattyFetch method', function () {
                 data: {
                     liveData: 1
                 },
-                willRequest: function (vars, config) {
+                willFetch: function (vars, config) {
                     vars.data.hookData = 1;
                     // console.log(vars);
                     // console.log(config);

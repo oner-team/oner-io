@@ -4,7 +4,10 @@
 
 A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
-## 特点
+> 🍻 开发者的体验至关重要！  
+> `natty`系列的小工具，以垂直的思路和工匠的精神，在微小的技术点上追求极致的开发体验。如果对你有帮助，考虑支持一下吧 :D
+
+## Features
 
 * 接口风格和原生的`fetch`保持一致，都是`Promise`风格。
 * 以超简洁的配置，赋予接口最常见的，但`fetch`中不支持的强大功能。
@@ -22,18 +25,19 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 
 ## v2.x docs
 
-* [安装](docs/install.md)
-* [使用概览-项目级](docs/start_for_project.md)
-* [使用概览-组件级](docs/start_for_component.md)
-* [配置层级](docs/option_levels.md)
-* [配置选项](docs/options.md) doing
-* [编码约定](docs/rules.md) old
-* [有条理的规划接口](docs/context_create.md)
-* [开发](docs/dev.md) old
-* 设计文档(TODO)
-* [常见问题](docs/questions.md) old
+* [安装 (Installation)](docs/install.md)
+* [使用概览-项目级 (Start for Project)](docs/start_for_project.md)
+* [使用概览-组件级 (Start for Component)](docs/start_for_component.md)
+* [配置层级 (Option Levels)](docs/option_levels.md)
+* [配置选项 (Options)](docs/options.md)
+* [使用约定 (Rules)](docs/rules.md)
+* [创建清晰的接口层级 (Api)](docs/clear_api.md)
+* [共建 (Contribute)](docs/dev.md) old
+* [常见问题 (QA)](docs/questions.md) old
+* 设计文档 (TODO)
+* DEMO (TODO)
 
-## 兼容性
+## Compatibility
 
 * H5版本：iPhone4+、Android2.3+
 * PC版本：IE8+、Edge、Chrome、Safari、Firefox

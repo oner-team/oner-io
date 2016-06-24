@@ -22,7 +22,7 @@ describe('storage', function () {
         context.create('user', {
             getPhone: {
                 url: host + 'api/return-success',
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestTime++;
                     }
@@ -63,7 +63,7 @@ describe('storage', function () {
             getPhone: {
                 jsonp: true,
                 url: host + 'api/jsonp-order-create',
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestTime++;
                     }
@@ -103,7 +103,7 @@ describe('storage', function () {
         context.create({
             get: {
                 url: host + 'api/return-success',
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestTime++;
                     }
@@ -140,7 +140,7 @@ describe('storage', function () {
         context.create({
             get: {
                 url: host + 'api/return-success',
-                willRequest: function (vars, config, from) {
+                willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestTime++;
                     }

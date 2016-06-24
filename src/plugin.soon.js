@@ -19,21 +19,7 @@ module.exports = function(api) {
         }
 
         // 一次请求的私有相关数据
-        let vars = {
-            mark: {
-                __api: t.name + '.' + config.API
-            }
-        };
-
-        if (config.mock) {
-            vars.mark.__mock = true;
-        }
-
-        // `data`必须在请求发生时实时创建
-        data = extend({}, config.data, runAsFn(data));
-
-        // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
-        vars.data = data;
+        let vars = t.makeVars(data);
 
         if (api.storageUseable) {
 
@@ -43,8 +29,8 @@ module.exports = function(api) {
             api.storage.has(vars.queryString).then(function (result) {
                 // console.warn('has cached: ', hasValue);
                 if (result.has) {
-                    // 调用 willRequest 钩子
-                    config.willRequest(vars, config, 'storage');
+                    // 调用 willFetch 钩子
+                    config.willFetch(vars, config, 'storage');
                     successFn({
                         fromStorage: TRUE,
                         content: result.value
