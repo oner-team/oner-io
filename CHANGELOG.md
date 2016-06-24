@@ -4,7 +4,7 @@
 
 ### v2.0.0-rc1
 
-该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](https://github.com/Jias/natty-fetch/docs/from_v1_to_v2.md)
+该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](https://github.com/Jias/natty-fetch/blob/master/docs/from_v1_to_v2.md)
 
 * 新的名称空间`nattyFetch`
 * [#15](https://github.com/Jias/natty-fetch/issues/15) 支持[简易方式](https://github.com/Jias/natty-fetch/docs/simple_use.md)调用

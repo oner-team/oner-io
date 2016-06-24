@@ -16,6 +16,10 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 
 `v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](tree/v1.0.2)。
 
+## v1.x to v2.x
+
+* [从1.x升级到2.x](docs/from_v1_to_v2.md)
+
 ## v2.x docs
 
 * [安装](docs/install.md)
@@ -24,6 +28,7 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * [配置层级](docs/option_levels.md)
 * [配置选项](docs/options.md) doing
 * [编码约定](docs/rules.md) old
+* [有条理的规划接口](docs/context_create.md)
 * [开发](docs/dev.md) old
 * 设计文档(TODO)
 * [常见问题](docs/questions.md) old
