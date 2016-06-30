@@ -373,4 +373,6 @@ stopHandler.looping; // true or false
 
 `natty-fetch`的缓存功能由[`natty-storage`](https://github.com/Jias/natty-storage)提供，`storage`配置可参考`natty-storage`的文档。注意`key`是必须配置的选项！
 
-> 💣💣💣 `key`值代表一份缓存数据的引用地址，开启`storage`功能前，一定要选好一个可长期使用的`key`值，且`key`值是不应该经常变化的。如果`key`值因某种原因必须变化，则需要将变化前的`key`值所对应的缓存删除。因为新的`key`值会创建一份新的缓存数据。
+> 💣💣💣 当使用`localStorage`作为缓存方式时，需要慎重选择`key`值。`key`值代表一份缓存数据的引用地址，开启`storage`功能前，一定要选好一个可长期使用的`key`值，且`key`值是不应该经常变化的。
+> 
+> 如果`key`值因某种原因(自己挖坑)必须变化，则需要将变化前的`key`值所对应的缓存删除。因为新的`key`值会创建一份新的缓存数据。而原有的`key`值对应的数据如果不删，将成为用户浏览器中的死数据！！！
