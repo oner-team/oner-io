@@ -368,20 +368,7 @@ stopHandler.looping; // true or false
 
 是否开启缓存功能。该功能仅存在于`v2.0.0`以上的版本
 
-* 类型：Boolean | Object
+* 类型：false | Object
 * 默认：false
 
-`natty-fetch`的缓存功能由`natty-storage`提供，`storage`配置如果是对象值，可参考`natty-storage`的文档。
-
-当设置`storage`为`true`，和下面的效果是一样的。
-
-```js
-{
-    type: 'localStorage',
-    duration: 0,
-    until: 0,
-    tag: '' + 由natty-fetch内置的tag值,
-    key: !!!唯一必须配置的选择,
-    async: 由natty-fetch内置为true，不需要配置
-}
-```
+`natty-fetch`的缓存功能由`natty-storage`提供，`storage`配置如果是对象值，可参考`natty-storage`的文档。注意`key`是必须配置的选项！
