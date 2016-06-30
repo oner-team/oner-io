@@ -40,7 +40,7 @@ Powerful options：
 
 请求的固定参数。在全局配置或上下文配置中通常会设置和后端约定的参数，比如`token`。在接口配置中，`data`参数用于定义该接口的固定参数。
 
-* 类型：Object / Function
+* 类型：Object | Function
 * 默认：{}
 
 ##### 示例：固定参数 与 动态参数
@@ -165,7 +165,7 @@ DBContext.create('Order', {
 
 请求方式是否使用`jsonp`，当值为`true`时，默认的url参数形如`?callback=jsonp3879494623`，如果需要自定义`jsonp`的`url`参数，可以通过数组参数配置。
 
-* 类型：Boolean / Array
+* 类型：Boolean | Array
 * 默认：false
 * 示例：[true, 'cb', 'j{id}']
 
@@ -281,6 +281,13 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 * 类型：Function
 * 默认：`function(){}`
 
+### withCredentials
+
+是否发送`cookie`，`natty-fetch`内部已经通过判断`url`是否跨域来自动设置该值，所以不建议手动设置。
+
+* 类型：Boolean
+* 默认：通过判断`url`是否跨域来自动设置该值，跨域时为`false`
+
 ### plugins
 
 配置可用的插件。
@@ -291,7 +298,7 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
   - natty-fetch.plugin.soon
   - natty-fetch.plugin.loop
 
-##### `soon`插件
+##### `soon`
 
 在`storage`开启的情况下，会马上使用`storage`缓存的数据执行回调，并同时发起远程请求，并将请求回来的新数据同步到`storage`中，再第二次执行回调。
 
@@ -355,4 +362,26 @@ stopHandler();
 
 // 轮询状态
 stopHandler.looping; // true or false
+```
+
+### storage
+
+是否开启缓存功能。该功能仅存在于`v2.0.0`以上的版本
+
+* 类型：Boolean | Object
+* 默认：false
+
+`natty-fetch`的缓存功能由`natty-storage`提供，`storage`配置如果是对象值，可参考`natty-storage`的文档。
+
+当设置`storage`为`true`，和下面的效果是一样的。
+
+```js
+{
+    type: 'localStorage',
+    duration: 0,
+    until: 0,
+    tag: '' + 由natty-fetch内置的tag值,
+    key: !!!唯一必须配置的选择,
+    async: 由natty-fetch内置为true，不需要配置
+}
 ```
