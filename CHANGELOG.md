@@ -2,7 +2,12 @@
 
 ## Change Log
 
-### v2.0.0-rc1
+### v2.0.1 / 2016-06-30
+
+* [`natty-storage`](https://github.com/Jias/natty-storage)升级到[`v1.1.0`](https://github.com/Jias/natty-storage/blob/master/CHANGELOG.md)
+* 升级[`loop`](docs/options.md#loop)插件
+
+### v2.0.0 / 2016-06-24
 
 该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](docs/from_v1_to_v2.md)
 

@@ -41,11 +41,11 @@ module.exports = context;
 `v2.x`，将`上下文对象`的`api`属性作为接口模块的输出值
 
 ```js
-let context = nattyFetch.ontext(options);
+let context = nattyFetch.context(options);
 
 // 省略的代码
 
-module.exports = context.api;
+module.exports = context.api; // 变化在这里，加上`.api`
 ```
 
 #### 5. 升级两个Hook的名称
@@ -54,6 +54,8 @@ module.exports = context.api;
 * `didRequest`改为`didFetch`
 
 #### 6. (按需)升级接口名称的定义方式
+
+> 这一点，`v2.x`是完全兼容`v1.x`的。
 
 `v1.x`中的`context.create()`方法强制所有接口都要提取一层名称空间，出现了以下情况：
 
@@ -122,7 +124,7 @@ db.systemA.moduleB.getList().then().catch();
 
 #### 7. (按需)升级轮询接口
 
-`v1.x`中，所有接口都默认添加了轮询方法，浪费资源。
+`v1.x`中，所有接口都默认开启轮询功能，浪费资源。
 
 ```js
 context.create('driver', {
@@ -130,9 +132,14 @@ context.create('driver', {
         url: '//example.com/getDriverDistance.do'
     }
 });
+
+// .startLoop() + .stopLoop() + .looping
+context.driver.getDistance.startLoop({}, fn, fn)
+context.driver.getDistance.stopLoop()
+context.driver.getDistance.looping
 ```
 
-`v2.x`，需要使用插件来开启轮询方法。
+`v2.x`，需要使用插件来开启轮询功能。
 
 ```js
 context.create('driver', {
@@ -143,4 +150,9 @@ context.create('driver', {
         ]
     }
 });
+
+// .startLoop() + .stopLoop() + .looping
+context.api.driver.getDistance.startLoop({}, fn, fn)
+context.api.driver.getDistance.stopLoop()
+context.api.driver.getDistance.looping
 ```

@@ -29,7 +29,7 @@ describe('storage', function () {
                 },
                 storage: {
                     type: 'localStorage',
-                    id: 'v1.0'
+                    tag: 'v1.0'
                 }
             }
         });
@@ -70,7 +70,7 @@ describe('storage', function () {
                 },
                 storage: {
                     type: 'localStorage',
-                    id: 'v1.0'
+                    tag: 'v1.0'
                 }
             }
         });

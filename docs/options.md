@@ -11,14 +11,14 @@ Base options：
 * [jsonp](#jsonp)
 * [method](#method)
 * [mock](#mock)
-* [mockUrl](#mockUrl)
-* [mockUrlPrefix](#mockUrlPrefix)
+* [mockUrl](#mockurl)
+* [mockUrlPrefix](#mockurlprefix)
 * [timeout](#timeout)
 * [traditional](#traditional)
 * [url](#url)
-* [urlPrefix](#urlPrefix)
-* [urlStamp](#urlStamp)
-* [withCredentials](#withCredentials)
+* [urlPrefix](#urlprefix)
+* [urlStamp](#urlstamp)
+* [withCredentials](#withcredentials)
 
 Hook options：
 
@@ -32,6 +32,7 @@ Powerful options：
 * [ignoreSelfConcurrent](#ignoreSelfConcurrent)
 * [overrideSelfConcurrent](#overrideSelfConcurrent)
 * [plugins](#plugins)
+* [storage](#storage)
 * [retry](#retry)
 
 
@@ -323,12 +324,12 @@ Order.getList.soon({}, function(data){
 })
 ```
 
-##### `loop`插件
+##### `loop`
 
 创建轮询请求从来就没有这么简单过！
 
 ```js
-Driver = DBContext.create('Driver', {
+context.create('driver', {
     getDistance: {
         url: '...',
         plugins: [
@@ -338,7 +339,7 @@ Driver = DBContext.create('Driver', {
 });
 
 // 开始轮询
-Driver.getDistance.startLoop({
+let stopHandler = db.driver.getDistance.loop({
   // 轮询使用的参数
   data: {...},
   // 间隔时间
@@ -350,8 +351,8 @@ Driver.getDistance.startLoop({
 });
 
 // 结束轮询
-Driver.getDistance.stopLoop();
+stopHandler();
 
 // 轮询状态
-Driver.getDistance.looping; // true or false
+stopHandler.looping; // true or false
 ```

@@ -251,18 +251,18 @@ class API {
 
         // 创建缓存实例
         if (t.api.storageUseable) {
-            // `key`和`id`的选择原则:
+            // `key`和`tag`的选择原则:
             // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
-            // 经常变化的值用于`id`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
+            // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
             t.api.storage = nattyStorage(extend({
                 key: [t.api.contextId, t._path].join('_')
             }, config.storage, {
                 async: TRUE,
-                id: [
-                    config.storage.id,
+                tag: [
+                    config.storage.tag,
                     config.jsonp ? 'jsonp' : config.method,
                     config.url
-                ].join('_') // 使用者的`id`和内部的`id`, 要同时生效
+                ].join('_') // 使用者的`tag`和内部的`tag`, 要同时生效
             }));
         }
     }

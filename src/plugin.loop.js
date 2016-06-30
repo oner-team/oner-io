@@ -12,17 +12,24 @@ const {isNumber, noop} = require('./util');
  * @param api {Function} 需要轮询的函数
  */
 module.exports = (api) => {
-    let loopTimer = NULL;
-    api.looping = FALSE;
+    // api.looping = FALSE;
     // 开启轮询
-    api.startLoop = (options, resolveFn = noop, rejectFn = noop) => {
+    api.loop = (options, resolveFn = noop, rejectFn = noop) => {
         if (!options.duration || !isNumber(options.duration)) {
             throw new Error('Illegal `duration` value for `startLoop` method.');
-            return api;
+            return
+        }
+
+        let loopTimer = NULL
+
+        let stop = () => {
+            clearTimeout(loopTimer);
+            loopTimer = NULL;
+            stop.looping = FALSE;
         }
 
         let sleepAndRequest = () => {
-            api.looping = TRUE;
+            stop.looping = TRUE;
             loopTimer = setTimeout(() => {
                 api(options.data).then(resolveFn, rejectFn);
                 sleepAndRequest();
@@ -32,11 +39,7 @@ module.exports = (api) => {
         // NOTE 轮询过程中是不响应服务器端错误的 所以第二个参数是`noop`
         api(options.data).then(resolveFn, rejectFn);
         sleepAndRequest();
-    };
-    // 停止轮询
-    api.stopLoop = () => {
-        clearTimeout(loopTimer);
-        api.looping = FALSE;
-        loopTimer = NULL;
+        
+        return stop;
     };
 };
