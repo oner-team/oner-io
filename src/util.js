@@ -94,7 +94,7 @@ let isNumber = (v) => {
 
 const OBJECT = 'object';
 let isObject = (v) => {
-    return typeof v === OBJECT;
+    return typeof v === OBJECT && v !== NULL;
 };
 
 let isWindow = (v) => {

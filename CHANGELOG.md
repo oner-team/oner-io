@@ -4,8 +4,10 @@
 
 ### v2.0.1 / 2016-06-30
 
-* [`natty-storage`](https://github.com/Jias/natty-storage)升级到[`v1.1.0`](https://github.com/Jias/natty-storage/blob/master/CHANGELOG.md)
-* 升级[`loop`](docs/options.md#loop)插件
+* 升级：[`loop`](docs/options.md#loop)插件
+* 增强：当`storage`的`type`设置为`localStorage`时，强制检测是否同时设置了`key`值。
+* 修复：当`storage`的`type`设置为`variable`时，缓存没有启用。
+* 同步：[`natty-storage`](https://github.com/Jias/natty-storage)升级到[`v1.1.1`](https://github.com/Jias/natty-storage/blob/master/CHANGELOG.md)
 
 ### v2.0.0 / 2016-06-24
 
@@ -18,7 +20,7 @@
 * `NattyDB.Context`类变为`nattyFetch.context`静态方法
 * `NattyDB.onlyForHTML5`变为`nattyFetch.onlyForModern`
 * 删除了有歧义的`cache`配置，由`urlStamp`替代
-* 不再强制提取接口的名称空间，也不限制接口的名称空间层级，解决众口难调的使用习惯。
+* 不再强制提取接口的名称空间，也不限制接口的名称空间层级数，解决众口难调的使用习惯。
 
 ### v1.0.2 / 2016-05-27
 

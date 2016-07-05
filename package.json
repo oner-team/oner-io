@@ -56,6 +56,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "natty-storage": "^1.1.0"
+    "natty-storage": "^1.1.1"
   }
 }

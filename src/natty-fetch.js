@@ -241,22 +241,33 @@ class API {
 
         // 简易开启缓存的写法
         if (config.storage === TRUE) {
-            config.storage = {};
+            config.storage = {
+                type: 'variable'
+            };
         }
-
+        
         // 决定什么情况下缓存可以开启
         t.api.storageUseable = isPlainObject(config.storage)
             && (config.method === 'GET' || config.jsonp)
-            && nattyStorage.support[config.storage.type || 'localStorage'];
-
+            && nattyStorage.support[config.storage.type];
         // 创建缓存实例
         if (t.api.storageUseable) {
+            // 当使用`localStorage`时, 强制指定`key`值。如果没指定, 抛错!
+            // 当使用`variable`或`sessionStorage`时, 如果没指定`key`, 则自动生成内部`key`
+            // !!!为什么在使用`localStorage`时必须指定`key`值???
+            // !!!因为当key发生变化时, `localStorage`很容易产生死数据, 必须强制开发者有意识的去维护`key`值
+            if (config.storage.type === 'localStorage') {
+                if (!config.storage.hasOwnProperty('key') || !config.storage.key) {
+                    throw new Error('`key` is required when `storage.type` is `localStorage`.');
+                }
+            } else {
+                config.storage.key = config.storage.key || [t.api.contextId, t._path].join('_');
+            }
+
             // `key`和`tag`的选择原则:
             // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
             // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
-            t.api.storage = nattyStorage(extend({
-                key: [t.api.contextId, t._path].join('_')
-            }, config.storage, {
+            t.api.storage = nattyStorage(extend({}, config.storage, {
                 async: TRUE,
                 tag: [
                     config.storage.tag,
@@ -283,6 +294,7 @@ class API {
                 vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
 
                 t.api.storage.has(vars.queryString).then(function (data) {
+                    // alert(JSON.stringify(data, null, 4) + JSON.stringify(sessionStorage, null, 4));
                     // console.warn('has cached: ', hasValue);
                     if (data.has) {
                         // 调用 willFetch 钩子
@@ -440,7 +452,7 @@ class API {
             }
         } else {
             let error = extend({
-                message: 'Processing Failed: ' + t._path
+                message: '`success` is false, ' + t._path
             }, response.error);
             // NOTE response是只读的对象!!!
             defer.reject(error);

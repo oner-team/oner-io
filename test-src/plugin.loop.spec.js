@@ -6,7 +6,7 @@ const nattyFetch = require('natty-fetch');
 var expect = require('expect.js');
 
 
-describe.only('plugin loop', function () {
+describe('plugin loop', function () {
     // it('loop 2x', function (done) {
     //     this.timeout(1000*600);
     //     let context = nattyFetch.context({
@@ -82,7 +82,7 @@ describe.only('plugin loop', function () {
 
 
 
-    it.skip('loop', function (done) {
+    it('loop', function (done) {
 
         let context = nattyFetch.context({
             urlPrefix: host,
