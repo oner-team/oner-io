@@ -17,7 +17,7 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 
 ## v1.x docs
 
-`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](tree/v1.0.2)。
+`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](https://github.com/Jias/natty-fetch/tree/v1.0.2)。
 
 ## v1.x to v2.x
 
