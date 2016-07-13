@@ -77,7 +77,7 @@ const defaultGlobalConfig = {
     retry: 0,
 
     // 使用已有的request方法
-    request: NULL,
+    customRequest: NULL,
 
     // 0表示不启动超时处理
     timeout: 0,
@@ -158,9 +158,9 @@ class API {
         t.initStorage();
 
         // 启动插件
-        let plugins = isArray(options.plugins) ? options.plugins : [];
+        let plugins = isArray(config.plugins) ? config.plugins : [];
         for (let i = 0, l = plugins.length; i<l; i++) {
-            plugins[i].call(t, t.api);
+            isFunction(plugins[i]) && plugins[i].call(t, t);
         }
     }
 
@@ -199,7 +199,13 @@ class API {
     processAPIOptions(options) {
 
         let t = this;
-        let config = extend({}, t.contextConfig, options);
+
+        // 插件是不能覆盖的, 应该追加
+        let plugins = [].concat(t.contextConfig.plugins || [], options.plugins || []);
+
+        let config = extend({}, t.contextConfig, options, {
+            plugins
+        });
 
         if (config.mock) {
             config.mockUrl = t.getFullUrl(config);
@@ -347,9 +353,9 @@ class API {
         let defer = new Defer();
 
         // 创建请求实例requester
-        if (config.request) {
+        if (config.customRequest) {
             // 使用已有的request方法
-            vars.requester = config.request(vars, config, defer);
+            vars.requester = config.customRequest(vars, config, defer);
         } else if (config.jsonp) {
             vars.requester = t.sendJSONP(vars, config, defer);
         } else {
@@ -600,7 +606,12 @@ let context = (function () {
 
         ctx._contextId = contextId;
 
-        ctx._config = extend({}, runtimeGlobalConfig, options);
+        // 插件是不能覆盖的, 应该追加
+        let plugins = [].concat(runtimeGlobalConfig.plugins || [], options.plugins || []);
+
+        ctx._config = extend({}, runtimeGlobalConfig, options, {
+            plugins
+        });
 
         /**
          * 创建api
@@ -617,7 +628,12 @@ let context = (function () {
             for (let path in APIs) {
                 storage.set(
                     hasNamespace ? namespace + '.' + path : path,
-                    new API(hasNamespace ? namespace + '.' + path : path, runAsFn(APIs[path]), ctx._config, contextId).api
+                    new API(
+                        hasNamespace ? namespace + '.' + path : path,
+                        runAsFn(APIs[path]),
+                        ctx._config,
+                        contextId
+                    ).api
                 );
             }
 

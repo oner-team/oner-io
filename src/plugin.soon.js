@@ -1,9 +1,10 @@
 const FALSE = false;
 const TRUE = true;
-const {noop, isEmptyObject, sortPlainObjectKey, extend, runAsFn} = require('./util');
+const {noop, isEmptyObject, sortPlainObjectKey} = require('./util');
 
-module.exports = function(api) {
+module.exports = function(apiInstance) {
     let t = this;
+    let api = apiInstance.api;
     let {config} = api;
     api.soon = function(data, successFn = noop, errorFn = noop) {
 
