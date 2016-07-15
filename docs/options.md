@@ -24,13 +24,13 @@ Hook options：
 
 * [fit](#fit)
 * [process](#process)
-* [willFetch](#willFetch)
-* [didFetch](#didFetch)
+* [willFetch](#willfetch)
+* [didFetch](#didfetch)
 
 Powerful options：
 
-* [ignoreSelfConcurrent](#ignoreSelfConcurrent)
-* [overrideSelfConcurrent](#overrideSelfConcurrent)
+* [ignoreSelfConcurrent](#ignoreselfconcurrent)
+* [overrideSelfConcurrent](#overrideselfconcurrent)
 * [plugins](#plugins)
 * [storage](#storage)
 * [retry](#retry)
