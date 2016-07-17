@@ -4,13 +4,13 @@
 * 外部插件：dingtalk lwp可以自动降级
 * 文档补充：
   - 关于一个接口只应该用于一个场景的文档说明
-  - 服务端的共享接口，前端应该使用语义化拆分的说明
+  - 服务端的共享接口，前端应该使用语义化定义成多个接口的说明
 
 ## Change Log
 
 ### v2.1.1 / 2016-07-17
 
-* [#18](https://github.com/Jias/natty-fetch/issues/18) 补充内部缺失的`reject`回调。
+* [#18](https://github.com/Jias/natty-fetch/issues/18) 补充内部缺失的全局`reject`回调。
 
 ### v2.1.0 / 2016-07-17
 
