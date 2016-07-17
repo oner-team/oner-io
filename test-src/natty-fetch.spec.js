@@ -834,6 +834,11 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     method: 'POST'
                 }
             });
+
+            // TODO
+            context.on('reject', function (error) {
+                console.warn(error);
+            })
             context.api.order.create().then(function () {
                 // can not go here
             })['catch'](function (error) {
@@ -1153,6 +1158,11 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
                     url: host + 'error-url',
                     jsonp: true
                 }
+            });
+
+            // TODO
+            context.on('reject', function (error) {
+                console.warn(error);
             });
 
             context.api.order.create().then(function (data) {

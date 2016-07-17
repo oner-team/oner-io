@@ -498,10 +498,14 @@ class API {
                         break;
                 }
 
-                defer.reject({
+                let error = {
                     status,
-                    message
-                });
+                    message: message + ': ' + vars.mark.__api
+                };
+
+                defer.reject(error);
+                event.fire('g.reject', [error, config]);
+                event.fire(t.api.contextId + '.reject', [error, config]);
             },
             complete(/*status, xhr*/) {
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
@@ -538,11 +542,15 @@ class API {
             success(response) {
                 t.processResponse(vars, config, defer, response);
             },
-            error(e) {
-                defer.reject({
-                    message: 'Not Accessable JSONP `'
-                    //    TODO show url
-                });
+            error() {
+                let error = {
+                    message: 'Not Accessable JSONP: ' + vars.mark.__api
+                    // TODO show url
+                };
+
+                defer.reject(error);
+                event.fire('g.reject', [error, config]);
+                event.fire(t.api.contextId + '.reject', [error, config]);
             },
             complete() {
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
