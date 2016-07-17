@@ -157,63 +157,62 @@ describe('./hooks', function(){
                 })
         })
 
-        it('ajax timeout didFetch', function (done) {
+        it('ajax timeout should NOT fire `didFetch`', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
-                timeout: 500
-            })
+                timeout: 300
+            });
+            let count = 0;
             context.create({
                 getApi: {
                     url: 'api/timeout',
-                    fit(resp) {
-                        return {
-                            success: true,
-                            content: resp
-                        }
-                    },
-                    didFetch(config) {
-                        //console.log(config)
-                        done()
+                    didFetch() {
+                        // timeout时不应该调用didFetch
+                        count++
                     }
                 }
-            })
-            context
-                .api
-                .getApi()
-                .then((content) => {
-                }, (reason) => {
-                    //console.log(reason)
-                })
+            });
+
+            context.api.getApi().then(function () {
+
+            }).catch(function () {
+                try {
+                    expect(count).to.be(0);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
         })
 
-        it('jsonp timeout didFetch', function (done) {
+        it('jsonp timeout should NOT fire `didFetch`', function (done) {
             let context = nattyFetch.context({
                 urlPrefix: config.host,
                 jsonp: true,
-                timeout: 500
-            })
+                timeout: 300
+            });
+
+            let count = 0;
             context.create({
                 getApi: {
                     url: 'api/jsonp-timeout',
-                    fit(resp) {
-                        return {
-                            success: true,
-                            content: resp
-                        }
-                    },
-                    didFetch(config) {
-                        //console.log(config)
-                        done()
+                    didFetch() {
+                        // timeout时不应该调用didFetch
+                        count++
                     }
                 }
-            })
-            context
-                .api
-                .getApi()
-                .then((content) => {
-                }, (reason) => {
-                    //console.log(reason)
-                })
+            });
+
+            context.api.getApi().then(function () {
+
+            }).catch(function () {
+                try {
+                    expect(count).to.be(0);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
         })
 
     })

@@ -133,9 +133,8 @@ class API {
                 return dummyPromise;
             }
 
-            if (config.overrideSelfConcurrent && config._lastRequester) {
-                config._lastRequester.abort();
-                delete config._lastRequester;
+            if (config.overrideSelfConcurrent && t.api._requester) {
+                t.api._requester.abort();
             }
 
             let vars = t.makeVars(data);
@@ -152,6 +151,14 @@ class API {
 
         // 标记是否正在等待请求返回
         t.api.pending = FALSE;
+        t.api._requester = NULL;
+
+        // 取消响应
+        t.api.abort = function () {
+            if (t.api.pending && t.api._requester) {
+                t.api._requester.abort();
+            }
+        };
 
         t.api.config = config;
 
@@ -293,35 +300,23 @@ class API {
     request(vars, config) {
         let t = this;
 
-        return new Promise(function (resolve, reject) {
-            if (t.api.storageUseable) {
+        if (t.api.storageUseable) {
 
-                // 只有GET和JSONP才会有storage生效
-                vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
+            // 只有GET和JSONP才会有storage生效
+            vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
 
-                t.api.storage.has(vars.queryString).then(function (data) {
-                    // alert(JSON.stringify(data, null, 4) + JSON.stringify(sessionStorage, null, 4));
-                    // console.warn('has cached: ', hasValue);
-                    if (data.has) {
-                        // 调用 willFetch 钩子
-                        config.willFetch(vars, config, 'storage');
-                        return data.value;
-                    } else {
-                        return t.remoteRequest(vars, config);
-                    }
-                }).then(function (data) {
-                    resolve(data);
-                }).catch(function (e) {
-                    reject(e);
-                });
-            } else {
-                t.remoteRequest(vars, config).then(function (data) {
-                    resolve(data);
-                }).catch(function (e) {
-                    reject(e);
-                });
-            }
-        });
+            return t.api.storage.has(vars.queryString).then(function (data) {
+                // alert(JSON.stringify(data, null, 4) + JSON.stringify(sessionStorage, null, 4));
+                // console.warn('has cached: ', hasValue);
+                if (data.has) {
+                    return data.value;
+                } else {
+                    return t.remoteRequest(vars, config);
+                }
+            });
+        } else {
+            return t.remoteRequest(vars, config);
+        }
     }
 
     /**
@@ -355,25 +350,20 @@ class API {
         // 创建请求实例requester
         if (config.customRequest) {
             // 使用已有的request方法
-            vars.requester = config.customRequest(vars, config, defer);
+            t.api._requester = config.customRequest(vars, config, defer);
         } else if (config.jsonp) {
-            vars.requester = t.sendJSONP(vars, config, defer);
+            t.api._requester = t.sendJSONP(vars, config, defer);
         } else {
-            vars.requester = t.sendAjax(vars, config, defer);
-        }
-
-        // 如果只响应最新请求
-        if (config.overrideSelfConcurrent) {
-            config._lastRequester = vars.requester;
+            t.api._requester = t.sendAjax(vars, config, defer);
         }
 
         // 超时处理
         if (0 !== config.timeout) {
             setTimeout(() => {
-                if (t.api.pending && vars.requester) {
+                if (t.api.pending && t.api._requester) {
                     // 取消请求
-                    vars.requester.abort();
-                    delete vars.requester;
+                    t.api._requester.abort();
+
                     let error = {
                         timeout: TRUE,
                         message: 'Timeout By ' + config.timeout + 'ms.'
@@ -381,12 +371,10 @@ class API {
                     defer.reject(error);
                     event.fire('g.reject', [error, config]);
                     event.fire(t.api.contextId + '.reject', [error, config]);
-
-                    // 调用 didFetch 钩子
-                    config.didFetch(vars, config);
                 }
             }, config.timeout);
         }
+
         return defer.promise;
     }
 
@@ -520,12 +508,7 @@ class API {
                     //C.log('ajax complete');
 
                     t.api.pending = FALSE;
-                    vars.requester = NULL;
-
-                    // 如果只响应最新请求
-                    if (config.overrideSelfConcurrent) {
-                        delete config._lastRequester;
-                    }
+                    t.api._requester = NULL;
                 }
                 //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
             }
@@ -564,12 +547,7 @@ class API {
             complete() {
                 if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     t.api.pending = FALSE;
-                    vars.requester = NULL;
-
-                    // 如果只响应最新请求
-                    if (config.overrideSelfConcurrent) {
-                        delete config._lastRequester;
-                    }
+                    t.api._requester = NULL;
                 }
             }
         });
@@ -666,9 +644,11 @@ __BUILD_ONLY_FOR_MODERN_BROWSER__
  *       - overrideSelfConcurrent
  *       - 所有缓存相关的功能
  */
-let nattyFetch = function (options) {
-    return new API('nattyFetch', runAsFn(options), defaultGlobalConfig, 'global').api();
-}
+let nattyFetch = {};
+
+nattyFetch.create = function (options) {
+    return new API('nattyFetch', runAsFn(options), defaultGlobalConfig, 'global').api;
+};
 
 extend(nattyFetch, {
     onlyForModern: ONLY_FOR_MODERN_BROWSER,

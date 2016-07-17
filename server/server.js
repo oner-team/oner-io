@@ -47,6 +47,16 @@ app.all('/api/:test', function (req, res) {
                 });
             }, 1000); // 时间不要太大 否则单测太漫长
             break;
+        case 'timeout-long':
+            setTimeout(function () {
+                res.json({
+                    success: true,
+                    content: {
+                        id: 1
+                    }
+                });
+            }, 1000*60810); // 时间足够长, 用于调试
+            break;
         case 'return-script':
             res.send('window.__test__ = 1;');
             break;

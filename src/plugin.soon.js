@@ -22,33 +22,7 @@ module.exports = function(apiInstance) {
         // 一次请求的私有相关数据
         let vars = t.makeVars(data);
 
-        if (api.storageUseable) {
-
-            // 只有GET和JSONP才会有storage生效
-            vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
-
-            api.storage.has(vars.queryString).then(function (result) {
-                // console.warn('has cached: ', hasValue);
-                if (result.has) {
-                    // 调用 willFetch 钩子
-                    config.willFetch(vars, config, 'storage');
-                    successFn({
-                        fromStorage: TRUE,
-                        content: result.value
-                    });
-                }
-
-                // 在`storage`可用的情况下, 远程请求返回的数据会同步到`storage`
-                return t.remoteRequest(vars, config);
-            }).then(function (content) {
-                successFn({
-                    fromStorage: FALSE,
-                    content
-                });
-            }).catch(function (e) {
-                errorFn(e);
-            });
-        } else {
+        let remoteRequest = function () {
             t.remoteRequest(vars, config).then(function (content) {
                 successFn({
                     fromStorage: FALSE,
@@ -57,6 +31,28 @@ module.exports = function(apiInstance) {
             }).catch(function (e) {
                 errorFn(e);
             });
+        }
+
+        if (api.storageUseable) {
+
+            // 只有GET和JSONP才会有storage生效
+            vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
+
+            api.storage.has(vars.queryString).then(function (result) {
+
+                // console.warn('has cached: ', hasValue);
+                if (result.has) {
+                    successFn({
+                        fromStorage: TRUE,
+                        content: result.value
+                    });
+                }
+
+                // 在`storage`可用的情况下, 远程请求返回的数据会同步到`storage`
+                remoteRequest();
+            });
+        } else {
+            remoteRequest();
         }
     };
 };

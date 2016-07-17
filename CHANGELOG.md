@@ -1,6 +1,19 @@
+## Next TODO
 
+* 外部插件：mtop
+* 外部插件：dingtalk lwp可以自动降级
+* 文档补充：
+  - 关于一个接口只应该用于一个场景的文档说明
+  - 服务端的共享接口，前端应该使用语义化拆分的说明
 
 ## Change Log
+
+### v2.1.0 / 2016-07-17
+
+* 升级[简易方式](https://github.com/Jias/natty-fetch/docs/start_for_component.md)的调用方法。这一点是和`v2.0.2`版本的主要变化。表现为：
+  - 添加`nattyFetch.create`方法。
+  - `nattyFetch`名称空间不再支持直接调用，因为没有接口实例就无法开启`ignoreSelfConcurrent`、`overrideSelfConcurrent`和`storage`等高级功能。
+* [#19](https://github.com/Jias/natty-fetch/issues/19) `didFetch`在超时时不应该被调用。
 
 ### v2.0.2 / 2016-07-13
 
@@ -18,7 +31,7 @@
 该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](docs/from_v1_to_v2.md)
 
 * 新的名称空间`nattyFetch`
-* [#15](https://github.com/Jias/natty-fetch/issues/15) 支持[简易方式](https://github.com/Jias/natty-fetch/docs/simple_use.md)调用
+* [#15](https://github.com/Jias/natty-fetch/issues/15) 支持[简易方式](https://github.com/Jias/natty-fetch/docs/start_for_component.md)调用
 * [#12](https://github.com/Jias/natty-fetch/issues/12) 添加插件功能
 * [#12](https://github.com/Jias/natty-fetch/issues/12)，[#13](https://github.com/Jias/natty-fetch/issues/13) 添加缓存功能
 * `NattyDB.Context`类变为`nattyFetch.context`静态方法
