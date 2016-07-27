@@ -12,7 +12,7 @@
 
 *  支持传入非原生的`Promise`对象，满足特殊场景的需求。([@eternalsky](https://github.com/eternalsky) in [#21](https://github.com/jias/natty-fetch/issues/21))
 
-希望`Promise`实例有`finally`方法：
+Case 1：希望`Promise`实例有`finally`方法：
 
 ```js
 const RSVP = require("rsvp");
@@ -27,7 +27,7 @@ fooFetch().then().finally(function(){
 
 ```
 
-原生的`Promise`弱爆了，我要使用高配的[bluebird](https://github.com/petkaantonov/bluebird)：
+Case 2：原生的`Promise`弱爆了，我要使用高配的[`bluebird`](https://github.com/petkaantonov/bluebird) (我的项目很复杂，根本没有配置`Promise A+ polyfill`，我要继续使用`bluebird`)：
 
 ```js
 const Promise = require("bluebird");
