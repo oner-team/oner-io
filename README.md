@@ -1,6 +1,6 @@
 # nattyFetch
 
-[![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch)
+[![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/natty-fetch/master/LICENSE)
 
 A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
@@ -35,8 +35,6 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * [创建清晰的接口层级 (Api)](docs/clear_api.md)
 * [共建 (Contribute)](docs/dev.md) old
 * [常见问题 (QA)](docs/questions.md) old
-* 设计文档 (TODO)
-* DEMO (TODO)
 
 ## Compatibility
 
@@ -49,19 +47,3 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * [Using CORS](http://www.html5rocks.com/en/tutorials/cors/) on html5rocks, very good!
 * [Browser support for CORS](http://enable-cors.org/client.html)
 * [XDomainRequest on MSDN](https://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx)
-
-## Issues
-
-[https://github.com/Jias/natty-fetch/issues](https://github.com/Jias/natty-fetch/issues)
-
-## Credits
-
-(The MIT License)
-
-Copyright (c) 2015-2016 jias <gnosaij@yeah.net>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

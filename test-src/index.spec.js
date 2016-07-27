@@ -3,7 +3,7 @@
 const nattyFetch = require('natty-fetch')
 
 
-require('./natty-fetch.spec.js');
+require('./natty-fetch.spec');
 require('./util.spec');
 require('./ajax.spec');
 require('./event.spec');
@@ -12,4 +12,5 @@ require('./plugin.spec');
 require('./plugin.soon.spec');
 require('./plugin.loop.spec');
 require('./plugin.customRequest.spec');
-require('./simple.spec.js');
+require('./simple.spec');
+require('./private-promise.spec');

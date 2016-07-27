@@ -1,4 +1,4 @@
-function Defer() {
+function Defer(Promise) {
   let t = this;
   t.promise = new Promise(function (resolve, reject) {
     t._resolve = resolve;

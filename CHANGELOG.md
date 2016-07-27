@@ -8,16 +8,53 @@
 
 ## Change Log
 
+### v2.1.2 / 2016-07-27
+
+*  支持传入非原生的`Promise`对象，满足特殊场景的需求。([@eternalsky](https://github.com/eternalsky) in [#21](https://github.com/jias/natty-fetch/issues/21))
+
+希望`Promise`实例有`finally`方法：
+
+```js
+const RSVP = require("rsvp");
+let fooFetch = nattyFetch.create({
+    url: 'example.com/api/foo',
+    Promise: RSVP.Promise // 用`RSVP.Promise`代替原生`Promise`
+});
+
+fooFetch().then().finally(function(){
+    // 这个`finally`方法是`RSVP.Promise`扩展出来的非`Promise A+`标准的方法。
+})
+
+```
+
+原生的`Promise`弱爆了，我要使用高配的[bluebird](https://github.com/petkaantonov/bluebird)：
+
+```js
+const Promise = require("bluebird");
+
+// 全局启用(不影响`nattyFetch.create()`方法，因为这个方法是独立的)
+nattyFetch.setGlobal({
+    Promise: Promise
+});
+
+// 上下文启用
+let context = nattyFetch.context({
+    Promise: Promise
+});
+```
+
+
+
 ### v2.1.1 / 2016-07-17
 
-* [#18](https://github.com/Jias/natty-fetch/issues/18) 补充内部缺失的全局`reject`回调。
+* 补充内部缺失的全局`reject`回调。([@xuguogang](https://github.com/xuguogang) in [#18](https://github.com/Jias/natty-fetch/issues/18))
 
 ### v2.1.0 / 2016-07-17
 
 * 升级[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)的调用方法。这一点是和`v2.0.2`版本的主要变化。表现为：
   - 添加`nattyFetch.create`方法。
   - `nattyFetch`名称空间不再支持直接调用，因为没有接口实例就无法开启`ignoreSelfConcurrent`、`overrideSelfConcurrent`和`storage`等高级功能。
-* [#19](https://github.com/Jias/natty-fetch/issues/19) `didFetch`在超时时不应该被调用。
+* `didFetch`在超时时不应该被调用。([#19](https://github.com/Jias/natty-fetch/issues/19))
 
 ### v2.0.2 / 2016-07-13
 
@@ -35,9 +72,9 @@
 该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](docs/from_v1_to_v2.md)
 
 * 新的名称空间`nattyFetch`
-* [#15](https://github.com/Jias/natty-fetch/issues/15) 支持[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)调用
-* [#12](https://github.com/Jias/natty-fetch/issues/12) 添加插件功能
-* [#12](https://github.com/Jias/natty-fetch/issues/12)，[#13](https://github.com/Jias/natty-fetch/issues/13) 添加缓存功能
+* 支持[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)调用 ([@eternalsky](https://github.com/eternalsky) in [#15](https://github.com/Jias/natty-fetch/issues/15))
+* 添加插件功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12))
+* 添加缓存功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12), [#13](https://github.com/Jias/natty-fetch/issues/13))
 * `NattyDB.Context`类变为`nattyFetch.context`静态方法
 * `NattyDB.onlyForHTML5`变为`nattyFetch.onlyForModern`
 * 删除了有歧义的`cache`配置，由`urlStamp`替代

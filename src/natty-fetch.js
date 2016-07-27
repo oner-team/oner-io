@@ -1,5 +1,5 @@
 "use strict";
-
+const hasWindow = 'undefined' !== typeof window;
 const nattyStorage = require('natty-storage');
 
 if (nattyStorage === undefined) {
@@ -72,6 +72,9 @@ const defaultGlobalConfig = {
 
     // 成功回调
     process: noop,
+
+    // 私有Promise对象, 如果不想用浏览器原生的Promise对象的话
+    Promise: hasWindow ? window.Promise : NULL,
 
     // 默认不执行重试
     retry: 0,
@@ -345,7 +348,7 @@ class API {
         // 等待状态在此处开启 在相应的`requester`的`complete`回调中关闭
         t.api.pending = TRUE;
 
-        let defer = new Defer();
+        let defer = new Defer(config.Promise);
 
         // 创建请求实例requester
         if (config.customRequest) {
@@ -387,7 +390,9 @@ class API {
     tryRequest(vars, config) {
         let t = this;
 
-        return new Promise(function (resolve, reject) {
+
+
+        return new config.Promise(function (resolve, reject) {
             let retryTime = 0;
             let request = () => {
                 // 更新的重试次数
