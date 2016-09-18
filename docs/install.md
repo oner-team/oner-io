@@ -4,9 +4,9 @@ The fastest way to get started is to serve JavaScript from the CDN
 
 ```html
 <!-- storage tool for natty-fetch -->
-<script src="https://npmcdn.com/natty-storage@1.0.0/dist/natty-storage.js"></script>
+<script src="https://npmcdn.com/natty-storage@1.0.0/dist/natty-storage.min.js"></script>
 <!-- core for natty-fetch -->
-<script src="https://npmcdn.com/natty-fetch@2.0.0-rc1/dist/natty-fetch.js"></script>
+<script src="https://npmcdn.com/natty-fetch@2.1.2/dist/natty-fetch.min.js"></script>
 ```
 
 Also, it's as easy as npm.
