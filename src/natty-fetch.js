@@ -651,11 +651,6 @@ __BUILD_ONLY_FOR_MODERN_BROWSER__
 /**
  * 简易接口
  * @param options
- * @note 这个接口尝试做过共享`api`实例, 但是结果证明不现实, 不科学, 不要再尝试了!
- *       因为无法共享实例, 所以有些功能是不支持的:
- *       - ignoreSelfConcurrent
- *       - overrideSelfConcurrent
- *       - 所有缓存相关的功能
  */
 let nattyFetch = {};
 

@@ -8,6 +8,10 @@
 
 ## Change Log
 
+### v2.1.3 / 2016-09-27
+
+*  修复`IE`下调用`abort`后读取`xhr`对象属性导致的[c00c023f](http://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f)异常。([@eternalsky](https://github.com/eternalsky) in [#27](https://github.com/jias/natty-fetch/issues/27))
+
 ### v2.1.2 / 2016-07-27
 
 *  支持传入非原生的`Promise`对象，满足特殊场景的需求。([@eternalsky](https://github.com/eternalsky) in [#21](https://github.com/jias/natty-fetch/issues/21))

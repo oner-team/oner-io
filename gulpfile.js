@@ -138,7 +138,7 @@ function packNodeVersion(isPc) {
 }
 
 // pack natty-fetch.js
-gulp.task('pack', function() {
+gulp.task('pack', ['pack-pc'], function() {
     return pack(false);
 });
 

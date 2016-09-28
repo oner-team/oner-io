@@ -35,7 +35,7 @@ app.all('/api/:test', function (req, res) {
         case 'abort':
             setTimeout(function () {
                 res.send('abort');
-            }, 10000);
+            }, 1000000);
             break;
         case 'timeout':
             setTimeout(function () {

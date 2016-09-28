@@ -24,7 +24,7 @@ dummyPromise.then = dummyPromise['catch'] = () => {
 /**
  * 判断是否是IE8~11, 不包含Edge
  * @returns {boolean}
- * @note IE11下 window.ActiveXObject的值很怪异, 所有需要追加 'ActiveXObject' in window 来判断
+ * @note IE11下 window.ActiveXObject的值很怪异, 所以需要追加 'ActiveXObject' in window 来判断
  */
 const isIE = hasWindow && (!!window.ActiveXObject || 'ActiveXObject' in window);
 

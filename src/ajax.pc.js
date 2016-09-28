@@ -9,7 +9,7 @@
  * ref http://www.html5rocks.com/en/tutorials/cors/
  * @link http://enable-cors.org/index.html
  */
-const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
+const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE} = require('./util');
 
 const hasWindow = 'undefined' !== typeof window;
 const doc = hasWindow ? document : null;
@@ -81,7 +81,7 @@ let setEvents = (xhr, options, isCrossDomain) => {
         }
         xhr.__completed = true;
         //options.log && console.info('~loadend');
-        options.complete(xhr.status, xhr);
+        options.complete();
         xhr.__aborted = null;
         delete xhr.__aborted;
     }
@@ -121,17 +121,17 @@ let setEvents = (xhr, options, isCrossDomain) => {
     }
 
     let abortFn = function() {
+
         if (xhr.__completed) {
             return;
         }
-        //options.log && console.info('~abort');
-        options.abort(xhr.status, xhr);
-        //C.log('complete after abort');
+        options.abort();
         completeFn();
     };
 
     // 如果是IE8/9 且 如果是跨域请求
     if (fallback && isCrossDomain) {
+
         // `XDomainRequest`实例是没有`onreadystatechange`方法的!!!
         xhr.onload = onLoadFn;
     } else {
@@ -142,8 +142,13 @@ let setEvents = (xhr, options, isCrossDomain) => {
         //   3: LOADING
         //   4: DONE 此时触发load事件
         xhr.onreadystatechange = () => {
+
+            if (xhr.__completed) {
+                return
+            }
             //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
             if (xhr.readyState == 4) {
+
                 // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
                 if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                     onLoadFn();
@@ -162,7 +167,12 @@ let setEvents = (xhr, options, isCrossDomain) => {
     xhr.abort = function() {
         xhr.__aborted = true;
         // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
-        originAbort.call(xhr);
+
+        // 非IE浏览器才会真正的调用原生`abort`
+        // https://github.com/jias/natty-fetch/issues/27
+        if (!isIE) {
+            originAbort.call(xhr);
+        }
 
         // `XDomainRequest`对象实例居然没有`onabort`方法
         abortFn();
