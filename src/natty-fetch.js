@@ -1,4 +1,3 @@
-"use strict";
 import nattyStorage from 'natty-storage';
 
 if (nattyStorage === undefined) {

@@ -2,7 +2,7 @@
  * @author jias
  */
 import {
-    extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE
+    extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE,
     hasWindow, FALSE, UNDEFINED, NULL
 } from './util';
 

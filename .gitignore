@@ -3,7 +3,8 @@ node_modules/
 design/
 .idea/
 dist/
-test-dist/
+test/bundle.js
+test/bundle.js.map
 ignore/
 
 # Packages #
