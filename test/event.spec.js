@@ -1,6 +1,4 @@
-const expect = require('expect.js')
-const config = require('./config');
-const nattyFetch = require('natty-fetch');
+import {host} from '../config/host'
 
 describe('./hooks', function(){
 
@@ -10,7 +8,7 @@ describe('./hooks', function(){
 
         it('ajax willFetch call', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host,
+                urlPrefix: host,
                 willFetch() {
                     done()
                 }
@@ -31,7 +29,7 @@ describe('./hooks', function(){
 
         it('jsonp willFetch call', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host,
+                urlPrefix: host,
                 willFetch() {
                     done()
                 }
@@ -54,7 +52,7 @@ describe('./hooks', function(){
 
         it('ajax success didFetch', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host
+                urlPrefix: host
             })
             context.create({
                 getApi: {
@@ -80,7 +78,7 @@ describe('./hooks', function(){
 
         it('jsonp success didFetch long time', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host
+                urlPrefix: host
             })
             context.create({
                 getApi: {
@@ -108,7 +106,7 @@ describe('./hooks', function(){
 
         it('ajax error didFetch', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host
+                urlPrefix: host
             })
             context.create({
                 getApi: {
@@ -133,7 +131,7 @@ describe('./hooks', function(){
 
         it('jsonp error didFetch', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host,
+                urlPrefix: host,
                 jsonp: true
             })
             context.create({
@@ -159,7 +157,7 @@ describe('./hooks', function(){
 
         it('ajax timeout should NOT fire `didFetch`', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host,
+                urlPrefix: host,
                 timeout: 300
             });
             let count = 0;
@@ -187,7 +185,7 @@ describe('./hooks', function(){
 
         it('jsonp timeout should NOT fire `didFetch`', function (done) {
             let context = nattyFetch.context({
-                urlPrefix: config.host,
+                urlPrefix: host,
                 jsonp: true,
                 timeout: 300
             });

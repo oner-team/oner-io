@@ -1,11 +1,5 @@
 "use strict";
-const {host} = require('./config');
-const nattyFetch = require('natty-fetch');
-
-// https://github.com/Automattic/expect.js
-var expect = require('expect.js');
-
-// dd.ready(function () {
+import {host} from '../config/host'
 
 describe.skip('plugin customRequest', function () {
     this.timeout(1000*10);
@@ -108,5 +102,3 @@ describe.skip('plugin customRequest', function () {
         // });
     });
 });
-
-// });

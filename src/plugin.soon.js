@@ -1,8 +1,6 @@
-const FALSE = false;
-const TRUE = true;
-const {noop, isEmptyObject, sortPlainObjectKey} = require('./util');
+import {noop, isEmptyObject, sortPlainObjectKey, FALSE, TRUE} from './util';
 
-module.exports = function(apiInstance) {
+export default function(apiInstance) {
     let t = this;
     let api = apiInstance.api;
     let {config} = api;

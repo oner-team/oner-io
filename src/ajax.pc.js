@@ -1,21 +1,12 @@
-
 /**
- * file: ajax.pc.js
- * ref https://xhr.spec.whatwg.org
- * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
- * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
- * ref https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
- * ref https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
- * ref http://www.html5rocks.com/en/tutorials/cors/
- * @link http://enable-cors.org/index.html
+ * @author jias
  */
-const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE} = require('./util');
+import {
+    extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE
+    hasWindow, FALSE, UNDEFINED, NULL
+} from './util';
 
-const hasWindow = 'undefined' !== typeof window;
 const doc = hasWindow ? document : null;
-const FALSE = false;
-const UNDEFINED = 'undefined';
-const NULL = null;
 const GET = 'GET';
 const SCRIPT = 'script';
 const XML = 'xml';
@@ -26,14 +17,14 @@ const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了
 const APPLICATION_JSON = 'application/json';
 const TEXT_HTML = 'text/html';
 
-let xhrTester = UNDEFINED !== typeof XMLHttpRequest ? new XMLHttpRequest() : {};
-let hasXDR = UNDEFINED !== typeof XDomainRequest;
-let fallback = hasWindow ? (!('withCredentials' in xhrTester) && hasXDR) : null;
-let supportCORS = hasWindow ? (('withCredentials' in xhrTester) || hasXDR) : null;
+const xhrTester = UNDEFINED !== typeof XMLHttpRequest ? new XMLHttpRequest() : {};
+const hasXDR = UNDEFINED !== typeof XDomainRequest;
+const fallback = hasWindow ? (!('withCredentials' in xhrTester) && hasXDR) : null;
+const supportCORS = hasWindow ? (('withCredentials' in xhrTester) || hasXDR) : null;
 
 // minetype的简写映射
 // TODO 考虑是否优化
-let acceptToRequestHeader = {
+const acceptToRequestHeader = {
     // IIS returns `application/x-javascript` 但应该不需要支持
     '*':    '*/' + '*',
     script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
@@ -45,7 +36,7 @@ let acceptToRequestHeader = {
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
-let setHeaders = (xhr, options) => {
+const setHeaders = (xhr, options) => {
     if (!xhr.setRequestHeader) {
         return;
     }
@@ -67,13 +58,13 @@ let setHeaders = (xhr, options) => {
         header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
     }
 
-    for (var key in header) {
+    for (let key in header) {
         xhr.setRequestHeader(key, header[key]);
     }
 };
 
 // 绑定事件
-let setEvents = (xhr, options, isCrossDomain) => {
+const setEvents = (xhr, options, isCrossDomain) => {
 
     let completeFn = function() {
         if (xhr.__completed) {
@@ -182,11 +173,11 @@ let setEvents = (xhr, options, isCrossDomain) => {
     xhr.onprogress = xhr.ontimeout = noop;
 };
 
-let defaultOptions = {
+const defaultOptions = {
     url: '',
     mark: {},
     method: GET,
-    accept: TEXT,
+    accept: '*',
     data: null,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
@@ -199,7 +190,7 @@ let defaultOptions = {
     traditional: FALSE
 };
 
-let ajax = (options) => {
+export default function ajax(options) {
 
     options = extend({}, defaultOptions, options);
 
@@ -235,7 +226,12 @@ let ajax = (options) => {
 
     setEvents(xhr, options, isCD);
 
-    xhr.open(options.method, appendQueryString(options.url, extend({}, options.mark, options.method === GET ? options.data : {}), options.cache, options.traditional));
+    xhr.open(options.method, appendQueryString(
+        options.url,
+        extend({}, options.mark, options.method === GET ? options.data : {}),
+        options.cache,
+        options.traditional
+    ));
 
     // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
@@ -256,5 +252,3 @@ let ajax = (options) => {
 
 ajax.fallback = fallback;
 ajax.supportCORS = supportCORS;
-
-module.exports = ajax;

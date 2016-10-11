@@ -1,21 +1,25 @@
-const hasWindow = 'undefined' !== typeof window;
-const doc = hasWindow ? document : null;
-const escape = encodeURIComponent;
-const NULL = null;
+export const hasWindow = 'undefined' !== typeof window;
+export const doc = hasWindow ? document : null;
+export const escape = encodeURIComponent;
+export const NULL = null;
+export const TRUE = true;
+export const FALSE = !TRUE;
+export const UNDEFINED = 'undefined';
+export const EMPTY = '';
+
 const toString = Object.prototype.toString;
 const ARRAY_TYPE = '[object Array]';
 const OBJECT_TYPE = '[object Object]';
-const TRUE = true;
-const FALSE = !TRUE;
 
 /**
  * 伪造的`promise`对象
  * NOTE 伪造的promise对象要支持链式调用 保证和`new Promise`返回的对象行为一致
  *      dummyPromise.then().catch().finally()
  */
-let dummyPromise = {
+export const dummyPromise = {
     dummy: TRUE
 };
+
 dummyPromise.then = dummyPromise['catch'] = () => {
     // NOTE 这里用了剪头函数 不能用`return this`
     return dummyPromise;
@@ -26,11 +30,11 @@ dummyPromise.then = dummyPromise['catch'] = () => {
  * @returns {boolean}
  * @note IE11下 window.ActiveXObject的值很怪异, 所以需要追加 'ActiveXObject' in window 来判断
  */
-const isIE = hasWindow && (!!window.ActiveXObject || 'ActiveXObject' in window);
+export const isIE = hasWindow && (!!window.ActiveXObject || 'ActiveXObject' in window);
 
-let noop = (v) => {
+export function noop(v) {
     return v;
-};
+}
 
 /**
  * 变换两个参数的函数到多个参数
@@ -41,7 +45,7 @@ let noop = (v) => {
  *      add = redo(add);
  *      add(1,2,3) => 6
  */
-let redo =(fn) => {
+export function redo(fn) {
     return function () {
         var args = arguments;
         var ret = fn(args[0], args[1]);
@@ -54,59 +58,59 @@ let redo =(fn) => {
 
 const random = Math.random;
 const floor = Math.floor;
-let makeRandom = () => {
+export function makeRandom() {
     return floor(random() * 9e9);
 };
 
 const absoluteUrlReg = /^(https?:)?\/\//;
-let isAbsoluteUrl = (url) => {
+export function isAbsoluteUrl(url) {
     return !!url.match(absoluteUrlReg);
 };
 
 const relativeUrlReg = /^[\.\/]/;
-let isRelativeUrl = (url) => {
+export function isRelativeUrl(url) {
     return !!url.match(relativeUrlReg);
 };
 
 const BOOLEAN = 'boolean';
-let isBoolean = (v) => {
+export function isBoolean(v) {
     return typeof v === BOOLEAN;
 };
 
 const STRING = 'string';
-let isString = (v) => {
+export function isString(v) {
     return typeof v === STRING;
 };
 
 const FUNCTION = 'function';
-let isFunction = (v) => {
+export function isFunction(v) {
     return typeof v === FUNCTION;
 };
 
-let runAsFn = (v) => {
+export function runAsFn(v) {
     return isFunction(v) ? v() : v;
 };
 
 const NUMBER = 'number';
-let isNumber = (v) => {
+export function isNumber(v) {
     return !isNaN(v) && typeof v === NUMBER;
 };
 
 const OBJECT = 'object';
-let isObject = (v) => {
+export function isObject(v) {
     return typeof v === OBJECT && v !== NULL;
 };
 
-let isWindow = (v) => {
+export function isWindow(v) {
     return v !== NULL && v === v.window;
 };
 
 // 参考了zepto
-let isPlainObject = (v) => {
+export function isPlainObject(v) {
     return v !== NULL && isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype;
-};
+}
 
-let isEmptyObject = (v) => {
+export function isEmptyObject(v) {
     let count = 0;
     for (let i in v) {
         if (v.hasOwnProperty(i)) {
@@ -117,13 +121,15 @@ let isEmptyObject = (v) => {
 }
 
 let isArray = Array.isArray;
-if (__BUILD_FALLBACK__) {
+if (__FALLBACK__) {
     if (!isArray) {
         isArray = (v) => {
             return toString.call(v) === ARRAY_TYPE;
         };
     }
 }
+
+export {isArray}
 
 
 
@@ -137,16 +143,15 @@ if(doc) {
     originA = doc.createElement('a');
     originA.href = location.href;
 }
-let isCrossDomain = (url) => {
+export function isCrossDomain(url) {
 
     let requestA = doc.createElement('a');
     requestA.href = url;
-    //console.log(originA.protocol + '//' + originA.host + '\n' + requestA.protocol + '//' + requestA.host);
 
     // 如果`url`的值不包含`protocol`和`host`(比如相对路径), 在标准浏览器下, 会自定补全`requestA`对象的`protocal`和`host`属性.
     // 但在IE8~11下, 不会自动补全. 即`requestA.protocol`和`requestA.host`的值都是空的.
     // 在IE11的不同小版本下, requestA.protocol的值有的是`:`, 有的是空字符串, 太奇葩啦!
-    if (__BUILD_FALLBACK__) {
+    if (__FALLBACK__) {
         if (isIE && (requestA.protocol === ':' || requestA.protocol === '')) {
             if (requestA.hostname === '') {
                 //alert(0)
@@ -157,17 +162,6 @@ let isCrossDomain = (url) => {
             }
         }
     }
-
-    //let log = {
-    //    'originA.hostname': originA.hostname,
-    //    'requestA.hostname': requestA.hostname,
-    //    'originA.port': originA.port,
-    //    'requestA.port': requestA.port,
-    //    'originA.protocol': originA.protocol,
-    //    'requestA.protocol': requestA.protocol
-    //}
-    //
-    //alert(JSON.stringify(log));
 
     // 标准浏览器
     return originA.hostname !== requestA.hostname || originA.port !== requestA.port || originA.protocol !== requestA.protocol;
@@ -180,9 +174,8 @@ let isCrossDomain = (url) => {
  * @return {Object} 扩展后的receiver对象
  * @note 这个extend方法是定制的, 不要拷贝到其他地方用!!!
  * @note 这个extend方法是深拷贝方式的!!!
- * TODO
  */
-let extend = (receiver = {}, supplier = {}, deepCopy = FALSE) => {
+function _extend(receiver = {}, supplier = {}, deepCopy = FALSE) {
     for (let key in supplier) {
         // `supplier`中不是未定义的键 都可以执行扩展
         if (supplier.hasOwnProperty(key) && supplier[key] !== undefined) {
@@ -202,7 +195,10 @@ let extend = (receiver = {}, supplier = {}, deepCopy = FALSE) => {
     return receiver;
 };
 
-let likeArray = (v) => {
+const extend = redo(_extend)
+export {extend}
+
+export function likeArray(v) {
     if (!v) {
         return false;
     }
@@ -214,7 +210,7 @@ let likeArray = (v) => {
  * @param v {Array|Object} 遍历目标对象
  * @param fn {Function} 遍历器 会被传入两个参数, 分别是`value`和`key`
  */
-let each = (v, fn) => {
+export function each(v, fn) {
     let i, l;
     if (likeArray(v)) {
         for (i = 0, l = v.length; i < l; i++) {
@@ -234,7 +230,7 @@ let each = (v, fn) => {
  * @returns {Object} 返回的新对象
  * @case 这个函数用于对比两次请求的参数是否一致
  */
-let sortPlainObjectKey = (obj) => {
+export function sortPlainObjectKey(obj) {
     let clone = {};
     let key;
     let keyArray = [];
@@ -253,7 +249,7 @@ let sortPlainObjectKey = (obj) => {
     return clone;
 };
 
-let serialize = (params, obj, traditional, scope) => {
+export function serialize(params, obj, traditional, scope) {
     let type, array = isArray(obj), hash = isPlainObject(obj);
     each(obj, function(value, key) {
         type = toString.call(value);
@@ -286,7 +282,7 @@ let serialize = (params, obj, traditional, scope) => {
  * $.param({ foo: 'bar', nested: { will: 'be ignored' }}, true)  // "foo=bar&nested=[object+Object]"
  * $.param({ id: function(){ return 1 + 2 } })  // "id=3"
  */
-let param = (obj, traditional) => {
+export function param(obj, traditional) {
     var params = [];
     params.add = (key, value) => {
         if (isFunction(value)) value = value();
@@ -297,12 +293,12 @@ let param = (obj, traditional) => {
     return params.join('&').replace(/%20/g, '+');
 };
 
-let decodeParam = (str) => {
+export function decodeParam(str) {
     return decodeURIComponent(str.replace(/\+/g, ' '));
 };
 
 // 给URL追加查询字符串
-let appendQueryString = (url, obj, traditional) => {
+export function appendQueryString(url, obj, traditional) {
     let queryString = param(obj, traditional);
 
     if (queryString) {
@@ -310,28 +306,4 @@ let appendQueryString = (url, obj, traditional) => {
     } else {
         return url;
     }
-};
-
-module.exports = {
-    appendQueryString,
-    decodeParam,
-    dummyPromise,
-    each,
-    extend: redo(extend),
-    isAbsoluteUrl,
-    isArray,
-    isBoolean,
-    isCrossDomain,
-    isEmptyObject,
-    isFunction,
-    isIE,
-    isNumber,
-    isPlainObject,
-    isRelativeUrl,
-    isString,
-    makeRandom,
-    noop,
-    sortPlainObjectKey,
-    param,
-    runAsFn
 };

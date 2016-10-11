@@ -1,14 +1,17 @@
-function Defer(Promise) {
-  let t = this;
-  t.promise = new Promise(function (resolve, reject) {
-    t._resolve = resolve;
-    t._reject = reject;
-  });
+export default class Defer {
+  constructor(Promise) {
+    const t = this
+    t.promise = new Promise(function (resolve, reject) {
+      t._resolve = resolve
+      t._reject = reject
+    })
+  }
+
+  resolve(value) {
+    this._resolve.call(this.promise, value)
+  }
+
+  reject(reason) {
+    this._reject.call(this.promise, reason)
+  }
 }
-Defer.prototype.resolve = function (value) {
-  this._resolve.call(this.promise, value);
-};
-Defer.prototype.reject = function (reason) {
-  this._reject.call(this.promise, reason);
-};
-module.exports = Defer;

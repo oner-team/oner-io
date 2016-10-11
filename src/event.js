@@ -1,6 +1,7 @@
-var pre = '__';
+const PREFIX = '__';
+function rename (type) { return PREFIX + type; }
 
-var Event = {
+export default {
     on : function () {
         var t    = this;
         var args = arguments;
@@ -38,8 +39,4 @@ var Event = {
     hasEvent : function (type) {
         return !!this[rename(type)];
     }
-};
-
-function rename (type) { return pre + type; }
-
-module.exports = Event;
+}

@@ -1,12 +1,4 @@
-"use strict";
-
-const {host} = require('./config');
-
-// https://github.com/Automattic/expect.js
-const expect = require('expect.js');
-
-// require('natty-fetch')已被`webpack`映射到全局`NattyDB`对象
-const nattyFetch = require('natty-fetch');
+import {host} from '../config/host'
 
 let xit = function(ignore, fn) {
     fn();

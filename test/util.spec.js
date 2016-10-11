@@ -1,11 +1,4 @@
-"use strict";
-const {host} = require('./config');
-const nattyFetch = require('natty-fetch');
-
-// https://github.com/Automattic/expect.js
-var expect = require('expect.js');
-
-var {
+const {
     appendQueryString, isAbsoluteUrl, isNumber,
     param, decodeParam, isIE, isCrossDomain,
     sortPlainObjectKey

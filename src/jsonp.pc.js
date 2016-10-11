@@ -1,13 +1,11 @@
-const {appendQueryString, noop, extend, makeRandom} = require('./util');
-const hasWindow = 'undefined' !== typeof window;
-const win = hasWindow ? window : null;
-const doc = hasWindow ? document : null;
-const NULL = null;
+import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, FALSE} from './util';
+const win = hasWindow ? window : NULL;
+const doc = hasWindow ? document : NULL;
 const SCRIPT = 'script';
-const FALSE = false;
-const IE8 = hasWindow ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : false;
+const IE8 = hasWindow ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : FALSE;
+
 // TODO add test spec
-let removeScript = (script) => {
+const removeScript = (script) => {
     if (IE8 && script.readyState) {
         script.onreadystatechange = NULL;
     } else {
@@ -17,7 +15,7 @@ let removeScript = (script) => {
     script = NULL;
 };
 let head = NULL;
-let insertScript = (url, options) => {
+const insertScript = (url, options) => {
     let script = doc.createElement(SCRIPT);
     script.type = 'text/javascript';
     script.src = url;
@@ -52,7 +50,7 @@ let insertScript = (url, options) => {
     return script;
 }
 
-let defaultOptions = {
+const defaultOptions = {
     url: '',
     mark: {},
     data: {},
@@ -66,7 +64,7 @@ let defaultOptions = {
     traditional: FALSE
 };
 
-let jsonp = (options) => {
+export default function jsonp(options) {
 
     options = extend({}, defaultOptions, options);
 
@@ -92,9 +90,12 @@ let jsonp = (options) => {
     };
 
     // 生成`url`
-    let url = appendQueryString(options.url, extend({
-        [options.flag]: callbackName
-    }, options.mark, options.data), options.cache, options.traditional);
+    let url = appendQueryString(
+        options.url,
+        extend({[options.flag]: callbackName}, options.mark, options.data),
+        options.cache,
+        options.traditional
+    );
 
     // 插入脚本
     script = insertScript(url, options);
@@ -109,5 +110,3 @@ let jsonp = (options) => {
         }
     };
 }
-
-module.exports = jsonp;

@@ -1,12 +1,6 @@
-"use strict";
-
-// https://github.com/Automattic/expect.js
-const expect = require('expect.js');
-const ExpectAction = require('./expect-action');
-
-const {host} = require('./config');
-const nattyFetch = require('natty-fetch');
-let {ajax} = nattyFetch;
+import ExpectAction from './expect-action'
+import {host} from '../config/host'
+const {ajax} = nattyFetch;
 
 describe('./ajax', function () {
 

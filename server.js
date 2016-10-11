@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var getIp = require('get-ip');
 
 var retryTime = 1;
 
@@ -113,7 +114,7 @@ app.all('/api/:test', function (req, res) {
         // return standard data structure
         case 'return-cookie':
             console.log('aaa')
-          console.log(req.cookie);
+            console.log(req.cookie);
             res.json({
                 success: true,
                 content: {
@@ -213,12 +214,12 @@ app.all('/api/:test', function (req, res) {
 
 });
 
-var server = app.listen(8010, function () {
-    var host = server.address().address;
-    var port = server.address().port;
-
-    console.log('Example app listening at http://%s:%s', host, port);
-});
+getIp().then(function (ip) {
+    var server = app.listen(8010, function () {
+        var port = server.address().port;
+        console.log('Example app listening at http://%s:%s', ip, port);
+    });
+})
 // http://www.bennadel.com/blog/2327-cross-origin-resource-sharing-cors-ajax-requests-between-jquery-and-node-js.htm
 // http://kodemaniak.de/2010/07/cross-domain-ajax-with-restlet-and-jquery/
 // http://stackoverflow.com/questions/21783079/ajax-in-chrome-sending-options-instead-of-get-post-put-delete

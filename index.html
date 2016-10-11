@@ -5,21 +5,30 @@
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <meta http-equiv="cleartype" content="on">
-    <title>nattyFetch(Mobile ONLY Version) Unit Test</title>
+    <title>natty-fetch unit test</title>
 </head>
 <body>
-<div style="font-size:12px;color:#888;position:fixed; top:7px; left:16px;">当前是Modern Browser版本单测, <a href="./pc.html">
-    进入PC版单测</a></div>
+<div style="font-size:12px;color:#888;position:fixed; top:7px; left:16px;">
+    当前是Modern Browser版本单测,
+    <a href="pc.html">进入PC版单测</a>
+</div>
 <div id="mocha"></div>
-<script src="http://g.alicdn.com/dingding/open-develop/0.6.6/dingtalk-ali.js"></script><!--仅测试使用-->
-<script src="https://g.alicdn.com/platform/c/??rsvp.js/3.1.0/rsvp.min.js"></script><!--仅测试使用-->
-<script type="text/javascript" src="./test-src/log.js"></script><!--仅测试使用-->
-<!--<script type="text/javascript" src="./test-src/cookie.min.js"></script>-->
+
+<!-- Promise polyfill -->
 <script type="text/javascript" src="./node_modules/lie/dist/lie.polyfill.js"></script>
 <script type="text/javascript" src="./node_modules/natty-storage/dist/natty-storage.js"></script>
-<!--<script type="text/javascript" src="http://30.10.33.198:8000/dist/natty-storage.js"></script>-->
+
 <!--<script type="text/javascript" src="./dist/natty-fetch.min.js"></script>-->
 <script type="text/javascript" src="./dist/natty-fetch.js"></script>
-<script type="text/javascript" src="./test-dist/test.js"></script>
+
+<!-- unit test scripts start -->
+<link rel="stylesheet" href="./node_modules/mocha/mocha.css">
+<script src="./node_modules/mocha/mocha.js"></script>
+<script src="./node_modules/expect.js/index.js"></script>
+<script>mocha.setup('bdd')</script>
+<script src="./test/bundle.js"></script>
+<script>mocha.run()</script>
+<!-- unit test scripts end -->
+
 </body>
 </html>

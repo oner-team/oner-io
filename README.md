@@ -1,6 +1,6 @@
 # nattyFetch
 
-[![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/natty-fetch/master/LICENSE)
+[![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![download](https://img.shields.io/npm/dm/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/natty-fetch/master/LICENSE)
 
 A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 

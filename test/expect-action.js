@@ -1,7 +1,3 @@
-"use strict";
-
-// https://github.com/Automattic/expect.js
-const expect = require('expect.js');
 
 function ExpectAction() {
     this.reset();
@@ -30,4 +26,4 @@ ExpectAction.prototype.check = function () {
     expect(this.actualEvents).to.eql(this.expectEvents);
 }
 
-module.exports = ExpectAction;
+export default ExpectAction;

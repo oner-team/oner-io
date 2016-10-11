@@ -2,21 +2,17 @@
  * 创建轮询支持
  * @param api {Function} 需要轮询的函数
  */
-const FALSE = false
-const TRUE = true
-const NULL = null
-const {isNumber, noop} = require('./util')
+import {isNumber, noop, TRUE, FALSE, NULL} from './util'
 
 /**
  * 创建轮询支持
  * @param api {Function} 需要轮询的函数
  */
-module.exports = (apiInstance) => {
+export default function(apiInstance) {
     let api = apiInstance.api;
     api.loop = (options, resolveFn = noop, rejectFn = noop) => {
         if (!options.duration || !isNumber(options.duration)) {
             throw new Error('Illegal `duration` value for `startLoop` method.')
-            return
         }
 
         let loopTimer = NULL

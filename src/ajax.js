@@ -1,28 +1,20 @@
 /**
- * file: ajax.js
- * ref https://xhr.spec.whatwg.org
- * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
- * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
- * ref https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
- * ref https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
- * ref http://www.html5rocks.com/en/tutorials/cors/
- * @link http://enable-cors.org/index.html
+ * @author jias
  */
-const {extend, appendQueryString, noop, isCrossDomain, isBoolean, param} = require('./util');
+import {
+    extend, appendQueryString, noop, isCrossDomain, isBoolean, param,
+    FALSE, NULL, UNDEFINED
+} from './util';
 
-const FALSE = false;
-const UNDEFINED = 'undefined';
-const NULL = null;
+const supportCORS = UNDEFINED !== typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest());
 const GET = 'GET';
 const SCRIPT = 'script';
 const XML = 'xml';
 const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了字母`O`
 
-let supportCORS = UNDEFINED !== typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest());
-
 // minetype的简写映射
 // TODO 考虑是否优化
-let acceptToRequestHeader = {
+const acceptToRequestHeader = {
     // IIS returns `application/x-javascript` 但应该不需要支持
     '*':    '*/' + '*',
     script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
@@ -34,7 +26,7 @@ let acceptToRequestHeader = {
 
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
-let setHeaders = (xhr, options) => {
+const setHeaders = (xhr, options) => {
     let header = {
         Accept: acceptToRequestHeader[options.accept]
     };
@@ -51,7 +43,7 @@ let setHeaders = (xhr, options) => {
         header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
     }
 
-    for (var key in header) {
+    for (let key in header) {
         xhr.setRequestHeader(key, header[key]);
     }
 };
@@ -61,7 +53,7 @@ let setHeaders = (xhr, options) => {
 //      比较遗憾 到现在了依然不能安全的使用load和error等事件 就连PC端的chrome都有下面的问题
 //      500: 触发load loadend 不触发error
 //      404: 触发load loadend 不触发error
-let setEvents = (xhr, options) => {
+const setEvents = (xhr, options) => {
 
     // 再高级的浏览器都有低级错误! 已经不能在相信了!
     // MAC OSX Yosemite Safari上的低级错误: 一次`ajax`请求的`loadend`事件完成之后,
@@ -69,7 +61,7 @@ let setEvents = (xhr, options) => {
     // `__finished`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
     xhr.__finished = FALSE;
 
-    let readyStateChangeFn = (e) => {
+    const readyStateChangeFn = () => {
 
         //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
@@ -121,7 +113,7 @@ let setEvents = (xhr, options) => {
     //    console.log('xhr event: load');
     //});
 
-    let abortFn = () => {
+    const abortFn = () => {
         if (xhr.__finished) {
             return;
         }
@@ -131,7 +123,7 @@ let setEvents = (xhr, options) => {
 
     xhr.addEventListener('abort', abortFn);
 
-    let loadedFn = () => {
+    const loadedFn = () => {
         if (xhr.__finished) {
             return;
         }
@@ -144,7 +136,7 @@ let setEvents = (xhr, options) => {
     xhr.addEventListener('loadend', loadedFn);
 };
 
-let defaultOptions = {
+const defaultOptions = {
     url: '',
     mark: {},
     method: GET,
@@ -152,6 +144,7 @@ let defaultOptions = {
     data: null,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
+    cache: true,
     success: noop,
     error: noop,
     complete: noop,
@@ -160,12 +153,15 @@ let defaultOptions = {
     traditional: FALSE
 };
 
-let ajax = (options) => {
+export default function ajax(options) {
 
     options = extend({}, defaultOptions, options);
-    
+
+    // 是否跨域
+    let isCD = isCrossDomain(options.url);
+
     // 如果跨域了, 则禁止发送自定义的`header`信息
-    if (isCrossDomain(options.url)) {
+    if (isCD) {
         // 重置`header`, 统一浏览器的行为.
         // 如果在跨域时发送了自定义`header`, 则:
         //   标准浏览器会报错: Request header field xxx is not allowed by Access-Control-Allow-Headers in preflight response.
@@ -180,13 +176,14 @@ let ajax = (options) => {
     xhr.open(options.method, appendQueryString(
         options.url,
         extend({}, options.mark, options.method === GET ? options.data : {}),
+        options.cache,
         options.traditional
     ));
 
     // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
     // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的
     // NOTE 如果Client端`withCredentials`使用了true值 则后端`responseHeader`中必须配置`Access-Control-Allow-Credentials`是true
-    xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCrossDomain(options.url);
+        xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCD;
 
     // 设置requestHeader
     setHeaders(xhr, options);
@@ -210,4 +207,13 @@ let ajax = (options) => {
 ajax.fallback = false;
 ajax.supportCORS = supportCORS;
 
-module.exports = ajax;
+/**
+ * file: ajax.js
+ * ref https://xhr.spec.whatwg.org
+ * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+ * ref https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+ * ref https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+ * ref https://hacks.mozilla.org/2009/07/cross-site-xmlhttprequest-with-cors/
+ * ref http://www.html5rocks.com/en/tutorials/cors/
+ * @link http://enable-cors.org/index.html
+ */

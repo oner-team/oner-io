@@ -1,17 +1,15 @@
-const {appendQueryString, noop, extend, makeRandom} = require('./util');
-const hasWindow = 'undefined' !== typeof window;
-const win = hasWindow ? window : null;
-const doc = hasWindow ? document : null;
-const NULL = null;
+import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, FALSE} from './util';
+const win = hasWindow ? window : NULL;
+const doc = hasWindow ? document : NULL;
 const SCRIPT = 'script';
-const FALSE = false;
 
-let removeScript = (script) => {
+const removeScript = (script) => {
     script.onerror = NULL;
     script.parentNode.removeChild(script);
+    script = NULL;
 };
 let head = NULL;
-let insertScript = (url, options) => {
+const insertScript = (url, options) => {
     let script = doc.createElement(SCRIPT);
     script.src = url;
     script.async = true;
@@ -27,10 +25,11 @@ let insertScript = (url, options) => {
     return script;
 }
 
-let defaultOptions = {
+const defaultOptions = {
     url: '',
     mark: {},
     data: {},
+    cache: true,
     success: noop,
     error: noop,
     complete: noop,
@@ -40,7 +39,7 @@ let defaultOptions = {
     traditional: FALSE
 };
 
-let jsonp = (options) => {
+export default function jsonp(options) {
 
     options = extend({}, defaultOptions, options);
 
@@ -59,6 +58,7 @@ let jsonp = (options) => {
 
     // 成功回调
     win[callbackName] = (data) => {
+        // JSONP函数需要立即删除 用于`IE8`判断是否触发`onerror`
         win[callbackName] = NULL;
         options.success(data);
         options.complete();
@@ -68,6 +68,7 @@ let jsonp = (options) => {
     let url = appendQueryString(
         options.url,
         extend({[options.flag]: callbackName}, options.mark, options.data),
+        options.cache,
         options.traditional
     );
 
@@ -84,5 +85,3 @@ let jsonp = (options) => {
         }
     };
 }
-
-module.exports = jsonp;

@@ -1,22 +1,11 @@
-"use strict";
 
-const {host} = require('./config');
+import {host} from '../config/host'
 
-// https://github.com/Automattic/expect.js
-const expect = require('expect.js');
-
-// require('natty-fetch')已被`webpack`映射到全局`NattyDB`对象
-const nattyFetch = require('natty-fetch');
-
-let VERSION;
-__BUILD_VERSION__
-
-
-describe('nattyFetch v' + VERSION + ' Unit Test', function() {
+describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     describe('static',function() {
-        it('version v' + VERSION, function() {
-            expect(nattyFetch.version).to.equal(VERSION);
+        it('version v__VERSION__', function() {
+            expect(nattyFetch.version).to.equal('__VERSION__');
         });
     });
 
@@ -1054,7 +1043,7 @@ describe('nattyFetch v' + VERSION + ' Unit Test', function() {
             }, 300);
         });
     });
-    
+
 
     describe('jsonp', function () {
         // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent

@@ -1,37 +1,30 @@
 "use strict";
-const hasWindow = 'undefined' !== typeof window;
-const nattyStorage = require('natty-storage');
+import nattyStorage from 'natty-storage';
 
 if (nattyStorage === undefined) {
     console.warn('Please install the `natty-storage` script which is required by `natty-fetch`, go on with' +
         ' https://www.npmjs.com/package/natty-storage');
 }
 
-// 下面两个配置了webpack的alias
-const ajax = require('ajax');
-const jsonp = require('jsonp');
-
-const Defer = require('./defer');
-const util = require('./util');
-const event = require('./event');
-
-// 内置插件
-const pluginLoop = require('./plugin.loop');
-const pluginSoon = require('./plugin.soon');
-
-const {
+import * as util from './util';
+import {
     extend, runAsFn, isAbsoluteUrl,
     isRelativeUrl, noop, isBoolean,
     isArray, isFunction,
     sortPlainObjectKey, isEmptyObject,
     isPlainObject, dummyPromise,
-    isString
-} = util;
+    isString, NULL, TRUE, FALSE, EMPTY, hasWindow
+} from './util';
 
-const NULL = null;
-const EMPTY = '';
-const TRUE = true;
-const FALSE = !TRUE;
+import Defer from './defer';
+import event from './event';
+
+import ajax from './__AJAX__';
+import jsonp from './__JSONP__';
+
+// 内置插件
+import pluginLoop from './plugin.loop';
+import pluginSoon from './plugin.soon';
 
 // 全局默认配置
 const defaultGlobalConfig = {
@@ -489,7 +482,6 @@ class API {
             error(status/*, xhr*/) {
 
                 let message;
-                let flag;
                 switch (status) {
                     case 404:
                         message = 'Not Found';
@@ -574,7 +566,7 @@ class API {
  *     功能增强的
  *     底层隔离的
  */
-let context = (function () {
+const context = (function () {
     let count = 0;
 
     return function(contextId, options) {
@@ -642,12 +634,6 @@ let context = (function () {
     }
 })();
 
-let VERSION;
-__BUILD_VERSION__
-
-let ONLY_FOR_MODERN_BROWSER
-__BUILD_ONLY_FOR_MODERN_BROWSER__
-
 /**
  * 简易接口
  * @param options
@@ -659,9 +645,8 @@ nattyFetch.create = function (options) {
 };
 
 extend(nattyFetch, {
-    onlyForModern: ONLY_FOR_MODERN_BROWSER,
-    version: VERSION,
-    // Context,
+    onlyForModern: __ONLY_FOR_MODERN_BROWSER__,
+    version: '__VERSION__',
     _util: util,
     _event: event,
     context,
@@ -705,4 +690,4 @@ extend(nattyFetch, {
 // 内部直接将运行时的全局配置初始化到默认值
 nattyFetch.setGlobal(defaultGlobalConfig);
 
-module.exports = nattyFetch;
+export default nattyFetch;
