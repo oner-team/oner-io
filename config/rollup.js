@@ -19,7 +19,7 @@ const entryMap = {
   test: 'test/index.spec.js',
 }
 
-const distFile = isModern ? 'natty-fetch.min.js' : 'natty-fetch.pc.min.js'
+const distFile = isModern ? 'dist/natty-fetch.min.js' : 'dist/natty-fetch.pc.min.js'
 const destMap = {
   dev: distFile,
   prod: distFile,
@@ -34,7 +34,7 @@ const formatMap = {
 
 export default {
   entry: entryMap[env],
-  dest: 'dist/' + destMap[env],
+  dest: destMap[env],
   format: formatMap[env],
   moduleName: 'nattyFetch',
   external: [

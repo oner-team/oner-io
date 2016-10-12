@@ -6,14 +6,14 @@ if (nattyStorage === undefined) {
 }
 
 import * as util from './util';
-import {
+const {
     extend, runAsFn, isAbsoluteUrl,
     isRelativeUrl, noop, isBoolean,
     isArray, isFunction,
     sortPlainObjectKey, isEmptyObject,
     isPlainObject, dummyPromise,
     isString, NULL, TRUE, FALSE, EMPTY, hasWindow
-} from './util';
+} = util;
 
 import Defer from './defer';
 import event from './event';

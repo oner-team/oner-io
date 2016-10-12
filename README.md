@@ -33,7 +33,7 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * [配置选项 (Options)](docs/options.md)
 * [使用约定 (Rules)](docs/rules.md)
 * [创建清晰的接口层级 (Api)](docs/clear_api.md)
-* [共建 (Contribute)](docs/dev.md) old
+* [共建 (Contribute)](docs/dev.md)
 * [常见问题 (QA)](docs/questions.md) old
 
 ## Compatibility

@@ -27,6 +27,7 @@ const acceptToRequestHeader = {
 // 设置请求头
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
 const setHeaders = (xhr, options) => {
+
     let header = {
         Accept: acceptToRequestHeader[options.accept]
     };
