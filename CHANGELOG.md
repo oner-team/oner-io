@@ -10,11 +10,15 @@
 
 ### v2.2.0 / coming soon
 
-* 修复`IE`下，跨域时调用`abort`没有生效的问题。
+* 修复`IE`下，跨域时调用`abort`没有生效的问题。`v2.1.3`引入的问题。
 *  `webpack+babel`组合切换到了`rollup+buble`组合。无论是开发构建还是生产构建，都更快更小。
 * 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
-* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口是名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
+* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
 * 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+* 发布文件的变动
+  - 删除了非压缩版本。`dist`目录下都是压缩的用于生产环境的代码。如果希望在开发环境使用非压缩版本，开启浏览器的`map`功能即可。控制台中将看到`ES2015`语法的源代码。
+  - 删除了`cjs`版本(即`natty-fetch.node.js`和`natty-fetch.pc.node.js`)。`natty-fetch.min.js`采用`umd`方式打包，已不再需要独立的`cjs`版本。
+  - 根目录下添加了`pc.js`，方便PC端项目的引用。([@eternalsky](https://github.com/eternalsky) in [#23](https://github.com/jias/natty-fetch/issues/27))
 
 ##### 附录
 
