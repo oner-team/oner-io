@@ -51,7 +51,7 @@ describe('storage', function () {
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.user.getPhone.storage.destroy();
 
-        }).catch();
+        })['catch']();
     });
 
     it('query string is same: sessionStorage', function (done) {
@@ -92,7 +92,7 @@ describe('storage', function () {
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.user.getPhone.storage.destroy();
 
-        }).catch();
+        })['catch']();
     });
 
     //
@@ -131,7 +131,7 @@ describe('storage', function () {
             } catch (e) {
                 done(e);
             }
-        }).catch();
+        })['catch']();
     });
 
     it('query string is same with jsonp', function (done) {
@@ -173,7 +173,7 @@ describe('storage', function () {
             }
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.user.getPhone.storage.destroy();
-        }).catch();
+        })['catch']();
     });
 
     it('query string is different', function (done) {
@@ -209,7 +209,7 @@ describe('storage', function () {
             }
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.get.storage.destroy();
-        }).catch();
+        })['catch']();
     });
 
 
@@ -241,7 +241,7 @@ describe('storage', function () {
             }
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.get.storage.destroy();
-        }).catch();
+        })['catch']();
     });
 
     it('`POST` request with `storage` on should throw an error', function () {

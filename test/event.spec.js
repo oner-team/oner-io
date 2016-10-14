@@ -173,7 +173,7 @@ describe('./hooks', function(){
 
             context.api.getApi().then(function () {
 
-            }).catch(function () {
+            })['catch'](function () {
                 try {
                     expect(count).to.be(0);
                     done();
@@ -203,7 +203,7 @@ describe('./hooks', function(){
 
             context.api.getApi().then(function () {
 
-            }).catch(function () {
+            })['catch'](function () {
                 try {
                     expect(count).to.be(0);
                     done();

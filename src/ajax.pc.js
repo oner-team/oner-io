@@ -6,16 +6,10 @@ import {
     hasWindow, FALSE, UNDEFINED, NULL
 } from './util';
 
-const doc = hasWindow ? document : null;
 const GET = 'GET';
 const SCRIPT = 'script';
 const XML = 'xml';
-const HTML = 'html';
-const TEXT = 'text';
 const JS0N = 'json'; // NOTE 不能使用`JSON`，这里用数字零`0`代替了字母`O`
-
-const APPLICATION_JSON = 'application/json';
-const TEXT_HTML = 'text/html';
 
 const xhrTester = UNDEFINED !== typeof XMLHttpRequest ? new XMLHttpRequest() : {};
 const hasXDR = UNDEFINED !== typeof XDomainRequest;
@@ -67,17 +61,21 @@ const setHeaders = (xhr, options) => {
 const setEvents = (xhr, options, isCrossDomain) => {
 
     let completeFn = function() {
-        if (xhr.__completed) {
+        if (xhr._completed) {
             return;
         }
-        xhr.__completed = true;
+        xhr._completed = true;
         //options.log && console.info('~loadend');
         options.complete();
-        xhr.__aborted = null;
-        delete xhr.__aborted;
+        xhr._aborted = null;
+        delete xhr._aborted;
     }
 
     let onLoadFn = function() {
+
+        if (xhr._completed) {
+            return;
+        }
 
         let data = xhr.responseText;
 
@@ -95,25 +93,26 @@ const setEvents = (xhr, options, isCrossDomain) => {
             case XML:
                 data = xhr.responseXML;
                 break;
-            //case HTML:
-            //case TEXT:
             default:
                 break;
         }
+
         options.success(data, xhr);
         //C.log('complete after load');
         completeFn();
     };
 
     let onErrorFn = function () {
+        if (xhr._completed) {
+            return;
+        }
         options.error(xhr.status, xhr);
         //C.log('complete after error');
         completeFn();
     }
 
     let abortFn = function() {
-
-        if (xhr.__completed) {
+        if (xhr._completed) {
             return;
         }
         options.abort();
@@ -134,7 +133,7 @@ const setEvents = (xhr, options, isCrossDomain) => {
         //   4: DONE 此时触发load事件
         xhr.onreadystatechange = () => {
 
-            if (xhr.__completed) {
+            if (xhr._completed) {
                 return
             }
             //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
@@ -144,8 +143,10 @@ const setEvents = (xhr, options, isCrossDomain) => {
                 if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
                     onLoadFn();
                 } else {
-                    // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
-                    !xhr.__aborted && onErrorFn();
+                    // 因为取消时会先触发原生的`onreadystatechange`响应，后触发`onAbort`回调，所以
+                    // 如果请求被取消(aborted) 则`xhr.status`会是0 程序走到这里的时候，`xhr._aborted`状态是false，
+                    // 需要排除，不应该触发`error`回调
+                    !xhr._aborted && onErrorFn();
                 }
             }
         }
@@ -156,7 +157,10 @@ const setEvents = (xhr, options, isCrossDomain) => {
     // 重写`abort`方法
     let originAbort = xhr.abort;
     xhr.abort = function() {
-        xhr.__aborted = true;
+        if (xhr._completed) {
+            return
+        }
+        xhr._aborted = true;
         // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
 
         // 非IE浏览器才会真正的调用原生`abort`
@@ -221,8 +225,8 @@ export default function ajax(options) {
     // 再高级的浏览器都有低级错误! 已经不能在相信了!
     // MAC OSX Yosemite Safari上的低级错误: 一次`ajax`请求的`loadend`事件完成之后,
     // 如果执行`xhr.abort()`, 居然还能触发一遍`abort`和`loadend`事件!!!
-    // `__completed`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
-    xhr.__completed = FALSE;
+    // `_completed`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
+    xhr._completed = FALSE;
 
     setEvents(xhr, options, isCD);
 

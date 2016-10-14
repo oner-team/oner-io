@@ -79,7 +79,7 @@ describe.skip('plugin customRequest', function () {
 
         // context.api.boo().then(function (content) {
         //
-        // }).catch(function (error) {
+        // })['catch'](function (error) {
         //     console.log('boo');
         //     console.log(error);
         //     // done();
@@ -87,7 +87,7 @@ describe.skip('plugin customRequest', function () {
         //
         // context.api.boo500().then(function (content) {
         //
-        // }).catch(function (error) {
+        // })['catch'](function (error) {
         //     console.log('500');
         //     console.log(error);
         //
@@ -95,7 +95,7 @@ describe.skip('plugin customRequest', function () {
         //
         // context.api.boo404().then(function (content) {
         //
-        // }).catch(function (error) {
+        // })['catch'](function (error) {
         //     console.log('404');
         //     console.log(error);
         //

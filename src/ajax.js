@@ -59,11 +59,13 @@ const setEvents = (xhr, options) => {
     // 再高级的浏览器都有低级错误! 已经不能在相信了!
     // MAC OSX Yosemite Safari上的低级错误: 一次`ajax`请求的`loadend`事件完成之后,
     // 如果执行`xhr.abort()`, 居然还能触发一遍`abort`和`loadend`事件!!!
-    // `__finished`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
-    xhr.__finished = FALSE;
+    // `_finished`标识一次完整的请求是否结束, 如果已结束, 则不再触发任何事件
+    xhr._finished = FALSE;
 
     const readyStateChangeFn = () => {
-
+        if (xhr._finished) {
+            return;
+        }
         //console.log('xhr.readyState', xhr.readyState, 'xhr.status', xhr.status, xhr);
         if (xhr.readyState === 4) {
             // 如果请求被取消(aborted) 则`xhr.status`会是0 所以不会进入`success`回调
@@ -91,8 +93,10 @@ const setEvents = (xhr, options) => {
                 }
                 options.success(data, xhr);
             } else {
-                // 如果请求被取消(aborted) 则`xhr.status`会是0 程序也会到达这里 需要排除 不应该触发error
-                !xhr.__aborted && options.error(xhr.status, xhr);
+                // 因为取消时会先触发原生的`onreadystatechange`响应，后触发`onAbort`回调，所以
+                // 如果请求被取消(aborted) 则`xhr.status`会是0 程序走到这里的时候，`xhr._aborted`状态是false，
+                // 需要排除，不应该触发`error`回调
+                !xhr._aborted && options.error(xhr.status, xhr);
             }
         }
     };
@@ -115,7 +119,7 @@ const setEvents = (xhr, options) => {
     //});
 
     const abortFn = () => {
-        if (xhr.__finished) {
+        if (xhr._finished) {
             return;
         }
         //options.log && console.info('~abort');
@@ -125,13 +129,13 @@ const setEvents = (xhr, options) => {
     xhr.addEventListener('abort', abortFn);
 
     const loadedFn = () => {
-        if (xhr.__finished) {
+        if (xhr._finished) {
             return;
         }
-        xhr.__finished = true;
+        xhr._finished = true;
         //options.log && console.info('~loadend');
         options.complete(xhr.status, xhr);
-        delete xhr.__aborted;
+        delete xhr._aborted;
     }
 
     xhr.addEventListener('loadend', loadedFn);
@@ -196,7 +200,7 @@ export default function ajax(options) {
 
     // 重写`abort`方法
     xhr.abort = () => {
-        xhr.__aborted = true;
+        xhr._aborted = true;
         // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
         originAbort.call(xhr);
     };

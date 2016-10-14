@@ -325,7 +325,7 @@ describe('nattyFetch.create', function () {
 
         // 伪造的promise对象要保证支持链式调用
         expect(dummyPromise.then()).to.be(dummyPromise);
-        expect(dummyPromise.then().catch()).to.be(dummyPromise);
+        expect(dummyPromise.then()['catch']()).to.be(dummyPromise);
     });
 
     // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有返回, 则取消掉第一次请求(即: 返回时不响应)

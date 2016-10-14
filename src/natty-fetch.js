@@ -129,7 +129,7 @@ class API {
             }
 
             if (config.overrideSelfConcurrent && t.api._requester) {
-                t.api._requester.abort();
+                t.api.abort();
             }
 
             let vars = t.makeVars(data);
@@ -357,12 +357,13 @@ class API {
             setTimeout(() => {
                 if (t.api.pending && t.api._requester) {
                     // 取消请求
-                    t.api._requester.abort();
+                    t.api.abort();
 
                     let error = {
                         timeout: TRUE,
                         message: 'Timeout By ' + config.timeout + 'ms.'
                     };
+
                     defer.reject(error);
                     event.fire('g.reject', [error, config]);
                     event.fire(t.api.contextId + '.reject', [error, config]);
@@ -435,7 +436,7 @@ class API {
             if (t.api.storageUseable) {
                 t.api.storage.set(vars.queryString, content).then(function () {
                     resolveDefer();
-                }).catch(function (e) {
+                })['catch'](function (e) {
                     resolveDefer();
                 });
             } else {
@@ -644,7 +645,7 @@ nattyFetch.create = function (options) {
 };
 
 extend(nattyFetch, {
-    onlyForModern: __ONLY_FOR_MODERN_BROWSER__,
+    onlyForModern: !__FALLBACK__,
     version: '__VERSION__',
     _util: util,
     _event: event,

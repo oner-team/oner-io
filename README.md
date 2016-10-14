@@ -1,4 +1,4 @@
-# nattyFetch
+# natty-fetch
 
 [![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![download](https://img.shields.io/npm/dm/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/natty-fetch/master/LICENSE)
 
@@ -16,14 +16,6 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * 同时兼容移动端和`PC`端，PC端最低支持到`IE8`。
 * 支持自动判断跨域请求，跨域时，不强制手动传入`withcredentials:false`。
 
-## v1.x docs
-
-`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](https://github.com/Jias/natty-fetch/tree/v1.0.2)。
-
-## v1.x to v2.x
-
-* [从1.x升级到2.x](docs/from_v1_to_v2.md)
-
 ## v2.x docs
 
 * [安装 (Installation)](docs/install.md)
@@ -36,10 +28,23 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * [共建 (Contribute)](docs/dev.md)
 * [常见问题 (QA)](docs/questions.md) old
 
+## v1.x to v2.x
+
+* [从1.x升级到2.x](docs/from_v1_to_v2.md)
+
+## v1.x docs
+
+`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](https://github.com/Jias/natty-fetch/tree/v1.0.2)。
+
 ## Compatibility
 
 * H5版本：iPhone4+、Android2.3+
 * PC版本：IE8+、Edge、Chrome、Safari、Firefox
+
+## Get help
+
+* 钉钉账号：拂山
+* 微信账号：gnosaij
 
 
 ## Important References

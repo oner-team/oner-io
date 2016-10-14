@@ -961,7 +961,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
             // 伪造的promise对象要保证支持链式调用
             expect(dummyPromise.then()).to.be(dummyPromise);
-            expect(dummyPromise.then().catch()).to.be(dummyPromise);
+            expect(dummyPromise.then()['catch']()).to.be(dummyPromise);
         });
 
         // 连发两次请求, 第二次请求发起时, 如果第一次请求还没有返回, 则取消掉第一次请求(即: 返回时不响应)
@@ -973,6 +973,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                     url: host + 'api/timeout', // 请求延迟返回的接口
                     overrideSelfConcurrent: true,
                     process: function(content, vars) {
+
                         // vars不应该混淆
                         expect(vars.data.d).to.be(2);
                     }
@@ -1253,7 +1254,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
             // 伪造的promise对象要保证支持链式调用
             expect(dummyPromise.then()).to.be(dummyPromise);
-            expect(dummyPromise.then().catch()).to.be(dummyPromise);
+            expect(dummyPromise.then()['catch']()).to.be(dummyPromise);
         });
     });
 

@@ -61,7 +61,7 @@
     "build": "npm run clear && rollup -c config/rollup.js --environment env:prod,compat:modern && rollup -c config/rollup.js --environment env:prod,compat:pc",
     "_prebuild:dev": "npm run std --silent",
     "build:dev": "npm run clear && rollup -c config/rollup.js --environment env:dev,compat:modern && rollup -c config/rollup.js --environment env:dev,compat:pc",
-    "build:test": "rollup -c config/rollup.js --environment env:test,compat:modern && rollup -c config/rollup.js --environment env:test,compat:pc",
+    "build:test": "rollup -c config/rollup.js --environment env:test",
     "browse": "browser-sync start -c config/browser-sync.js",
     "start": "npm run build:dev && npm run build:test && npm-run-all --parallel server watch:test watch:src browse",
     "std": "standard --verbose | snazzy",

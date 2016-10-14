@@ -120,18 +120,9 @@ export function isEmptyObject(v) {
     return count === 0;
 }
 
-let isArray = Array.isArray;
-if (__FALLBACK__) {
-    if (!isArray) {
-        isArray = (v) => {
-            return toString.call(v) === ARRAY_TYPE;
-        };
-    }
+export function isArray(v) {
+    return toString.call(v) === ARRAY_TYPE;
 }
-
-export {isArray}
-
-
 
 /**
  * 判断是否跨域

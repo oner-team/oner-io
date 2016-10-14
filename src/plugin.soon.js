@@ -26,7 +26,7 @@ export default function(apiInstance) {
                     fromStorage: FALSE,
                     content
                 });
-            }).catch(function (e) {
+            })['catch'](function (e) {
                 errorFn(e);
             });
         }
