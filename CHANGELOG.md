@@ -8,6 +8,23 @@
 
 ## Change Log
 
+### v2.2.0 / coming soon
+
+* 修复`IE`下，跨域时调用`abort`没有生效的问题。
+*  `webpack+babel`组合切换到了`rollup+buble`组合。无论是开发构建还是生产构建，都更快更小。
+* 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
+* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口是名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
+* 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+
+##### 附录
+
+以下数据供参考，`rollup+buble`组合如果用在大型`js`项目上，可以更给力地减少文件体积。两个数字分别是`Bundle Size`和`Gzipped Size`。
+
+||bundle use|natty-fetch.min.js|natty-fetch.pc.min.js|
+|---|---|---|---|
+|2.1.3|webpack+babel|14.8KB, 6.5KB|15.5KB, 6.8KB|
+|2.2.0|rollup+buble|13.2KB, 5.2KB|13.7KB, 5.4KB|
+
 ### v2.1.3 / 2016-09-27
 
 *  修复`IE`下调用`abort`后读取`xhr`对象属性导致的[c00c023f](http://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f)异常。([@eternalsky](https://github.com/eternalsky) in [#27](https://github.com/jias/natty-fetch/issues/27))
