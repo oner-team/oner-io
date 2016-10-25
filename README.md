@@ -4,8 +4,7 @@
 
 A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
 
-> 🍻 开发者的体验至关重要！  
-> `natty`系列的小工具，以垂直的思路和工匠的精神，在微小的技术点上追求极致的开发体验。如果对你有帮助，考虑支持一下吧 :D
+> 🍻 开发者的体验至关重要！`natty`系列的小工具，在微小的技术点上追求极致的开发体验。如果对你有帮助，考虑支持一下。
 
 ## Features
 
