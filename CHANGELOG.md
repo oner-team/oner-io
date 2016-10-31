@@ -8,17 +8,21 @@
 
 ## Change Log
 
+### next / coming soon
+
+* 依赖`natty-storage@2.x`
+* 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+
 ### v2.2.0 / coming soon
 
 * 修复`IE`下，跨域时调用`abort`没有生效的问题。`v2.1.3`引入的问题。
 *  `webpack+babel`组合切换到了`rollup+buble`组合。无论是开发构建还是生产构建，都更快更小。
 * 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
-* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
-* 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
-* 发布文件的变动
-  - 删除了`cjs`版本(即`natty-fetch.node.js`和`natty-fetch.pc.node.js`)。`natty-fetch.min.js`采用`umd`方式打包，已不再需要独立的`cjs`版本。
-  - 根目录下添加了`pc.js`，简化PC端项目的`import 'natty-fetch/pc'`引用路径(相对于之前的`import 'natty-fetch/dist/natty-fetch.pc'`)。([@eternalsky](https://github.com/eternalsky) in [#23](https://github.com/jias/natty-fetch/issues/27))
-* 依赖`natty-storage@2.x`
+* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息(`_stamp`除外，另见`urlStamp`配置)。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
+* `urlStamp`添加字符串类型的值(上个版本只允许布尔值)，如果配置了字符串值，则默认的`_stamp`将被替换为该字符串值。
+* 发布文件的变动，删除了`node`版本(即`natty-fetch.node.js`和`natty-fetch.pc.node.js`)。`natty-fetch`采用`umd`方式打包，已不再需要独立的`node`版本。
+* 修复`traditional:false`不生效的问题。
+
 
 ##### 附录
 
@@ -27,7 +31,7 @@
 ||bundle use|natty-fetch.min.js|natty-fetch.pc.min.js||
 |---|---|---|---|---|
 |v2.1.3|webpack+babel|14.8KB, 6.5KB|15.5KB, 6.8KB||
-|v2.2.0|rollup+buble|13.2KB, 5.2KB|13.7KB, 5.4KB|smaller|
+|v2.2.0|rollup+buble|13.2KB, 5.19KB|13.7KB, 5.38KB|smaller|
 
 ### v2.1.3 / 2016-09-27
 

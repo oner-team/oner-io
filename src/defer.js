@@ -1,3 +1,9 @@
+/**
+ * src/defer.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 export default class Defer {
   constructor(Promise) {
     const t = this

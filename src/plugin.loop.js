@@ -1,6 +1,10 @@
+
 /**
+ * src/plugin.loop.js
  * 创建轮询支持
- * @param api {Function} 需要轮询的函数
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
  */
 import {isNumber, noop, TRUE, FALSE, NULL} from './util'
 

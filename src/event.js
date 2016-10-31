@@ -1,4 +1,10 @@
-const PREFIX = '__';
+/**
+ * src/event.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
+const PREFIX = '_';
 function rename (type) { return PREFIX + type; }
 
 export default {

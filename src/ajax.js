@@ -1,5 +1,8 @@
 /**
- * @author jias
+ * src/ajax.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
  */
 import {
     extend, appendQueryString, noop, isCrossDomain, isBoolean, param,
@@ -144,12 +147,13 @@ const setEvents = (xhr, options) => {
 const defaultOptions = {
     url: '',
     mark: {},
+    useMark: true,
     method: GET,
     accept: '*',
     data: null,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
-    cache: true,
+    urlStamp: true,
     success: noop,
     error: noop,
     complete: noop,
@@ -165,23 +169,14 @@ export default function ajax(options) {
     // 是否跨域
     let isCD = isCrossDomain(options.url);
 
-    // 如果跨域了, 则禁止发送自定义的`header`信息
-    if (isCD) {
-        // 重置`header`, 统一浏览器的行为.
-        // 如果在跨域时发送了自定义`header`, 则:
-        //   标准浏览器会报错: Request header field xxx is not allowed by Access-Control-Allow-Headers in preflight response.
-        //   IE浏览器不报错
-        options.header = {};
-    }
-
     let xhr = new XMLHttpRequest();
 
     setEvents(xhr, options);
 
     xhr.open(options.method, appendQueryString(
         options.url,
-        extend({}, options.mark, options.method === GET ? options.data : {}),
-        options.cache,
+        extend({}, options.useMark ? options.mark : {}, options.method === GET ? options.data : {}),
+        options.urlStamp,
         options.traditional
     ));
 

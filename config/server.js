@@ -1,3 +1,9 @@
+/**
+ * express config
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 var express = require('express');
 var app = express();
 var getIp = require('get-ip');
@@ -155,7 +161,7 @@ app.all('/api/:test', function (req, res) {
             });
             break;
         case 'retry-success':
-            if (req.query.__retryTime == '1') {
+            if (req.query._retryTime == '1') {
                 retryTime = 1;
             } else {
                 retryTime++;
@@ -174,7 +180,7 @@ app.all('/api/:test', function (req, res) {
             });
             break;
         case 'jsonp-retry-success':
-            if (req.query.__retryTime == '1') {
+            if (req.query._retryTime == '1') {
                 retryTime = 1;
             } else {
                 retryTime++;

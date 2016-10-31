@@ -135,7 +135,7 @@ describe('nattyFetch.create', function () {
         });
     });
 
-    it('error by requesting cross-domain with disabled header [NOTE: IE的行为已被标准化]', function (done) {
+    it('error by requesting cross-domain with custom header', function (done) {
         let fooFetch = nattyFetch.create({
             //log: true,
             url: host + 'api/order-create',
@@ -144,6 +144,7 @@ describe('nattyFetch.create', function () {
         });
 
         fooFetch().then(function (data) {
+            // 微软系浏览器走到这里，允许跨域时使用自定义header
             try {
                 expect(data.id).to.be(1);
                 done();
@@ -151,7 +152,8 @@ describe('nattyFetch.create', function () {
                 done(e);
             }
         }, function(error) {
-            // can not go here
+            // 现代浏览器走到这里
+            done();
         });
     });
 
@@ -302,7 +304,7 @@ describe('nattyFetch.create', function () {
 
     // 简单请求的`ignoreSelfConcurrent`不会起作用, 连发两次请求，第二次依然有效
     it('`ignoreSeftConcurrent` should work', function (done) {
-        let fooFetch = nattyFetch.create({
+        const fooFetch = nattyFetch.create({
             cache: false,
             url: host + 'api/timeout', // 请求延迟返回的接口
             ignoreSelfConcurrent: true

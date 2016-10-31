@@ -1,3 +1,9 @@
+/**
+ * src/util.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 export const hasWindow = 'undefined' !== typeof window;
 export const doc = hasWindow ? document : null;
 export const escape = encodeURIComponent;
@@ -289,7 +295,11 @@ export function decodeParam(str) {
 };
 
 // 给URL追加查询字符串
-export function appendQueryString(url, obj, traditional) {
+export function appendQueryString(url, obj, urlStamp, traditional) {
+    // 是否添加时间戳
+    if (urlStamp) {
+        obj[isBoolean(urlStamp) ? '_stamp' : urlStamp] = +new Date()
+    }
     let queryString = param(obj, traditional);
 
     if (queryString) {

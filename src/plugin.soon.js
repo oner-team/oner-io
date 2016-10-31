@@ -1,3 +1,9 @@
+/**
+ * src/plugin.soon.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 import {noop, isEmptyObject, sortPlainObjectKey, FALSE, TRUE} from './util';
 
 export default function(apiInstance) {

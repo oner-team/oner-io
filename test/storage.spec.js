@@ -3,20 +3,19 @@ import {host} from '../config/host'
 describe('storage', function () {
 
     this.timeout(1000*10);
-    let context;
 
-    beforeEach('reset', function () {
-        context = nattyFetch.context({
+    it('query string is same: localStorage', function (done) {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
             urlPrefix: host,
             mock: false,
         });
-    });
 
-    it('query string is same: localStorage', function (done) {
         let requestTime = 0;
         context.create('user', {
             getPhone: {
-                url: host + 'api/return-success',
+                url: 'api/return-success',
                 willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestTime++;
@@ -32,29 +31,39 @@ describe('storage', function () {
 
         // 第一次请求走网络
         context.api.user.getPhone({
-            b:1,
-            a:1
+            b:2,
+            a:2
         }).then(function (r) {
             // 第二次请求走storage
             return context.api.user.getPhone({
-                a:1,
-                b:1
+                a:2,
+                b:2
             });
         }).then(function (data) {
             try {
                 expect(data.id).to.be(1);
-                expect(requestTime).to.be(1);
+                expect('requestTime:' + requestTime).to.be('requestTime:'+1);
                 done();
             } catch (e) {
                 done(e);
             }
+
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.user.getPhone.storage.destroy();
 
-        })['catch']();
+        })['catch'](function(error){
+            console.log('storage error: ' + error);
+        });
     });
 
     it('query string is same: sessionStorage', function (done) {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         context.create('user', {
             getPhone: {
@@ -97,6 +106,13 @@ describe('storage', function () {
 
     //
     it('query string is same: variable', function (done) {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         context.create('user', {
             getPhone: {
@@ -135,6 +151,14 @@ describe('storage', function () {
     });
 
     it('query string is same with jsonp', function (done) {
+
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         context.create('user', {
             getPhone: {
@@ -177,6 +201,13 @@ describe('storage', function () {
     });
 
     it('query string is different', function (done) {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         context.create({
             get: {
@@ -214,6 +245,13 @@ describe('storage', function () {
 
 
     it('no query string', function (done) {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         context.create({
             get: {
@@ -245,6 +283,13 @@ describe('storage', function () {
     });
 
     it('`POST` request with `storage` on should throw an error', function () {
+
+        // localStorage.clear();
+        const context = nattyFetch.context({
+            urlPrefix: host,
+            mock: false,
+        });
+
         let requestTime = 0;
         let errorFn = function () {
             context.create({

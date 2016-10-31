@@ -106,30 +106,6 @@ describe('./ajax', function () {
             });
         });
 
-        it('should trigger success and complete when request the cross-domain with disabled header', function (done) {
-
-            ea.expect(['success', 'complete']);
-
-            ajax({
-                //log: true,
-                url: host + 'api/return-json',
-                method: 'POST',
-                data: {
-                    'cross-domain-with-disabled-header': 1
-                },
-                // 使用不合法的Header来触发跨域失败
-                header: {foo: 'foo'},
-                accept: 'json',
-                success: function (status, xhr) {
-                    ea.do('success');
-                },
-                complete: function () {
-                    ea.do('complete');
-                    done();
-                }
-            });
-        });
-
         it('should trigger error and complete when 500', function (done) {
 
             ea.expect(['error', 'complete']);

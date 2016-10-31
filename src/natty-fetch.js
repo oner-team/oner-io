@@ -1,3 +1,9 @@
+/**
+ * src/natty-fetch.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 import nattyStorage from 'natty-storage';
 
 if (nattyStorage === undefined) {
@@ -173,17 +179,17 @@ class API {
         // 一次请求的私有相关数据
         let vars = {
             mark: {
-                __api: t._path
+                _api: t._path
             }
         };
 
         if (config.mock) {
-            vars.mark.__mock = TRUE;
+            vars.mark._mock = TRUE;
         }
 
-        if (config.urlStamp) {
-            vars.mark.__stamp = +new Date();
-        }
+        // if (config.urlStamp) {
+        //     vars.mark._stamp = +new Date();
+        // }
 
         // `data`必须在请求发生时实时创建
         data = extend({}, config.data, runAsFn(data));
@@ -253,7 +259,7 @@ class API {
                 type: 'variable'
             };
         }
-        
+
         // 决定什么情况下缓存可以开启
         t.api.storageUseable = isPlainObject(config.storage)
             && (config.method === 'GET' || config.jsonp)
@@ -383,13 +389,11 @@ class API {
     tryRequest(vars, config) {
         let t = this;
 
-
-
         return new config.Promise(function (resolve, reject) {
             let retryTime = 0;
             let request = () => {
                 // 更新的重试次数
-                vars.mark.__retryTime = retryTime;
+                vars.mark._retryTime = retryTime;
                 t.request(vars, config).then((content) => {
                     resolve(content);
                     event.fire('g.resolve', [content, config], config);
@@ -462,14 +466,16 @@ class API {
      * @returns {Object} xhr对象实例
      */
     sendAjax(vars, config, defer) {
-        let t = this;
+        const t = this;
+        const url = config.mock ? config.mockUrl : config.url;
 
         return ajax({
             traditional: config.traditional,
-            cache: config.cache,
+            urlStamp: config.urlStamp,
             mark: vars.mark,
+            useMark: config.mark,
             log: config.log,
-            url: config.mock ? config.mockUrl : config.url,
+            url: url,
             method: config.method,
             data: vars.data,
             header: config.header,
@@ -479,25 +485,11 @@ class API {
             success(response/*, xhr*/) {
                 t.processResponse(vars, config, defer, response);
             },
-            error(status/*, xhr*/) {
-
-                let message;
-                switch (status) {
-                    case 404:
-                        message = 'Not Found';
-                        break;
-                    case 500:
-                        message = 'Internal Server Error';
-                        break;
-                    // TODO 是否要补充其他明确的服务端错误
-                    default:
-                        message = 'Unknown Server Error';
-                        break;
-                }
-
-                let error = {
+            error(status) {
+                // 如果跨域使用了自定义的header，且服务端没有配置允许对应的header，此处status为0，目前无法处理。
+                const error = {
                     status,
-                    message: message + ': ' + vars.mark.__api
+                    message: `Error(status ${status}) in request for ${vars.mark._api}(${url})`
                 };
 
                 defer.reject(error);
@@ -526,14 +518,16 @@ class API {
      * @returns {Object} 带有abort方法的对象
      */
     sendJSONP(vars, config, defer) {
-        let t = this;
+        const t = this;
+        const url = config.mock ? config.mockUrl : config.url;
         return jsonp({
             traditional: config.traditional,
             log: config.log,
             mark: vars.mark,
-            url: config.mock ? config.mockUrl : config.url,
+            useMark: config.mark,
+            url: url,
             data: vars.data,
-            cache: config.cache,
+            urlStamp: config.urlStamp,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,
             success(response) {
@@ -541,8 +535,7 @@ class API {
             },
             error() {
                 let error = {
-                    message: 'Not Accessable JSONP: ' + vars.mark.__api
-                    // TODO show url
+                    message: `Not accessable JSONP in request for ${vars.mark._api}(${url})`
                 };
 
                 defer.reject(error);

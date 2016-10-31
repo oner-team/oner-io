@@ -46,7 +46,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             // 清理所有事件
             let i;
             for (i in nattyFetch._event) {
-                if (i.indexOf('__') === 0) {
+                if (i.indexOf('_') === 0) {
                     delete nattyFetch._event[i];
                 }
             }
@@ -445,6 +445,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context.api.order.method6.config.url).to.be('../path');
             expect(context.api.order.method7.config.url).to.be('/path');
         });
+
     });
 
     describe.skip('request config', function () {
@@ -731,25 +732,27 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with disabled header [NOTE: IE的行为已被标准化]', function (done) {
+        it('error by requesting cross-domain with custom header', function (done) {
             context.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/order-create',
                     method: 'POST',
-                    header: {foo: 'foo'} // 跨域时, 自定义的`header`将被忽略
+                    header: {abc: 'foo'} // 跨域时, 自定义的`header`将被忽略
                 }
             });
 
             context.api.order.create().then(function (data) {
+                // 微软系浏览器走到这里，允许跨域时使用自定义header
                 try {
                     expect(data.id).to.be(1);
                     done();
                 } catch (e) {
                     done(e.message);
                 }
-            }, function(error) {
-                // can not go here
+            }).catch(function (error) {
+                // 现代浏览器走到这里
+                done();
             });
         });
 
@@ -775,7 +778,9 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         });
 
         it('pending status checking', function (done) {
-            context.create('order', {
+
+            const myContext = nattyFetch.context();
+            myContext.create('order', {
                 create: {
                     //log: true,
                     url: host + 'api/timeout',
@@ -783,17 +788,19 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                     timeout: 200
                 }
             });
-            context.api.order.create().then(function () {
+
+            myContext.api.order.create().then(function () {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(context.api.order.create.pending).to.be(false);
+                    expect(myContext.api.order.create.pending).to.be(false);
                     done();
                 } catch(e) {
                     done(e);
                 }
             });
-            expect(context.api.order.create.pending).to.be(true);
+
+            expect(myContext.api.order.create.pending).to.be(true);
         });
 
         it('error by 500', function (done) {
@@ -1159,7 +1166,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                 // can not go here
             }, function (error) {
                 try {
-                    expect(error.message).to.contain('Not Accessable JSONP');
+                    expect(error.message).to.contain('Not accessable JSONP');
                     done();
                 } catch (e) {
                     done(e);

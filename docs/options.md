@@ -133,11 +133,17 @@ fit: function (response) {
 
 ### header
 
-自定义`ajax`请求的头部信息。当`ajax`请求跨域时，该配置将被忽略。
+自定义`ajax`请求的头部信息。
+
+
+跨域注意：如果`ajax`跨域时使用了自定义的`header`，需要在服务端也同时配置允许对应的`header`，否则标准浏览器会报如下错误(IE浏览器不报错)：
+
+```
+Request header field xxx is not allowed by Access-Control-Allow-Headers in preflight response
+```
 
 * 类型：Object
 * 默认：{}
-* 注意：只针对非跨域的`ajax`请求有效
 
 ### ignoreSelfConcurrent
 
@@ -271,8 +277,10 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 是否在`url`的`search`中加入时间戳(`__stamp`)参数，屏蔽浏览器默认的缓存(304)机制。
 
-* 类型：Boolean
-* 默认：true
+* 类型：Boolean | String
+* 默认：true，`url`中将添加`_stamp`参数。如果设置了`String`值，`_stamp`将被替换。
+
+> 低版本的`IE`浏览器缓存成灾，强烈建议开启该功能。
 
 ### willFetch
 

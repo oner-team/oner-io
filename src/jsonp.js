@@ -1,3 +1,9 @@
+/**
+ * src/jsonp.js
+ *
+ * @license MIT License
+ * @author jias (https://github.com/jias/natty-fetch)
+ */
 import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, FALSE} from './util';
 const win = hasWindow ? window : NULL;
 const doc = hasWindow ? document : NULL;
@@ -28,8 +34,9 @@ const insertScript = (url, options) => {
 const defaultOptions = {
     url: '',
     mark: {},
+    useMark: true,
     data: {},
-    cache: true,
+    urlStamp: true,
     success: noop,
     error: noop,
     complete: noop,
@@ -67,8 +74,8 @@ export default function jsonp(options) {
     // 生成`url`
     let url = appendQueryString(
         options.url,
-        extend({[options.flag]: callbackName}, options.mark, options.data),
-        options.cache,
+        extend({[options.flag]: callbackName}, options.useMark ? options.mark : {}, options.data),
+        options.urlStamp,
         options.traditional
     );
 
