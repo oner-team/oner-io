@@ -13,7 +13,7 @@
 * 依赖`natty-storage@2.x`
 * 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
 
-### v2.2.0 / coming soon
+### v2.2.0 / 2016-10-31
 
 * 修复`IE`下，跨域时调用`abort`没有生效的问题。`v2.1.3`引入的问题。
 *  `webpack+babel`组合切换到了`rollup+buble`组合。无论是开发构建还是生产构建，都更快更小。
