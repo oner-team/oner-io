@@ -12,21 +12,43 @@
 
 * 依赖`natty-storage@2.x`
 * 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
-* `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。
+* `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。下面用一个具体的项目代码，对比一下`3.x`版本`fit`的变化：
+
+`1.x` 和`2.x`版本的`fit`，对后端数据进行适配。
+
+```
+fit: function (response) {
+    const fitted = {} // 3.x 开始，这行可以删掉了
+    if (response.status !== 0) {
+        fitted.success = true // 3.x 开始，这行可以删掉了
+        fitted.content = response.data || {} // 3.x 开始，不需要记住`content`约定  
+    } else {
+        fitted.success = false // 3.x 开始，这行可以删掉了
+        fitted.error = { // 3.x 开始，不需要记住`error`约定
+            code: response.errorCode,
+            message: response.errorDetail // 3.x 开始，`message`是唯一的约定
+        }
+    }
+    return fitted // 从 3.x 开始，这行可以删掉了
+}
+```
+
+用`3.x`版本的`fit`，实现同样的适配逻辑，简化了很多。
 
 ```
 fit: function(response) {
-    if (response.success) {
-        this.toResolve(response.data)
+    if (response.status !== 0) {
+        this.toResolve(response.data || {})
     } else {
         this.toReject({
-            message: response.errorMsg
+            code: response.errorCode, 
+            message: response.errorDetail // `message`是`reject`数据必有的
         })
     }
 }
 ```
 
-* process
+> 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率确是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
 ### v2.2.0 / 2016-10-31
 
