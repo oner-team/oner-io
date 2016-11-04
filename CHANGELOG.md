@@ -8,10 +8,25 @@
 
 ## Change Log
 
-### next / coming soon
+### 3.x / coming soon
 
 * 依赖`natty-storage@2.x`
 * 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+* `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。
+
+```
+fit: function(response) {
+    if (response.success) {
+        this.toResolve(response.data)
+    } else {
+        this.toReject({
+            message: response.errorMsg
+        })
+    }
+}
+```
+
+* process
 
 ### v2.2.0 / 2016-10-31
 

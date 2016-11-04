@@ -134,7 +134,7 @@ function buildNattyFetch(isModern, isUgly) {
 
 
 /**
- * 构建单测脚本，无需压缩
+ * 构建单测脚本
  * @return {Object} Promise instance
  */
 function buildTestBundle() {

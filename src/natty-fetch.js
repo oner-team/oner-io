@@ -427,6 +427,8 @@ class API {
         // 非标准格式数据的预处理
         response = config.fit(response, vars);
 
+
+
         if (response.success) {
             // 数据处理
             let content = config.process(response.content, vars);
@@ -440,7 +442,7 @@ class API {
             if (t.api.storageUseable) {
                 t.api.storage.set(vars.queryString, content).then(function () {
                     resolveDefer();
-                })['catch'](function (e) {
+                })['catch'](function () {
                     resolveDefer();
                 });
             } else {
