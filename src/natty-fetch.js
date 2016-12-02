@@ -123,7 +123,7 @@ class API {
         let config = t.config = t.processAPIOptions(options);
 
         /**
-         * 一个`DB`的`api`的实现
+         * `api`的实现
          * @param data {Object|Function}
          * @returns {Object} Promise Object
          */
