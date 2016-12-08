@@ -36,13 +36,13 @@ nattyFetch.setGlobal({
 
 ```
 
-#### 第二步，定义接口模块（db.cart.js）
+#### 第二步，定义接口模块（io.cart.js）
 
 
 
 ```js
 // 先创建一个上下文对象，这里配置了该场景下的三个接口所共享的地址前缀`urlPrefix`。
-let context = nattyFetch.context({
+const context = nattyFetch.context({
     urlPrefix: '//example.com/cart/'
 });
 
@@ -69,19 +69,19 @@ context.create({
 });
 
 // 输出上下文的所有接口
-module.exports = context.api;
+export default context.api;
 ```
 
-`context.create()`方法的使用方式很灵活，上面的写法，每个接口都重复声明了`cart`名称空间，但并不是强制的。接口的方法名如何声明，决定了接口在业务场景下如何使用，详见`context.create()`方法的[文档]()。
+`context.create()`方法的使用方式很灵活，上面的写法，每个接口都重复声明了`cart`名称空间，但并不是强制的。接口的方法名如何声明，决定了接口在业务场景下如何使用，详见`context.create()`方法的[灵活性](https://github.com/jias/natty-fetch/blob/master/docs/clear_api.md)。
 
 #### 第三步，在业务场景中使用
 
 ```js
-// 引入购物车接口模块`db.cart.js`
-const db = require('path/to/db.cart');
+// 引入购物车接口模块`io.cart.js`
+import io from 'path/to/io.cart'
 
 // 调用：添加商品
-db.cart.add({
+io.cart.add({
     // 动态参数，如：商品数量
     num: 1
 }).then((content) => {
@@ -91,7 +91,7 @@ db.cart.add({
 });
 
 // 调用：删除商品
-db.cart.remove({
+io.cart.remove({
     // 动态参数，如：商品id
     id: '100'
 }).then((content) => {
@@ -101,7 +101,7 @@ db.cart.remove({
 });
 
 // 调用：付款
-db.cart.pay({
+io.cart.pay({
     // 动态参数，如：支付方式
     by: 'alipay'
 }).then((content) => {

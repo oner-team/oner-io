@@ -4,7 +4,7 @@
 
 ```js
 // 创建接口实例
-let fetchFoo = nattyFetch.create({
+const fetchFoo = nattyFetch.create({
     url: 'xxx',
     data: {
         foo: 1
