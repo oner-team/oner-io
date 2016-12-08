@@ -49,6 +49,8 @@ Powerful options：
 
 在定义接口时声明固定参数，确定查询半径为3公里。
 
+示例：`io.js`
+
 ```js
 context.create({
     'taxi.getNumber': {
@@ -58,6 +60,8 @@ context.create({
         }
     }
 });
+
+export default context.api
 ```
 
 在调用接口时传入动态参数，以所在的经纬度为圆心，查群3公里范围内的出租车数量。
@@ -157,7 +161,7 @@ Request header field xxx is not allowed by Access-Control-Allow-Headers in prefl
 假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在natty-fetch中，只需要一个参数即可开启请求锁。
 
 ```js
-DBContext.create('Order', {
+context.create('Order', {
     create: {
         url: 'api/createOrder',
         // 开启请求锁
@@ -165,6 +169,7 @@ DBContext.create('Order', {
         ignoreSelfConcurrent: true
     }
 });
+export default context.api.Order
 ```
 
 ### jsonp
@@ -217,23 +222,29 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 
 假设有一个自动补全输入框，当每次有新的字符输入时，都会向服务端发起新请求，取得匹配的备选列表，当输入速度很快时，期望的是只执行最后一次请求的响应，因为最后一次的字符最全，匹配的列表更精准。这种业务场景下，可以通过配置`overrideSelfConcurrent`为`true`，一是可以节省响应次数。二次能避免先发出的请求却最后响应(并发异步请求的响应顺序不一定和请求顺序一致)，导致推荐的数据列表不准确。
 
+io.js
+
 ```js
-DBContext.create('City', {
+context.create('City', {
     getSuggestion: {
         url: 'api/getCitySuggestion',
         // 开启覆盖响应
         overrideSelfConcurrent: true
     }
 });
+export default context.api.City
+```
 
-// 并发
-DB.City.getSuggestion({key:'a'}).then(...); // 不响应
-DB.City.getSuggestion({key:'ab'}).then(...); // 响应
+
+```js
+import io from 'path/to/io'
+io.City.getSuggestion({key:'a'}).then(...); // 不响应
+io.City.getSuggestion({key:'ab'}).then(...); // 响应
 ```
 
 ### process
 
-请求成功时的数据处理函数，该函数接收到的参数是下文的"数据结构约定"中`content`的值。
+请求成功时的数据处理函数，该函数接收到的参数是[数据结构约定](https://github.com/jias/natty-fetch/blob/master/docs/rules.md)中`content`的值。
 
 * 类型：Function
 * 默认：function (content) {return content}
@@ -275,7 +286,7 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 ### urlStamp
 
-是否在`url`的`search`中加入时间戳(`__stamp`)参数，屏蔽浏览器默认的缓存(304)机制。
+是否在`url`的`search`中加入时间戳(`_stamp`)参数，屏蔽浏览器默认的缓存(304)机制。
 
 * 类型：Boolean | String
 * 默认：true，`url`中将添加`_stamp`参数。如果设置了`String`值，`_stamp`将被替换。
@@ -311,7 +322,7 @@ DB.City.getSuggestion({key:'ab'}).then(...); // 响应
 在`storage`开启的情况下，会马上使用`storage`缓存的数据执行回调，并同时发起远程请求，并将请求回来的新数据同步到`storage`中，再第二次执行回调。
 
 ```js
-let Order = DBContext.create('Order', {
+context.create('Order', {
     getList: {
         url: '...',
         storage: true,
@@ -320,8 +331,12 @@ let Order = DBContext.create('Order', {
         ]
     }
 });
+export default context.api.Order
+```
 
-Order.getList.soon({}, function(data){
+```js
+import io from 'path/to/io'
+io.getList.soon({}, function(data){
     // `data`的结构如下
     // {
     //     fromStorage: true, 
@@ -352,9 +367,13 @@ context.create('driver', {
         ]
     }
 });
+export default context.api.driver
+```
 
+```js
+const io from 'path/to/io'
 // 开始轮询
-let stopHandler = db.driver.getDistance.loop({
+let stopHandler = io.getDistance.loop({
   // 轮询使用的参数
   data: {...},
   // 间隔时间
