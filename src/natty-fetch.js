@@ -192,7 +192,7 @@ class API {
         // }
 
         // `data`必须在请求发生时实时创建
-        data = extend({}, config.data, runAsFn(data));
+        data = extend({}, runAsFn(config.data), runAsFn(data));
 
         // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
         vars.data = data;

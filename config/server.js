@@ -21,7 +21,7 @@ var retryTime = 1;
 
 app.all('/api/:test', function (req, res) {
 
-    console.log('req.body', req.body)
+    // console.log('req.body', req.body)
 
     res.set({
         // NOTE 真实的生产环境一定不要写*, 如果是*, 则浏览器端的withCredentials不能设置为true, 浏览器端的cookie就无法带到后端

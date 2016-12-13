@@ -661,14 +661,59 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             });
         });
 
-        // 固定参数和动态参数 在process和fix方法中都可以正确获取到
-        it('`vars.data` in process or fix method', function (done) {
+        it('fix data is object', function (done) {
             context.create('order', {
                 create: {
                     url: host + 'api/order-create',
                     method: 'POST',
                     data: {
                         fixData: 1
+                    },
+                    willFetch: function (vars, config) {
+                        vars.data.hookData = 1;
+                        // console.log(vars);
+                        // console.log(config);
+                        // console.log(this);
+                    },
+                    process: function (content, vars) {
+                        expect(vars.data.fixData).to.be(1);
+                        expect(vars.data.liveData).to.be(1);
+                        expect(vars.data.hookData).to.be(1);
+                        return {
+                            orderId: content.id
+                        };
+                    },
+                    fit: function (response, vars) {
+                        expect(vars.data.fixData).to.be(1);
+                        expect(vars.data.liveData).to.be(1);
+                        expect(vars.data.hookData).to.be(1);
+                        return response;
+                    }
+                }
+            });
+
+            context.api.order.create({
+                liveData: 1
+            }).then(function(data) {
+                try {
+                    expect(data.orderId).to.be(1);
+                    done();
+                } catch(e) {
+                    done(e);
+                }
+            });
+        });
+
+        // 固定参数和动态参数 在process和fix方法中都可以正确获取到
+        it('fix data is wrapped in fn', function (done) {
+            context.create('order', {
+                create: {
+                    url: host + 'api/order-create',
+                    method: 'POST',
+                    data: function(){
+                        return {
+                            fixData: 1
+                        }
                     },
                     willFetch: function (vars, config) {
                         vars.data.hookData = 1;
