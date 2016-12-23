@@ -23,11 +23,13 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             'mock',
             'mockUrl',
             'mockUrlPrefix',
+            'mockUrlSuffix',
             'process',
             'retry',
             'timeout',
             'url',
             'urlPrefix',
+            'urlSuffix',
             'withCredentials',
             'traditional'
         ];
@@ -76,10 +78,11 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         });
 
         it('Context instance would inherit and extend the global config', function () {
-
             let urlPrefix = 'http://test.com/api';
+            let urlSuffix = '.json'
             let context = nattyFetch.context({
-                urlPrefix
+                urlPrefix,
+                urlSuffix
             });
 
             // 继承了所有的全局配置
@@ -88,12 +91,15 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             // });
             // 也扩展了全局配置
             expect(context._config.urlPrefix).to.be(urlPrefix);
+            expect(context._config.urlSuffix).to.be(urlSuffix);
         });
 
         it('Context instance would inherit and extend the global config 2', function () {
             let urlPrefix = 'http://test.com/api';
+            let urlSuffix = '.json'
             nattyFetch.setGlobal({
-                urlPrefix: urlPrefix
+                urlPrefix,
+                urlSuffix
             });
 
             let context = nattyFetch.context();
@@ -103,6 +109,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             });
 
             expect(context.api.order.create.config.urlPrefix).to.be(urlPrefix);
+            expect(context.api.order.create.config.urlSuffix).to.be(urlSuffix);
         });
 
         it('catch error', function (done) {
@@ -380,6 +387,21 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context.api.order.pay.config.mockUrl).to.be('./mock/pay');
             expect(context.api.order.create.config.mockUrl).to.be('../create');
             expect(context.api.order.close.config.mockUrl).to.be('https://www.demo.com/close');
+        });
+
+        it('`mockUrlSuffix` value from context', function () {
+            let context  = nattyFetch.context({
+                // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
+                mock: true,
+                mockUrlSuffix: '.json'
+            });
+            context.create('order', {
+                pay: {
+                    mockUrl: 'pay'
+                },
+            });
+
+            expect(context.api.order.pay.config.mockUrl).to.be('pay.json');
         });
 
         it('`jsonp` option', () => {

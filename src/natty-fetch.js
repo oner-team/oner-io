@@ -68,6 +68,9 @@ const defaultGlobalConfig = {
     // 全局`mockUrl`前缀
     mockUrlPrefix: EMPTY,
 
+    // 全局`mockUrl`后缀
+    mockUrlSuffix: EMPTY,
+
     // 成功回调
     process: noop,
 
@@ -93,6 +96,9 @@ const defaultGlobalConfig = {
 
     // 是否在`url`上添加时间戳, 用于避免浏览器的304缓存
     urlStamp: TRUE,
+
+    // 全局`url`后缀
+    urlSuffix: EMPTY,
 
     // TODO 文档中没有暴露
     withCredentials: NULL,
@@ -328,7 +334,10 @@ class API {
         let url = config.mock ? config.mockUrl : config.url;
         if (!url) return EMPTY;
         let prefixKey = config.mock ? 'mockUrlPrefix' : 'urlPrefix';
-        return (config[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url)) ? config[prefixKey] + url : url;
+        let suffixKey = config.mock ? 'mockUrlSuffix' : 'urlSuffix';
+        let prefix = config[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url) ? config[prefixKey] : EMPTY;
+        let suffix = config[suffixKey] ? config[suffixKey]: EMPTY;
+        return prefix + url + suffix;
     }
 
     /**
