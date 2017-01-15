@@ -1,6 +1,6 @@
 {
   "name": "natty-fetch",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-fetch.git",
   "author": "gnosaij",
@@ -68,7 +68,7 @@
     "watch:test": "onchange \"test/*.spec.js\" -- npm run build:test",
     "watch:src": "onchange src -- npm run build:dev",
     "server": "node config/server.js",
-    "clear": "$(npm bin)/del dist"
+    "clear": "./node_modules/.bin/del dist"
   },
   "license": "MIT",
   "dependencies": {

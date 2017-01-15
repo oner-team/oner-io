@@ -4,6 +4,7 @@
  * @license MIT License
  * @author jias (https://github.com/jias/natty-fetch)
  */
+
 import nattyStorage from 'natty-storage';
 
 if (nattyStorage === undefined) {
@@ -115,7 +116,15 @@ const defaultGlobalConfig = {
     //     nattyFetch.plugin.loop
     //     nattyFetch.plugin.soon
     // ]
-    plugins: false
+    plugins: false,
+
+    // POST的data格式，有以下三种，值严格区分大小写：
+    // 1. FORM
+    // 2. JSON
+    // 3. RAW
+    // 4. (其他任何值都将被视为RAW)
+    // 默认为FORM，跟Natty-Fetch原始逻辑兼容
+    postDataFormat: 'FORM'
 };
 
 let runtimeGlobalConfig = extend({}, defaultGlobalConfig);
@@ -198,7 +207,12 @@ class API {
         // }
 
         // `data`必须在请求发生时实时创建
-        data = extend({}, runAsFn(config.data), runAsFn(data));
+        // 如果postDataFormat是非FORM/JSON值时，不对data进行处理，因为这种情况下调用者意图直接向服务端传递RAW数据，
+        // 这时传入的data极有可能是字符串
+        // 当config.data是{}的情况下，如果调用者传入的data是字符串，经过extend()处理以后就会变成字符串数组
+        // 字符串数组被后续传递给xhr.send()时会被默认调用toString()，结果就变成'[object object]'这种不合法数据
+        if (config.postDataFormat === 'FORM' || config.postDataFormat === 'JSON')
+            data = extend({}, runAsFn(config.data), runAsFn(data));
 
         // 将数据参数存在私有标记中, 方便API的`process`方法内部使用
         vars.data = data;
@@ -515,7 +529,8 @@ class API {
                     t.api._requester = NULL;
                 }
                 //console.log('__complete: pending:', config.pending, 'retryTime:', retryTime, Math.random());
-            }
+            },
+            postDataFormat: config.postDataFormat
         });
     }
 
