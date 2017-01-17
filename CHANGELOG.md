@@ -50,7 +50,9 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+### v2.2.3 / 2017-01-17
 
+* 合并来自[LiangZugeng](https://github.com/LiangZugeng)的[PR](https://github.com/jias/natty-fetch/pull/39)。
 
 ### v2.2.2 / 2016-12-27
 
