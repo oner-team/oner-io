@@ -19,6 +19,7 @@ Base options：
 * [urlPrefix](#urlprefix)
 * [urlStamp](#urlstamp)
 * [withCredentials](#withcredentials)
+* [postDataFormat](#postDataFormat)
 
 Hook options：
 
@@ -306,6 +307,18 @@ io.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 * 类型：Boolean
 * 默认：通过判断`url`是否跨域来自动设置该值，跨域时为`false`
+
+### postDataFormat
+
+method设置为`POST`时采用何种格式向服务端发送数据。
+
+* 类型：String
+* 默认：'FORM'
+* 可选：'FORM'、'JSON'、'RAW'
+
+> 使用'FORM'时强制将header中的Content-Type设置为application/x-www-form-urlencoded; charset=UTF-8，并将传入的数据格式化成网页FORM数据格式发送给服务端。这个选项会将传入的data和全局定义的data做合并。
+> 使用'JSON'时强制将header中的Content-Type设置为application/json; charset=UTF-8，并将出入的数据格式化成JSON字符串发送给服务端。这个选项会将传入的data和全局定义的data做合并。
+> 使用'RAW'时调用者需自行设置header中的Content-Type。这个选项不会合并任何全局定义的data，调用者传入什么数据会原样发送给服务端。
 
 ### plugins
 

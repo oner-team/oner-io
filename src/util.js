@@ -1,9 +1,3 @@
-/**
- * src/util.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
 export const hasWindow = 'undefined' !== typeof window;
 export const doc = hasWindow ? document : null;
 export const escape = encodeURIComponent;

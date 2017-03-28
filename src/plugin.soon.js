@@ -1,9 +1,3 @@
-/**
- * src/plugin.soon.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
 import {noop, isEmptyObject, sortPlainObjectKey, FALSE, TRUE} from './util';
 
 export default function(apiInstance) {
@@ -42,7 +36,7 @@ export default function(apiInstance) {
             // 只有GET和JSONP才会有storage生效
             vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
 
-            api.storage.has(vars.queryString).then(function (result) {
+            api.storage.asyncHas(vars.queryString).then(function (result) {
 
                 // console.warn('has cached: ', hasValue);
                 if (result.has) {

@@ -1,6 +1,10 @@
 
 import {host} from '../config/host'
 
+const _it = function(s, f) {
+    f()
+}
+
 describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     describe('static',function() {
@@ -94,7 +98,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context._config.urlSuffix).to.be(urlSuffix);
         });
 
-        it('Context instance would inherit and extend the global config 2', function () {
+        _it('Context instance would inherit and extend the global config 2', function () {
             let urlPrefix = 'http://test.com/api';
             let urlSuffix = '.json'
             nattyFetch.setGlobal({

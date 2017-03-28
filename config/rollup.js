@@ -2,7 +2,7 @@
  * rollup config
  *
  * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
+ * @author fushan (https://github.com/jias/natty-fetch)
  * @note `node`还不支持`import`
  */
 const rollup = require('rollup')
@@ -127,7 +127,7 @@ function buildNattyFetch(isModern, isUgly) {
         'natty-storage': 'nattyStorage',
       },
       sourceMap: true,
-      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | https://github.com/jias/natty-fetch */',
+      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | fushan | https://github.com/jias/natty-fetch */',
     })
   })
 }
@@ -171,4 +171,3 @@ function buildTestBundle() {
     })
   })
 }
-

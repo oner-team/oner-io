@@ -1,9 +1,3 @@
-/**
- * src/jsonp.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
 import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, FALSE} from './util';
 const win = hasWindow ? window : NULL;
 const doc = hasWindow ? document : NULL;

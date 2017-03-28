@@ -1,9 +1,9 @@
 {
   "name": "natty-fetch",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-fetch.git",
-  "author": "gnosaij",
+  "author": "fushan",
   "main": "dist/natty-fetch.js",
   "jsnext:main": "src/natty-fetch.js",
   "files": [
@@ -60,7 +60,7 @@
     "build": "npm run clear && node ./config/rollup.js --env prod --harmony",
     "_prebuild:dev": "npm run std --silent",
     "build:dev": "npm run clear && node ./config/rollup.js --env dev --harmony",
-    "build:test": " node ./config/rollup.js --env test --harmony",
+    "build:test": "node ./config/rollup.js --env test --harmony",
     "browse": "browser-sync start -c config/browser-sync.js",
     "start": "npm run build:dev && npm run build:test && npm-run-all --parallel server watch:test watch:src browse",
     "std": "standard --verbose | snazzy",
@@ -68,10 +68,10 @@
     "watch:test": "onchange \"test/*.spec.js\" -- npm run build:test",
     "watch:src": "onchange src -- npm run build:dev",
     "server": "node config/server.js",
-    "clear": "$(npm bin)/del dist"
+    "clear": "./node_modules/.bin/del dist"
   },
   "license": "MIT",
   "dependencies": {
-    "natty-storage": "^1.1.1"
+    "natty-storage": "^2.0.1"
   }
 }

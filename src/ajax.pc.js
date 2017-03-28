@@ -1,9 +1,3 @@
-/**
- * src/ajax.pc.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
 import {
     extend, appendQueryString, noop, isCrossDomain, isBoolean, param, isIE,
     hasWindow, FALSE, UNDEFINED, NULL
@@ -50,9 +44,17 @@ const setHeaders = (xhr, options) => {
 
     extend(header, options.header);
 
-    // 如果是`POST`请求，需要`urlencode`
-    if (options.method === 'POST' && !options.header['Content-Type']) {
-        header['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+    // 如果是`POST`请求，根据options.postDataFormat设置对应的Content-Type
+    // FORM和JSON都强制使用对应的Content-Type，RAW则不改动Content-Type的值，由调用者指定
+    if (options.method === 'POST') {
+        let pdf = options.postDataFormat;
+        let contentType = (pdf === 'FORM')
+            ? 'application/x-www-form-urlencoded; charset=UTF-8'
+            : (pdf === 'JSON')
+                ? 'application/json; charset=UTF-8'
+                : NULL;
+        if (contentType !== NULL)
+            header['Content-Type'] = contentType;
     }
 
     for (let key in header) {
@@ -195,7 +197,8 @@ const defaultOptions = {
     complete: noop,
     abort: noop,
     log: FALSE,
-    traditional: FALSE
+    traditional: FALSE,
+    postDataFormat: 'FORM'
 };
 
 export default function ajax(options) {
@@ -238,13 +241,24 @@ export default function ajax(options) {
     if (!fallback) {
         xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCD;
     }
-
+    
     // 设置requestHeader
     setHeaders(xhr, options);
 
+    // 根据postDataFormat来格式化要发送的数据
+    let pdf = options.postDataFormat;
+    let sendData;
+    if (options.method === GET || options.data === NULL)
+        sendData = NULL;
+    else
+        sendData = (pdf === 'FORM')
+            ? param(options.data, options.traditional)
+            : (pdf === 'JSON')
+                ? JSON.stringify(options.data)
+                : options.data;
+    
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-
-    xhr.send(options.method === GET ? NULL : options.data !== NULL ? param(options.data, options.traditional) : NULL);
+    xhr.send(sendData);
 
     return xhr;
 };

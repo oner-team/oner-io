@@ -1,11 +1,3 @@
-
-/**
- * src/plugin.loop.js
- * 创建轮询支持
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
 import {isNumber, noop, TRUE, FALSE, NULL} from './util'
 
 /**
