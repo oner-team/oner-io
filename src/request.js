@@ -15,12 +15,27 @@ import event from './event'
 import ajax from './__AJAX__'
 import jsonp from './__JSONP__'
 
+let rid = 0
+const getRid = function () {
+    return rid++
+}
+
 export default class Request {
-    constructor(path, config, storage, contextId) {
-        this._path = path
+
+    constructor(apiInstance, onComplete) {
+
+        const {_path, config, api, contextId} = apiInstance
+
+        this._apiInstance = apiInstance
+
+        // 单次请求实例的id，用于从`api`实例的`_pendingList`中删除请求实例
+        this._rid = [contextId, _path, getRid()].join('-')
+
+        this._path = _path
         this.config = config
-        this.storage = storage
+        this.storage = api.storage
         this.contextId = contextId
+        this._onComplete = onComplete
 
         // 工作状态
         this.defer = NULL
@@ -31,7 +46,7 @@ export default class Request {
         this.vars = {
             // `url`中的标记
             mark: {
-                _api: path,
+                _api: _path,
                 _mock: config.mock,
                 // retryTime: {Number} 重试次数
             },
@@ -42,11 +57,14 @@ export default class Request {
     }
 
     send(data) {
+
+        const {config, vars} = this
+
         // `data`必须在请求发生时实时创建
         // 另外，将数据参数存在私有标记中, 方便API的`process`方法内部使用
-        this.vars.data = extend({}, runAsFn(config.data), runAsFn(data))
+        vars.data = extend({}, runAsFn(config.data), runAsFn(data))
 
-        if (this.config.retry === 0) {
+        if (config.retry === 0) {
             return this.request()
         } else {
             return this.tryRequest()
@@ -163,7 +181,6 @@ export default class Request {
     // @param defer
     processResponse(response) {
         const {config, vars, defer} = this
-
         // 调用 didFetch 钩子函数
         config.didFetch(vars, config)
 
@@ -225,10 +242,10 @@ export default class Request {
             withCredentials: config.withCredentials,
             // 强制约定json
             accept: 'json',
-            success(response/*, xhr*/) {
-                this.processResponse(vars, config, defer, response)
+            success: (response/*, xhr*/) => {
+                this.processResponse(response)
             },
-            error(status) {
+            error: (status) => {
                 // 如果跨域使用了自定义的header，且服务端没有配置允许对应的header，此处status为0，目前无法处理。
                 const error = {
                     status,
@@ -239,7 +256,8 @@ export default class Request {
                 event.fire('g.reject', [error, config])
                 event.fire(this.contextId + '.reject', [error, config])
             },
-            complete(/*status, xhr*/) {
+            complete: (/*status, xhr*/) => {
+                this._onComplete()
                 // TODO
                 // if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     //C.log('ajax complete');
@@ -271,10 +289,10 @@ export default class Request {
             urlStamp: config.urlStamp,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,
-            success(response) {
-                this.processResponse(vars, config, defer, response)
+            success: (response) => {
+                this.processResponse(response)
             },
-            error() {
+            error: () => {
                 const error = {
                     message: `Not accessable JSONP in request for ${vars.mark._api}(${url})`
                 }
@@ -283,7 +301,8 @@ export default class Request {
                 event.fire('g.reject', [error, config])
                 event.fire(this.contextId + '.reject', [error, config])
             },
-            complete() {
+            complete: () => {
+                this._onComplete()
                 // TODO retryTime
                 // if (vars.retryTime === undefined || vars.retryTime === config.retry) {
                     this.pending = FALSE
@@ -295,7 +314,7 @@ export default class Request {
 
     abort() {
         if (this._requester) {
-            this.abort()
+            this._requester.abort()
         }
     }
 }

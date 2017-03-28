@@ -327,8 +327,8 @@ method设置为`POST`时采用何种格式向服务端发送数据。
 * 类型：Array
 * 默认：[]
 * 可用值：
-  - natty-fetch.plugin.soon
-  - natty-fetch.plugin.loop
+  - nattyFetch.plugin.soon
+  - nattyFetch.plugin.loop
 
 ##### `soon`
 
@@ -340,7 +340,7 @@ context.create('Order', {
         url: '...',
         storage: true,
         plugins: [
-            natty-fetch.plugin.soon
+            nattyFetch.plugin.soon
         ]
     }
 });
@@ -376,7 +376,7 @@ context.create('driver', {
     getDistance: {
         url: '...',
         plugins: [
-            natty-fetch.plugin.loop
+            nattyFetch.plugin.loop
         ]
     }
 });

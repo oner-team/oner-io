@@ -10,6 +10,7 @@ const {
 } = util
 
 import Request from './request'
+import ajax from './__AJAX__'
 
 import event from './event'
 
@@ -27,8 +28,6 @@ class API {
     constructor(path, options, contextConfig, contextId) {
         this._path = path
 
-        const config = this.config = this.processAPIOptions(options)
-
         this.contextConfig = contextConfig
 
         this.contextId = contextId
@@ -38,7 +37,7 @@ class API {
 
         this.storage = NULL
 
-        this.initStorage()
+        const config = this.config = this.processAPIOptions(options)
 
         // `api`的实现
         // @param data {Object|Function}
@@ -57,58 +56,73 @@ class API {
                 }
             }
 
-            const request = new Request(path, config, this.storage, contextId)
+            const request = new Request(this, () => {
+                let indexToRemove
+                for (let i=0, l=this._pendingList.length; i<l; i++) {
+                    if (this._pendingList[i] === request) {
+                        indexToRemove = i
+                        break
+                    }
+                }
+                indexToRemove !== undefined && this._pendingList.splice(indexToRemove, 1)
+            })
 
             this._pendingList.push(request)
 
             return request.send(data)
         }
 
+        this.api.config = config
+
+        this.api.hasPending = () => {
+            console.log('hasPending: ', !!this._pendingList.length)
+            return !!this._pendingList.length
+        }
+
+        this.initStorage()
+
         // 启动插件
-        let plugins = isArray(config.plugins) ? config.plugins : [];
-        for (let i = 0, l = plugins.length; i<l; i++) {
-            isFunction(plugins[i]) && plugins[i].call(t, t);
+        let plugins = isArray(config.plugins) ? config.plugins : []
+
+        for (let i=0, l=plugins.length; i<l; i++) {
+            isFunction(plugins[i]) && plugins[i].call(this, this)
         }
     }
-
-
 
     // 处理API的配置
     // @param options {Object}
     processAPIOptions(options) {
 
-        let t = this;
-
         // 插件是不能覆盖的, 应该追加
-        let plugins = [].concat(t.contextConfig.plugins || [], options.plugins || []);
+        const plugins = [].concat(this.contextConfig.plugins || [], options.plugins || [])
 
-        let config = extend({}, t.contextConfig, options, {
+        const config = extend({}, this.contextConfig, options, {
             plugins
-        });
+        })
 
         if (config.mock) {
-            config.mockUrl = t.getFullUrl(config);
+            config.mockUrl = this.getFullUrl(config)
         }
 
-        config.url = t.getFullUrl(config);
+        config.url = this.getFullUrl(config)
 
         // 按照[boolean, callbackKeyWord, callbackFunctionName]格式处理
         if (isArray(options.jsonp)) {
-            config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE;
+            config.jsonp = isBoolean(options.jsonp[0]) ? options.jsonp[0] : FALSE
             // 这个参数只用于jsonp
             if (config.jsonp) {
-                config.jsonpFlag = options.jsonp[1];
-                config.jsonpCallbackName = options.jsonp[2];
+                config.jsonpFlag = options.jsonp[1]
+                config.jsonpCallbackName = options.jsonp[2]
             }
         }
 
         // 配置自动增强 如果`url`的值有`.jsonp`结尾 则认为是`jsonp`请求
         // NOTE jsonp是描述正式接口的 不影响mock接口!!!
         if (!config.mock && !!config.url.match(/\.jsonp(\?.*)?$/)) {
-            config.jsonp = TRUE;
+            config.jsonp = TRUE
         }
 
-        return config;
+        return config
     }
 
     // 初始化缓存对象
@@ -131,15 +145,15 @@ class API {
         // }
 
         // 综合判断缓存是不是可以启用
-        this.storageUseable = isPlainObject(config.storage)
+        this.api.storageUseable = isPlainObject(config.storage)
             && (config.method === 'GET' || config.jsonp)
             && (
                 nattyStorage.supportStorage && ['localStorage', 'sessionStorage'].indexOf(config.storage.type) > -1 ||
-                config.type === 'variable'
+                config.storage.type === 'variable'
             )
 
         // 创建缓存实例
-        if (this.storageUseable) {
+        if (this.api.storageUseable) {
             // 当使用`localStorage`时, 强制指定`key`值。如果没指定, 抛错!
             // 当使用`variable`或`sessionStorage`时, 如果没指定`key`, 则自动生成内部`key`
             // !!!为什么在使用`localStorage`时必须指定`key`值???
@@ -155,7 +169,7 @@ class API {
             // `key`和`tag`的选择原则:
             // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
             // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
-            this.storage = nattyStorage(extend({}, config.storage, {
+            this.api.storage = nattyStorage(extend({}, config.storage, {
                 tag: [
                     config.storage.tag,
                     config.jsonp ? 'jsonp' : config.method,
@@ -266,6 +280,7 @@ extend(nattyFetch, {
     version: '__VERSION__',
     _util: util,
     _event: event,
+    _ajax: ajax,
     context,
 
     // 执行全局配置

@@ -263,5 +263,6 @@ export default function ajax(options) {
     return xhr;
 };
 
-ajax.fallback = fallback;
-ajax.supportCORS = supportCORS;
+ajax.fallback = fallback
+ajax.supportCORS = supportCORS
+

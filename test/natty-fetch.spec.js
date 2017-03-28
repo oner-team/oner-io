@@ -1,11 +1,14 @@
 
 import {host} from '../config/host'
 
+const noop = function () {
+
+}
 const _it = function(s, f) {
-    f()
+    f(noop)
 }
 
-describe('nattyFetch v__VERSION__ Unit Test', function() {
+describe('RESTFul v__VERSION__ Unit Test', function() {
 
     describe('static',function() {
         it('version v__VERSION__', function() {
@@ -98,7 +101,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context._config.urlSuffix).to.be(urlSuffix);
         });
 
-        _it('Context instance would inherit and extend the global config 2', function () {
+        it('Context instance would inherit and extend the global config 2', function () {
             let urlPrefix = 'http://test.com/api';
             let urlSuffix = '.json'
             nattyFetch.setGlobal({
@@ -155,8 +158,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                     done(e);
                 }
             });
-
-
 
             let context = nattyFetch.context();
             context.create('order', {
@@ -864,63 +865,14 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(myContext.api.order.create.pending).to.be(false);
+                    expect(myContext.api.order.create.hasPending()).to.be(false);
                     done();
                 } catch(e) {
                     done(e);
                 }
             });
 
-            expect(myContext.api.order.create.pending).to.be(true);
-        });
-
-        it('error by 500', function (done) {
-            context.create('order', {
-                create: {
-                    //log: true,
-                    url: host + 'api/500',
-                    method: 'POST'
-                }
-            });
-            context.api.order.create().then(function () {
-                // can not go here
-            }, function(error) {
-                try {
-                    expect(error.status).to.be(nattyFetch.ajax.fallback ? undefined : 500);
-                    done();
-                } catch(e) {
-                    done(e);
-                }
-            });
-        });
-
-        it('error by 404', function (done) {
-            context.create('order', {
-                create: {
-                    url: host + 'api/404',
-                    method: 'POST'
-                }
-            });
-
-            // TODO
-            context.on('reject', function (error) {
-                console.warn(error);
-            })
-            context.api.order.create().then(function () {
-                // can not go here
-            })['catch'](function (error) {
-                try {
-                    if (!nattyFetch.ajax.fallback) {
-                        // 即使是现代浏览器,也有status为0的情况
-                        expect(error.status === 0 || error.status === 404).to.be(true);
-                    } else {
-                        expect(error.status).to.be(undefined);
-                    }
-                    done();
-                } catch(e) {
-                    done(e);
-                }
-            });
+            expect(myContext.api.order.create.hasPending()).to.be(true);
         });
 
         it('`GET` resolving after retry', function (done) {
