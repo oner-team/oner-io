@@ -50,9 +50,10 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
-### v2.3.0 / 2017-03-xx
+### v2.3.0-rc1 / 2017-04-01
 
-* `storage`配置不在支持布尔值。
+* 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/jias/natty-fetch/issues/38))
+* 删除了单测中针对`xhr`对象`status`的值的测试。
 
 
 ### v2.2.3 / 2017-01-17

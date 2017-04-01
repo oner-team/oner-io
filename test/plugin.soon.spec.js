@@ -8,7 +8,7 @@ const _it = function(s, f) {
 }
 
 describe('plugin soon', function () {
-    _it('`soon` method with `storage` is open', function (done) {
+    it('`soon` method with `storage` is open', function (done) {
         let context = nattyFetch.context({
             urlPrefix: host,
             mock: false

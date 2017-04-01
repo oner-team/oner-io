@@ -804,30 +804,6 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with custom header', function (done) {
-            context.create('order', {
-                create: {
-                    //log: true,
-                    url: host + 'api/order-create',
-                    method: 'POST',
-                    header: {abc: 'foo'} // 跨域时, 自定义的`header`将被忽略
-                }
-            });
-
-            context.api.order.create().then(function (data) {
-                // 微软系浏览器走到这里，允许跨域时使用自定义header
-                try {
-                    expect(data.id).to.be(1);
-                    done();
-                } catch (e) {
-                    done(e.message);
-                }
-            }).catch(function (error) {
-                // 现代浏览器走到这里
-                done();
-            });
-        });
-
         it('error by timeout', function (done) {
             context.create('order', {
                 create: {
@@ -839,6 +815,7 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             });
             context.api.order.create().then(function () {
                 // can not go here
+                debugger
             }, function(error) {
                 try {
                     expect(error.timeout).to.be(true);

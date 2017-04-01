@@ -4,14 +4,14 @@ import * as util from './util'
 const {
     extend, runAsFn, isAbsoluteUrl,
     isRelativeUrl, isBoolean,
-    isArray, isFunction,
+    isArray, isFunction, sortPlainObjectKey, isEmptyObject,
     isPlainObject, dummyPromise,
     isString, NULL, TRUE, FALSE, EMPTY
 } = util
 
 import Request from './request'
 import ajax from './__AJAX__'
-
+import Defer from './defer'
 import event from './event'
 
 // 内置插件
@@ -56,26 +56,39 @@ class API {
                 }
             }
 
-            const request = new Request(this, () => {
-                let indexToRemove
-                for (let i=0, l=this._pendingList.length; i<l; i++) {
-                    if (this._pendingList[i] === request) {
-                        indexToRemove = i
-                        break
-                    }
+            const vars = this.makeVars(data)
+
+            // `data`必须在请求发生时实时创建
+            // 另外，将数据参数存在私有标记中, 方便API的`process`方法内部使用
+            // data = extend({}, runAsFn(config.data), runAsFn(data))
+
+            // 根据`data`创建`storage`查询用的`key`
+            // this.queryString = isEmptyObject(data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(data))
+
+            // const defer = new Defer(config.Promise)
+
+            if (this.api.storageUseable) {
+                const result = this.api.storage.has(vars.queryString)
+                // return result.has ? result.value : this.send(data)
+                if (result.has) {
+                    return new config.Promise(resolve => {
+                        resolve(result.value)
+                    })
+                } else {
+                    return config.retry === 0 ? this.send(vars) : this.sendWithRetry(vars)
                 }
-                indexToRemove !== undefined && this._pendingList.splice(indexToRemove, 1)
-            })
+            } else {
+                return config.retry === 0 ? this.send(vars) : this.sendWithRetry(vars)
+            }
 
-            this._pendingList.push(request)
 
-            return request.send(data)
+            // return defer.promise
         }
 
         this.api.config = config
 
         this.api.hasPending = () => {
-            console.log('hasPending: ', !!this._pendingList.length)
+            // console.log('hasPending: ', !!this._pendingList.length)
             return !!this._pendingList.length
         }
 
@@ -87,6 +100,97 @@ class API {
         for (let i=0, l=plugins.length; i<l; i++) {
             isFunction(plugins[i]) && plugins[i].call(this, this)
         }
+    }
+
+    // @param {Object} 一次独立的请求数据
+    makeVars(data) {
+        const {config} = this
+        // 每次请求私有的相关数据
+        const vars = {
+            // `url`中的标记
+            mark: {
+                _api: this._path,
+                _mock: config.mock
+            }
+        }
+
+        // `data`必须在请求发生时实时创建
+        // 另外，将数据参数存在私有标记中, 方便API的`process`方法内部使用
+        data = extend({}, runAsFn(config.data), runAsFn(data))
+
+        // 承载请求参数数据
+        vars.data = data
+
+        // 根据`data`创建`storage`查询用的`key`
+        vars.queryString = isEmptyObject(data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(data))
+
+        return vars
+    }
+
+    // 发送真正的网络请求
+    send(vars) {
+
+        const {config} = this
+
+        // 每次请求都创建一个请求实例
+        const request = new Request(this)
+
+        this._pendingList.push(request)
+
+        const defer = new Defer(config.Promise)
+
+        request.send({
+            vars,
+            onSuccess: content => {
+                if (this.api.storageUseable) {
+                    this.api.storage.set(vars.queryString, content)
+                }
+                defer.resolve(content)
+                event.fire('g.resolve', [content, config], config)
+                event.fire(this.contextId + '.resolve', [content, config], config)
+            },
+            onError: error => {
+                defer.reject(error)
+                event.fire('g.reject', [error, config])
+                event.fire(this.contextId + '.reject', [error, config])
+            },
+            onComplete: () => {
+                let indexToRemove
+                for (let i=0, l=this._pendingList.length; i<l; i++) {
+                    if (this._pendingList[i] === request) {
+                        indexToRemove = i
+                        break
+                    }
+                }
+                indexToRemove !== undefined && this._pendingList.splice(indexToRemove, 1)
+            }
+        })
+
+        return defer.promise
+    }
+
+    sendWithRetry(vars) {
+        const {config} = this
+
+        return new config.Promise((resolve, reject) => {
+
+            let retryTime = 0
+            const sendOneTime = () => {
+                // 更新的重试次数
+                vars.mark._retryTime = retryTime
+                this.send(vars).then(content => {
+                    resolve(content)
+                }, error => {
+                    if (retryTime === config.retry) {
+                        reject(error)
+                    } else {
+                        retryTime++
+                        sendOneTime()
+                    }
+                })
+            }
+            sendOneTime()
+        })
     }
 
     // 处理API的配置
@@ -129,27 +233,22 @@ class API {
     initStorage() {
         const {config} = this
 
-        // 开启`storage`的前提条件
-        // const storagePrecondition = config.method === 'GET' || config.jsonp
-
-        // 不满足`storage`使用条件的情况下, 开启`storage`将抛出错误
-        // if (!storagePrecondition && config.storage === TRUE) {
-        //     console.warn(`'storage' won't work for '${t._path}' with '${config.method}' method.`)
-        // }
-
         // 简易开启缓存的写法
-        // if (config.storage === TRUE) {
-        //     config.storage = {
-        //         type: 'variable'
-        //     }
-        // }
+        if (config.storage === TRUE) {
+            config.storage = {
+                type: 'variable'
+            }
+        }
 
         // 综合判断缓存是不是可以启用
         this.api.storageUseable = isPlainObject(config.storage)
             && (config.method === 'GET' || config.jsonp)
             && (
-                nattyStorage.supportStorage && ['localStorage', 'sessionStorage'].indexOf(config.storage.type) > -1 ||
-                config.storage.type === 'variable'
+                nattyStorage.supportStorage
+                && (
+                    ['localStorage', 'sessionStorage'].indexOf(config.storage.type) > -1
+                    || config.storage.type === 'variable'
+                )
             )
 
         // 创建缓存实例
@@ -179,8 +278,6 @@ class API {
         }
     }
 
-
-
     // 获取正式接口的完整`url`
     // @param config {Object}
     getFullUrl(config) {
@@ -192,13 +289,6 @@ class API {
         let suffix = config[suffixKey] ? config[suffixKey]: EMPTY;
         return prefix + url + suffix;
     }
-
-
-
-
-
-
-
 }
 
 const context = (function () {

@@ -1,56 +1,33 @@
-import {noop, isEmptyObject, sortPlainObjectKey, FALSE, TRUE} from './util';
+import {noop, isEmptyObject, sortPlainObjectKey, FALSE, TRUE, hasConsole} from './util'
 
-export default function(apiInstance) {
-    let t = this;
-    let api = apiInstance.api;
-    let {config} = api;
-    api.soon = function(data, successFn = noop, errorFn = noop) {
+export default function() {
+    const {api} = this
+    api.soon = (data, successFn = noop, errorFn = noop) => {
+        const vars = this.makeVars(data)
 
-        // 是否忽略自身的并发请求
-        // NOTE 这个地方和内置的api方法不一致
-        if (config.ignoreSelfConcurrent && config.pending) {
-            return;
-        }
-
-        if (config.overrideSelfConcurrent && config._lastRequester) {
-            config._lastRequester.abort();
-            delete config._lastRequester;
-        }
-
-        // 一次请求的私有相关数据
-        let vars = t.makeVars(data);
-
-        let remoteRequest = function () {
-            t.remoteRequest(vars, config).then(function (content) {
-                successFn({
-                    fromStorage: FALSE,
-                    content
-                });
-            })['catch'](function (e) {
-                errorFn(e);
-            });
-        }
-
+        // 先尝试用`storage`数据快速响应
         if (api.storageUseable) {
 
-            // 只有GET和JSONP才会有storage生效
-            vars.queryString = isEmptyObject(vars.data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(vars.data));
+            const result = api.storage.has(vars.queryString)
 
-            api.storage.asyncHas(vars.queryString).then(function (result) {
-
-                // console.warn('has cached: ', hasValue);
-                if (result.has) {
-                    successFn({
-                        fromStorage: TRUE,
-                        content: result.value
-                    });
-                }
-
-                // 在`storage`可用的情况下, 远程请求返回的数据会同步到`storage`
-                remoteRequest();
-            });
-        } else {
-            remoteRequest();
+            if (result.has) {
+                successFn({
+                    fromStorage: TRUE,
+                    content: result.value
+                })
+            }
         }
-    };
-};
+
+        // 再发起网络请求(内部会更新`storage`)
+        this.send(vars).then(content => {
+            successFn({
+                fromStorage: FALSE,
+                content
+            })
+        }, error => {
+            errorFn(error)
+        })['catch'](function (e) {
+            hasConsole && console.error(e)
+        })
+    }
+}

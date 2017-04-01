@@ -177,48 +177,6 @@ describe('nattyFetch.create', function () {
         });
     });
 
-    it('error by 500', function (done) {
-        let fooFetch = nattyFetch.create({
-            //log: true,
-            url: host + 'api/500',
-            method: 'POST'
-        });
-
-        fooFetch().then(function () {
-            // can not go here
-        }, function(error) {
-            try {
-                expect(error.status).to.be(nattyFetch.ajax.fallback ? undefined : 500);
-                done();
-            } catch(e) {
-                done(e);
-            }
-        });
-    });
-
-    it('error by 404', function (done) {
-        let fooFetch = nattyFetch.create({
-            url: host + 'api/404',
-            method: 'POST'
-        });
-
-        fooFetch().then(function () {
-            // can not go here
-        })['catch'](function (error) {
-            try {
-                if (!nattyFetch.ajax.fallback) {
-                    // 即使是现代浏览器,也有status为0的情况
-                    expect(error.status === 0 || error.status === 404).to.be(true);
-                } else {
-                    expect(error.status).to.be(undefined);
-                }
-                done();
-            } catch(e) {
-                done(e);
-            }
-        });
-    });
-
     it('`GET` resolving after retry', function (done) {
         let fooFetch = nattyFetch.create({
             url: host + 'api/retry-success',
@@ -367,36 +325,6 @@ describe('nattyFetch.create', function () {
                     done(e);
                 }
             });
-        }, 300);
-    });
-
-    // 取消响应
-    it('calling `abort`', function (done) {
-
-        let count = 0;
-
-        let fooFetch = nattyFetch.create({
-            url: host + 'api/success'
-        });
-
-        fooFetch().then(function () {
-            // 不应该执行到这里
-            count++
-        });
-
-        expect(fooFetch.pending).to.be(true);
-
-        // 马上取消
-        fooFetch.abort();
-
-        setTimeout(function () {
-            try {
-                expect(count).to.be(0);
-                expect(fooFetch.pending).to.be(false);
-                done();
-            } catch (e) {
-                done(e);
-            }
         }, 300);
     });
 });
