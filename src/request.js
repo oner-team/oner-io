@@ -130,10 +130,10 @@ export default class Request {
             withCredentials: config.withCredentials,
             // 强制约定json
             accept: 'json',
-            success: (response/*, xhr*/) => {
+            success: response => {
                 this.processResponse(response)
             },
-            error: (status) => {
+            error: status => {
                 // 如果跨域使用了自定义的header，且服务端没有配置允许对应的header，此处status为0，目前无法处理。
                 const error = {
                     status,
@@ -141,7 +141,7 @@ export default class Request {
                 }
                 this.onError(error)
             },
-            complete: (/*status, xhr*/) => {
+            complete: () => {
                 this.onComplete()
                 this.pending = FALSE
                 this._requester = NULL
@@ -166,7 +166,7 @@ export default class Request {
             urlStamp: config.urlStamp,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,
-            success: (response) => {
+            success: response => {
                 this.processResponse(response)
             },
             error: () => {
