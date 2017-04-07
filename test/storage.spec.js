@@ -1,5 +1,12 @@
 import {host} from '../config/host'
 
+const noop = function () {
+
+}
+const _it = function(s, f) {
+    f(noop)
+}
+
 describe('storage', function () {
 
     this.timeout(1000*10);
@@ -52,7 +59,8 @@ describe('storage', function () {
             context.api.user.getPhone.storage.destroy();
 
         })['catch'](function(error){
-            console.log('storage error: ' + error);
+            console.error(error)
+            console.error('storage error: ' + error);
         });
     });
 
@@ -129,6 +137,8 @@ describe('storage', function () {
             }
         });
 
+
+
         // 第一次请求走网络
         context.api.user.getPhone({
             b:1,
@@ -176,6 +186,7 @@ describe('storage', function () {
                 }
             }
         });
+
 
         // 第一次请求走网络
         context.api.user.getPhone({
@@ -261,7 +272,9 @@ describe('storage', function () {
                         requestTime++;
                     }
                 },
-                storage: true
+                storage: {
+                    type: 'variable'
+                }
             }
         });
 
@@ -280,26 +293,5 @@ describe('storage', function () {
             // 特别注意 expect不管是否成功, 都要销毁storage, 避免下次刷新后的测试
             context.api.get.storage.destroy();
         })['catch']();
-    });
-
-    it('`POST` request with `storage` on should throw an error', function () {
-
-        // localStorage.clear();
-        const context = nattyFetch.context({
-            urlPrefix: host,
-            mock: false,
-        });
-
-        let requestTime = 0;
-        let errorFn = function () {
-            context.create({
-                get: {
-                    url: host + 'api/return-success',
-                    method: 'POST',
-                    storage: true
-                }
-            })
-        }
-        expect(errorFn).to.throwError();
     });
 });

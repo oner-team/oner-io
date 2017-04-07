@@ -67,6 +67,19 @@ A natty data-fetching tool for project that no longer needs to use jQuery/Zepto'
 * 钉钉账号：拂山
 * 微信账号：gnosaij
 
+## Dev && Build
+
+Node需要7以上的版本
+
+```
+启动开发环境
+$ npm install
+$ npm start
+
+构建
+$ npm build
+```
+
 
 ## Important References
 

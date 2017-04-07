@@ -1,7 +1,14 @@
 
 import {host} from '../config/host'
 
-describe('nattyFetch v__VERSION__ Unit Test', function() {
+const noop = function () {
+
+}
+const _it = function(s, f) {
+    f(noop)
+}
+
+describe('RESTFul v__VERSION__ Unit Test', function() {
 
     describe('static',function() {
         it('version v__VERSION__', function() {
@@ -151,8 +158,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                     done(e);
                 }
             });
-
-
 
             let context = nattyFetch.context();
             context.create('order', {
@@ -313,7 +318,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         this.timeout(1000*10);
         let context;
 
-        beforeEach('reset NattyDB context', function () {
+        beforeEach('reset context', function () {
             context = nattyFetch.context({
                 urlPrefix: host,
                 jsonp: true,
@@ -365,45 +370,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context.api.order.pay.config.mock).to.be(false);
         });
 
-
-        it('`mockUrlPrefix` value from context', function () {
-            let context  = nattyFetch.context({
-                // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
-                mock: true,
-                mockUrlPrefix: './mock/'
-            });
-            context.create('order', {
-                pay: {
-                    mockUrl: 'pay'
-                },
-                create: {
-                    mockUrl: '../create'
-                },
-                close: {
-                    mockUrl: 'https://www.demo.com/close'
-                }
-            });
-
-            expect(context.api.order.pay.config.mockUrl).to.be('./mock/pay');
-            expect(context.api.order.create.config.mockUrl).to.be('../create');
-            expect(context.api.order.close.config.mockUrl).to.be('https://www.demo.com/close');
-        });
-
-        it('`mockUrlSuffix` value from context', function () {
-            let context  = nattyFetch.context({
-                // NOTE 当`mock`为true时, 才会处理`mockUrl`的值
-                mock: true,
-                mockUrlSuffix: '.json'
-            });
-            context.create('order', {
-                pay: {
-                    mockUrl: 'pay'
-                },
-            });
-
-            expect(context.api.order.pay.config.mockUrl).to.be('pay.json');
-        });
-
         it('`jsonp` option', () => {
             context.create('order', {
                 pay: {
@@ -432,40 +398,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(context.api.order.create.config.jsonp).to.be(true);
             expect(context.api.order.close.config.jsonp).to.be(true);
             expect(context.api.order.delay.config.jsonp).to.be(false);
-        });
-
-        it('auto `urlPrefix`', function () {
-            context.create('order', {
-                method1: {
-                    url: 'path'
-                },
-                method2: {
-                    url: '//foo.com/path'
-                },
-                method3: {
-                    url: 'http://foo.com/path'
-                },
-                method4: {
-                    url: 'https://foo.com/path'
-                },
-                method5: {
-                    url: './path'
-                },
-                method6: {
-                    url: '../path'
-                },
-                method7: {
-                    url: '/path'
-                }
-            });
-
-            expect(context.api.order.method1.config.url).to.equal(host + 'path');
-            expect(context.api.order.method2.config.url).to.be('//foo.com/path');
-            expect(context.api.order.method3.config.url).to.be('http://foo.com/path');
-            expect(context.api.order.method4.config.url).to.be('https://foo.com/path');
-            expect(context.api.order.method5.config.url).to.be('./path');
-            expect(context.api.order.method6.config.url).to.be('../path');
-            expect(context.api.order.method7.config.url).to.be('/path');
         });
 
     });
@@ -799,30 +731,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             });
         });
 
-        it('error by requesting cross-domain with custom header', function (done) {
-            context.create('order', {
-                create: {
-                    //log: true,
-                    url: host + 'api/order-create',
-                    method: 'POST',
-                    header: {abc: 'foo'} // 跨域时, 自定义的`header`将被忽略
-                }
-            });
-
-            context.api.order.create().then(function (data) {
-                // 微软系浏览器走到这里，允许跨域时使用自定义header
-                try {
-                    expect(data.id).to.be(1);
-                    done();
-                } catch (e) {
-                    done(e.message);
-                }
-            }).catch(function (error) {
-                // 现代浏览器走到这里
-                done();
-            });
-        });
-
         it('error by timeout', function (done) {
             context.create('order', {
                 create: {
@@ -834,6 +742,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             });
             context.api.order.create().then(function () {
                 // can not go here
+                debugger
             }, function(error) {
                 try {
                     expect(error.timeout).to.be(true);
@@ -860,63 +769,14 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
                 // can not go here
             }, function(error) {
                 try {
-                    expect(myContext.api.order.create.pending).to.be(false);
+                    expect(myContext.api.order.create.hasPending()).to.be(false);
                     done();
                 } catch(e) {
                     done(e);
                 }
             });
 
-            expect(myContext.api.order.create.pending).to.be(true);
-        });
-
-        it('error by 500', function (done) {
-            context.create('order', {
-                create: {
-                    //log: true,
-                    url: host + 'api/500',
-                    method: 'POST'
-                }
-            });
-            context.api.order.create().then(function () {
-                // can not go here
-            }, function(error) {
-                try {
-                    expect(error.status).to.be(nattyFetch.ajax.fallback ? undefined : 500);
-                    done();
-                } catch(e) {
-                    done(e);
-                }
-            });
-        });
-
-        it('error by 404', function (done) {
-            context.create('order', {
-                create: {
-                    url: host + 'api/404',
-                    method: 'POST'
-                }
-            });
-
-            // TODO
-            context.on('reject', function (error) {
-                console.warn(error);
-            })
-            context.api.order.create().then(function () {
-                // can not go here
-            })['catch'](function (error) {
-                try {
-                    if (!nattyFetch.ajax.fallback) {
-                        // 即使是现代浏览器,也有status为0的情况
-                        expect(error.status === 0 || error.status === 404).to.be(true);
-                    } else {
-                        expect(error.status).to.be(undefined);
-                    }
-                    done();
-                } catch(e) {
-                    done(e);
-                }
-            });
+            expect(myContext.api.order.create.hasPending()).to.be(true);
         });
 
         it('`GET` resolving after retry', function (done) {

@@ -1,12 +1,12 @@
 import ExpectAction from './expect-action'
 import {host} from '../config/host'
-const {ajax} = nattyFetch;
+const {_ajax} = nattyFetch;
 
 describe('./ajax', function () {
 
     describe('dependent detects', function () {
         it('support `CORS`', function () {
-            expect(nattyFetch.ajax.supportCORS).to.be(true);
+            expect(_ajax.supportCORS).to.be(true);
         });
     });
 
@@ -29,7 +29,7 @@ describe('./ajax', function () {
 
     describe('post', function () {
         it('accept text', function (done) {
-            ajax({
+            _ajax({
                 url: host + 'api/return-text',
                 method: 'POST',
                 data: {
@@ -43,7 +43,7 @@ describe('./ajax', function () {
         });
 
         it('accept json', function (done) {
-            ajax({
+            _ajax({
                 url: host + 'api/return-json',
                 method: 'POST',
                 data: {
@@ -58,7 +58,7 @@ describe('./ajax', function () {
         });
 
         it('accept script', function (done) {
-            ajax({
+            _ajax({
                 url: host + 'api/return-script',
                 method: 'POST',
                 data: {
@@ -90,7 +90,7 @@ describe('./ajax', function () {
 
             ea.expect(['success', 'complete']);
 
-            ajax({
+            _ajax({
                 url: host + 'api/return-json',
                 method: 'POST',
                 data: {
@@ -110,7 +110,7 @@ describe('./ajax', function () {
 
             ea.expect(['error', 'complete']);
 
-            ajax({
+            _ajax({
                 //log: true,
                 url: host + 'api/500',
                 method: 'POST',
@@ -128,7 +128,7 @@ describe('./ajax', function () {
         it('should trigger error and complete when 404', function (done) {
             ea.expect(['error', 'complete']);
 
-            ajax({
+            _ajax({
                 //log: true,
                 url: host + 'api/404',
                 method: 'POST',
@@ -147,7 +147,7 @@ describe('./ajax', function () {
 
             ea.expect(['abort', 'complete']);
 
-            var xhr = ajax({
+            var xhr = _ajax({
                 //log: true,
                 url: host + 'api/abort',
                 method: 'POST',
@@ -168,7 +168,7 @@ describe('./ajax', function () {
             this.timeout(5000);
             ea.expect(['success', 'complete']);
 
-            var xhr = ajax({
+            var xhr = _ajax({
                 log: true,
                 url: host + 'api/return-json',
                 method: 'POST',

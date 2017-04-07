@@ -1,5 +1,12 @@
 import {host} from '../config/host'
 
+const noop = function () {
+
+}
+const _it = function(s, f) {
+    f(noop)
+}
+
 describe('plugin soon', function () {
     it('`soon` method with `storage` is open', function (done) {
         let context = nattyFetch.context({
@@ -14,7 +21,9 @@ describe('plugin soon', function () {
         context.create({
             'foo.get': {
                 url: host + 'api/return-stamp',
-                storage: true,
+                storage: {
+                    type: 'variable'
+                },
                 willFetch: function (vars, config, from) {
                     if (from === 'remote') {
                         requestCount++;

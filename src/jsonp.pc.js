@@ -1,31 +1,24 @@
-/**
- * src/jsonp.pc.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
-import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, FALSE} from './util';
-const win = hasWindow ? window : NULL;
-const doc = hasWindow ? document : NULL;
-const SCRIPT = 'script';
-const IE8 = hasWindow ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : FALSE;
+import {appendQueryString, noop, extend, makeRandom, hasWindow, NULL, TRUE, FALSE} from './util'
+const win = hasWindow ? window : NULL
+const doc = hasWindow ? document : NULL
+const SCRIPT = 'script'
+const IE8 = hasWindow ? navigator.userAgent.indexOf('MSIE 8.0') > -1 : FALSE
 
-// TODO add test spec
 const removeScript = (script) => {
     if (IE8 && script.readyState) {
-        script.onreadystatechange = NULL;
+        script.onreadystatechange = NULL
     } else {
-        script.onerror = NULL;
+        script.onerror = NULL
     }
-    script.parentNode.removeChild(script);
-    script = NULL;
-};
-let head = NULL;
+    script.parentNode.removeChild(script)
+    script = NULL
+}
+let head = NULL
 const insertScript = (url, options) => {
-    let script = doc.createElement(SCRIPT);
-    script.type = 'text/javascript';
-    script.src = url;
-    script.async = true;
+    let script = doc.createElement(SCRIPT)
+    script.type = 'text/javascript'
+    script.src = url
+    script.async = TRUE
 
     // 绑定`error`事件
     if (IE8 && script.readyState) {
@@ -38,63 +31,63 @@ const insertScript = (url, options) => {
             // 3:   无论脚本是否加载成功, `script.readyState`状态值都变化为`loaded`,
             //      如果加载不成功, 可以通过判断JSONP函数一定是存在, 即可模拟`error`回调了.
             if (script.readyState === 'loaded' && win[options.callbackName]) {
-                win[options.callbackName] = NULL;
-                options.error();
-                options.complete();
+                win[options.callbackName] = NULL
+                options.error()
+                options.complete()
             }
         }
     } else {
         script.onerror = (e) => {
-            win[options.callbackName] = NULL;
-            options.error(e);
-            options.complete();
-        };
+            win[options.callbackName] = NULL
+            options.error(e)
+            options.complete()
+        }
     }
 
-    head = head || doc.getElementsByTagName('head')[0];
-    head.insertBefore(script, head.firstChild);
-    return script;
+    head = head || doc.getElementsByTagName('head')[0]
+    head.insertBefore(script, head.firstChild)
+    return script
 }
 
 const defaultOptions = {
     url: '',
     mark: {},
-    useMark: true,
+    useMark: TRUE,
     data: {},
-    urlStamp: true,
+    urlStamp: TRUE,
     success: noop,
     error: noop,
     complete: noop,
-    log: false,
+    log: FALSE,
     flag: 'callback',
     callbackName: 'jsonp{id}',
     traditional: FALSE
-};
+}
 
 export default function jsonp(options) {
 
-    options = extend({}, defaultOptions, options);
+    options = extend({}, defaultOptions, options)
 
-    let callbackName = options.callbackName = options.callbackName.replace(/\{id\}/, makeRandom());
+    const callbackName = options.callbackName = options.callbackName.replace(/\{id\}/, makeRandom())
 
-    let originComplete = options.complete;
+    const originComplete = options.complete
 
-    let script;
+    let script
 
     // 二次包装的`complete`回调
     options.complete = () => {
         // 删除脚本
-        removeScript(script);
-        originComplete();
+        removeScript(script)
+        originComplete()
     }
 
     // 成功回调
     win[callbackName] = (data) => {
         // JSONP函数需要立即删除 用于`IE8`判断是否触发`onerror`
-        win[callbackName] = NULL;
-        options.success(data);
-        options.complete();
-    };
+        win[callbackName] = NULL
+        options.success(data)
+        options.complete()
+    }
 
     // 生成`url`
     let url = appendQueryString(
@@ -102,18 +95,18 @@ export default function jsonp(options) {
         extend({[options.flag]: callbackName}, options.useMark ? options.mark : {}, options.data),
         options.urlStamp,
         options.traditional
-    );
+    )
 
     // 插入脚本
-    script = insertScript(url, options);
+    script = insertScript(url, options)
     
     return {
         abort() {
             // 覆盖成功回调为无数据处理版本
             win[callbackName] = () => {
-                win[callbackName] = NULL;
-            };
-            removeScript(script);
+                win[callbackName] = NULL
+            }
+            removeScript(script)
         }
-    };
+    }
 }

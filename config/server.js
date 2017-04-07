@@ -65,6 +65,16 @@ app.all('/api/:test', function (req, res) {
                 });
             }, 1000); // 时间不要太大 否则单测太漫长
             break;
+        case 'return-with-delay':
+            setTimeout(function () {
+                res.json({
+                    success: true,
+                    content: {
+                        id: 1
+                    }
+                });
+            }, req.query.delay); // 根据指定的时间返回
+            break;
         case 'timeout-long':
             setTimeout(function () {
                 res.json({

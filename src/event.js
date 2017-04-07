@@ -1,48 +1,43 @@
-/**
- * src/event.js
- *
- * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
- */
-const PREFIX = '_';
-function rename (type) { return PREFIX + type; }
+const PREFIX = '_'
+function rename (type) {
+    return PREFIX + type
+}
 
 export default {
-    on : function () {
-        var t    = this;
-        var args = arguments;
+    on: function () {
+        const args = arguments
         if (typeof args[0] === 'string' && typeof args[1] === 'function') {
-            var type = rename(args[0]);
-            t[type]  = t[type] || [];
-            t[type].push(args[1]);
+            const type = rename(args[0])
+            this[type]  = this[type] || []
+            this[type].push(args[1])
         } else if (typeof args[0] === 'object') {
-            var hash = args[0];
-            for (var i in hash) {
-                t.on(i, hash[i]);
+            const hash = args[0]
+            for (let i in hash) {
+                this.on(i, hash[i])
             }
         }
     },
-    off : function (type, fn) {
-        var t = this;
-        var type = rename(type);
+    off: function (type, fn) {
+        type = rename(type)
         if (!fn) {
-            delete t[type];
+            delete this[type]
         } else {
-            var fns = t[type];
-            fns.splice(fns.indexOf(fn), 1);
-            if (!t[type].length) delete t[type];
+            const fns = this[type]
+            fns.splice(fns.indexOf(fn), 1)
+            if (!this[type].length) {
+                delete this[type]
+            }
         }
     },
     // @param {array} args
-    fire : function (type, args, context) {
-        var t = this;
-        var fns = t[rename(type)];
-        if (!fns) return 'NO_EVENT';
-        for (var i=0, fn; fn = fns[i]; i++) {
-            fn.apply(context || t, [].concat(args));
+    fire: function (type, args, context) {
+        const fns = this[rename(type)]
+        if (!fns) return 'NO_EVENT'
+        for (let i=0, fn; fn = fns[i]; i++) {
+            fn.apply(context || this, [].concat(args))
         }
     },
-    hasEvent : function (type) {
-        return !!this[rename(type)];
+    hasEvent: function (type) {
+        return !!this[rename(type)]
     }
 }
