@@ -1,6 +1,6 @@
 import {
     extend, appendQueryString, noop, isCrossDomain, isBoolean, param,
-    FALSE, NULL, UNDEFINED
+    TRUE, FALSE, NULL, UNDEFINED
 } from './util'
 
 const supportCORS = UNDEFINED !== typeof XMLHttpRequest && 'withCredentials' in (new XMLHttpRequest())
@@ -26,33 +26,22 @@ const acceptToRequestHeader = {
 // 没有处理的事情：跨域时使用者传入的多余的Header没有屏蔽 没必要
 const setHeaders = (xhr, options) => {
 
-    let header = {
+    const header = {
         Accept: acceptToRequestHeader[options.accept]
     }
+
     // 如果没有跨域 则打该标识 业界通用做法
-    // TODO 如果是跨域的 只有有限的requestHeader是可以使用的 待补充注释
     if (!isCrossDomain(options.url)) {
         header['X-Requested-With'] = 'XMLHttpRequest'
     }
 
     extend(header, options.header)
 
-    // 如果是`POST`请求，根据options.postDataFormat设置对应的Content-Type
-    // FORM和JSON都强制使用对应的Content-Type，RAW则不改动Content-Type的值，由调用者指定
-    if (options.method === 'POST') {
-        let pdf = options.postDataFormat
-        let contentType = (pdf === 'FORM')
-            ? 'application/x-www-form-urlencoded; charset=UTF-8'
-            : (pdf === 'JSON')
-                ? 'application/json; charset=UTF-8'
-                : NULL
-        if (contentType !== NULL)
-            header['Content-Type'] = contentType
-    }
-
     for (let key in header) {
         xhr.setRequestHeader(key, header[key])
     }
+
+    return header
 }
 
 // 绑定事件
@@ -140,20 +129,19 @@ const setEvents = (xhr, options) => {
 const defaultOptions = {
     url: '',
     mark: {},
-    useMark: true,
+    useMark: TRUE,
     method: GET,
     accept: '*',
-    data: null,
+    data: NULL,
     header: {},
     withCredentials: NULL, // 根据`url`是否跨域决定默认值. 如果显式配置该值(必须是布尔值), 则个使用配置值
-    urlStamp: true,
+    urlStamp: TRUE,
     success: noop,
     error: noop,
     complete: noop,
     abort: noop,
     log: FALSE,
     traditional: FALSE,
-    postDataFormat: 'FORM'
 }
 
 export default function ajax(options) {
@@ -180,23 +168,18 @@ export default function ajax(options) {
     xhr.withCredentials = isBoolean(options.withCredentials) ? options.withCredentials : isCD
 
     // 设置requestHeader
-    setHeaders(xhr, options)
+    const header = setHeaders(xhr, options)
 
-    // 根据postDataFormat来格式化要发送的数据
-    let pdf = options.postDataFormat
-    let sendData
-    if (options.method === GET || options.data === NULL) {
-        sendData = NULL
+    let data
+
+    if (header['Content-Type'] && ~header['Content-Type'].indexOf('application/x-www-form-urlencoded')) {
+        data = param(options.data, options.traditional)
     } else {
-        sendData = (pdf === 'FORM')
-            ? param(options.data, options.traditional)
-            : (pdf === 'JSON')
-                ? JSON.stringify(options.data)
-                : options.data
+        data = JSON.stringify(options.data)
     }
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-    xhr.send(sendData)
+    xhr.send(data === NULL ? NULL : data)
 
     let originAbort = xhr.abort
 

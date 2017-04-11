@@ -7,7 +7,7 @@ xit.xonly = xit;
 
 describe('nattyFetch.create', function () {
 
-    this.timeout(1000*30);
+    this.timeout(1000*4);
 
     it('play with standard data structure', function (done) {
         let fooFetch = nattyFetch.create({

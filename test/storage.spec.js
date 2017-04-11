@@ -9,7 +9,7 @@ const _it = function(s, f) {
 
 describe('storage', function () {
 
-    this.timeout(1000*10);
+    this.timeout(1000*4);
 
     it('query string is same: localStorage', function (done) {
 

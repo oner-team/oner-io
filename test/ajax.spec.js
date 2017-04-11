@@ -165,7 +165,7 @@ describe('./ajax', function () {
         });
 
         it('calling `abort` after `complete` event should be ignored', function (done) {
-            this.timeout(5000);
+            this.timeout(4000);
             ea.expect(['success', 'complete']);
 
             var xhr = _ajax({

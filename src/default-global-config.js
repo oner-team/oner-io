@@ -45,6 +45,9 @@ const config = {
     // 私有Promise对象, 如果不想用浏览器原生的Promise对象的话
     Promise: hasWindow ? window.Promise : NULL,
 
+    // 是否是rest风格
+    rest: FALSE,
+
     // 默认不执行重试
     retry: 0,
 

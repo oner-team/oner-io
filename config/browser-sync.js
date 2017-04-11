@@ -30,7 +30,7 @@ module.exports = {
         index: "./index.html"
     },
     "proxy": false,
-    "port": 3000,
+    "port": 3333,
     "middleware": false,
     "serveStatic": [],
     "ghostMode": {

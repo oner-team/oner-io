@@ -100,14 +100,28 @@ export default class Request {
     // 获取正式接口的完整`url`
     // @param config {Object}
     getFinalUrl() {
-        const {config} = this
-        const url = config.mock ? config.mockUrl : config.url
+        const {config, vars} = this
+        let url = config.mock ? config.mockUrl : config.url
         if (!url) return EMPTY
-        let prefixKey = config.mock ? 'mockUrlPrefix' : 'urlPrefix'
-        let suffixKey = config.mock ? 'mockUrlSuffix' : 'urlSuffix'
-        let prefix = config[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url) ? config[prefixKey] : EMPTY
-        let suffix = config[suffixKey] ? config[suffixKey]: EMPTY
-        return prefix + url + suffix
+        const prefixKey = config.mock ? 'mockUrlPrefix' : 'urlPrefix'
+        const suffixKey = config.mock ? 'mockUrlSuffix' : 'urlSuffix'
+        const prefix = config[prefixKey] && !isAbsoluteUrl(url) && !isRelativeUrl(url) ? config[prefixKey] : EMPTY
+        const suffix = config[suffixKey] ? config[suffixKey]: EMPTY
+
+        url = prefix + url + suffix
+
+        // 如果是RESTFul API，填充所有的':x'参数
+        if (config.rest) {
+            const restData = vars.data
+            for (let param in restData) {
+                if (~param.indexOf(':')) {
+                    url = url.replace(new RegExp('\\/' + param), '/' + restData[param])
+                    delete restData[param]
+                }
+            }
+        }
+
+        return url
     }
 
     // 发起Ajax请求

@@ -31,7 +31,7 @@ class MyPromise {
 
 describe('use private `Promise` object', function () {
 
-    this.timeout(1000*30);
+    this.timeout(1000*10);
 
     it('MyPromise instance should have `finally` method', function () {
         let fooFetch = nattyFetch.create({

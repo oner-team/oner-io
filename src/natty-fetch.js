@@ -160,14 +160,17 @@ class API {
 
             let retryTime = 0
             const sendOneTime = () => {
+console.log('retryTime:', retryTime)
                 // 更新的重试次数
                 vars.mark._retryTime = retryTime
                 this.send(vars).then(content => {
+                    console.log('222')
                     resolve(content)
                 }, error => {
                     if (retryTime === config.retry) {
                         reject(error)
                     } else {
+                        console.log('+1')
                         retryTime++
                         sendOneTime()
                     }

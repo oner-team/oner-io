@@ -4,7 +4,7 @@ describe('./hooks', function(){
 
     describe('willFetch', function(){
 
-        this.timeout(1000*60);
+        this.timeout(1000*6);
 
         it('ajax willFetch call', function (done) {
             let context = nattyFetch.context({

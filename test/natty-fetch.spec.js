@@ -706,6 +706,12 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
 
 
         it('skip process data when it is mocking ', function (done) {
+
+            // const context = nattyFetch.context({
+            //     urlPrefix: host,
+            //     mock: false
+            // });
+
             context.create('order', {
                 create: {
                     mock: true,
@@ -742,7 +748,7 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             });
             context.api.order.create().then(function () {
                 // can not go here
-                debugger
+                // debugger
             }, function(error) {
                 try {
                     expect(error.timeout).to.be(true);
@@ -828,15 +834,30 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
         });
 
         it('`POST` resolving after retry', function (done) {
+            console.log('~~~~~~~~~')
+            const context = nattyFetch.context({
+                urlPrefix: host,
+                mock: false
+            });
+
             context.create('order', {
                 create: {
-                    url: host + 'api/retry-success',
+                    url: host + 'api/post-retry-success',
                     method: 'POST',
-                    retry: 2
+                    retry: 2,
+                    header: {
+                        // 如果不设置，默认的Content-Type是text/plain，发出的数据是JSON.stringify(data)
+                        // 'Content-Type': 'application/x-www-form-urlencoded;chartset=utf-8' // foo=bar&x=y
+                        // 如果设置了自定义的`application/json`值，浏览器会发送OPTIONS请求
+                        // 'Content-Type': 'application/json;chartset=utf-8' // '{"foo":"bar","x":"y"}'
+                    }
                 }
             });
 
-            context.api.order.create().then(function (data) {
+            context.api.order.create({
+                foo: 'bar',
+                x: 'y'
+            }).then(function (data) {
                 try {
                     expect(data.id).to.be(1);
                     done();

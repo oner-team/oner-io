@@ -10,9 +10,11 @@
 
 ### 3.x / coming soon
 
-* 依赖`natty-storage@2.x`
-* 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
-* `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。下面用一个具体的项目代码，对比一下`3.x`版本`fit`的变化：
+* 开始支持`RESTFul API`
+  - 当请求方法是`POST`, `PUT`, `PATCH`时，直接默认采用最佳实践，即`Content-Type`的默认值为`application/json;utf-8`，当然也通过配置`header`进行覆盖。
+* 从`v3.x`开始，`POST`请求的默认编码方式改为`application/json;utf-8`，如果需要使用`application/x-www-form-urlencoded;chartset=utf-8`编码，可以配置`header`的`Content-Type`值进行覆盖。
+* todo 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+* todo `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。下面用一个具体的项目代码，对比一下`3.x`版本`fit`的变化：
 
 `1.x` 和`2.x`版本的`fit`，对后端数据进行适配。
 
@@ -50,12 +52,18 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
-### v2.3.0-rc1 / 2017-04-01
+
+### v2.4.0 / 2017-04-11
+
+* 支持RESTFul API。文档待补充。
+
+### v2.3.0 / 2017-04-07
 
 * 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/jias/natty-fetch/issues/38))
 * 删除了单测中针对`xhr`对象`status`的值的测试。
 * [natty-storage](https://github.com/jias/natty-storage)升级到`v2.x`
 * 针对自定义`customRequest`的插件的简化。
+* 破坏性升级：删除了`postDataFormat`选项。如果需要`json`编码，配置`Content-Type`为`application/json`。如果需要`urlencoded`编码，配置`Content-Type`为`application/x-www-form-urlencoded`即可。
 
 
 ### v2.2.3 / 2017-01-17
