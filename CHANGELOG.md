@@ -49,15 +49,15 @@ fit: function(response) {
 
 ### v2.4.0 / 2017-04-11
 
-* 支持RESTFul API。文档待补充。
+* 支持[`RESTFul API`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#rest)。
 
 ### v2.3.0 / 2017-04-07
 
 * 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/jias/natty-fetch/issues/38))
 * 删除了单测中针对`xhr`对象`status`的值的测试。
-* [natty-storage](https://github.com/jias/natty-storage)升级到`v2.x`
+* [`natty-storage`](https://github.com/jias/natty-storage)升级到`v2.x`
 * 针对自定义`customRequest`的插件的简化。
-* 破坏性升级：删除了`postDataFormat`选项。如果需要`json`编码，配置`Content-Type`为`application/json`。如果需要`urlencoded`编码，配置`Content-Type`为`application/x-www-form-urlencoded`即可。
+* 破坏性升级：删除了`postDataFormat`选项。如果需要`json`编码，配置`Content-Type`为`application/json`。如果需要`urlencoded`编码，配置`Content-Type`为`application/x-www-form-urlencoded`即可。内部不在针对`POST`请求做内置默认处理，为添加`RESTFul API`支持做好准备。
 
 
 ### v2.2.3 / 2017-01-17

@@ -13,13 +13,13 @@ Base options：
 * [mock](#mock)
 * [mockUrl](#mockurl)
 * [mockUrlPrefix](#mockurlprefix)
+* [rest](#rest)
 * [timeout](#timeout)
 * [traditional](#traditional)
 * [url](#url)
 * [urlPrefix](#urlprefix)
 * [urlStamp](#urlstamp)
 * [withCredentials](#withcredentials)
-* [postDataFormat](#postDataFormat)
 
 Hook options：
 
@@ -211,6 +211,62 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 
 * 类型：String
 * 默认：''(空字符串)
+
+
+### rest
+
+是否开启`RESTFul API`接口风格。如果开启，在调用接口时传入的`:`号开头的参数会被填充到`url`中。
+
+* 类型：Boolean
+* 默认：false
+
+示例：定义一个`RESTFul API`，如`io.js`
+
+```js
+import context from 'path/to/global-context'
+context.create({
+    getPost: {
+        url: 'posts/:id', // 注意这里的`:id`的值来自接口调用时的参数
+        rest: true,
+        method: 'GET'
+    }   
+})
+export default context.api
+```
+
+示例：调用一个`RESTFul API`
+
+```js
+import io from 'path/to/io'
+io.getAllPosts({
+    ':id': 2, // 填充到`url`中`:id`的位置，且不会出现在`queryString`中
+    foo: 'foo'
+}).then(content => {
+    // ...
+})
+```
+
+如果是`POST`、`PUT`或`PATCH`请求，`RESTFul API`的最佳实战推荐使用`json`编码方式，即设置请求头的`Content-Type`值如下：
+
+示例：定义一个`PUT`动词的`RESTFul API`，如`io.js`
+
+```js
+import context from 'path/to/global-context'
+context.create({
+    updatePost: {
+        url: 'posts/:id', // 注意这里的`:id`的值来自接口调用时的参数
+        rest: true,
+        method: 'PUT',
+        header: {
+            // `POST`、`PUT`或`PATCH`请求的最佳实战推荐设置
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+    }   
+})
+export default context.api
+```
+
+> 重要提示：跨域情况下，如果`POST`、`PUT`或`PATCH`请求配置的`Content-Type`值不是`application/x-www-form-urlencoded`, `multipart/form-data`或`text/plain`，比如上面的`application/json`，浏览器会先发送`OPTIONS`请求来询问服务端是否允许，这个情况下需要服务端配合坐下对`OPTIONS`请求动词做下处理，如果允许则返回`200`即可。
 
 ### overrideSelfConcurrent
 
