@@ -1,6 +1,6 @@
 {
   "name": "natty-fetch",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
   "repository": "https://github.com/Jias/natty-fetch.git",
   "author": "fushan",

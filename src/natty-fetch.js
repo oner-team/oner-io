@@ -5,7 +5,7 @@ const {
     extend, runAsFn, isBoolean,
     isArray, isFunction, sortPlainObjectKey, isEmptyObject,
     isPlainObject, dummyPromise,
-    isString, NULL, TRUE, FALSE
+    isString, NULL, TRUE, FALSE, hasConsole
 } = util
 
 import Request from './request'
@@ -75,6 +75,17 @@ class API {
 
         this.api.hasPending = () => {
             return !!this._pendingList.length
+        }
+
+        // 要删除的方法，这个地方是`v2.3.0`版本之前都存在的设计错误，因为：
+        // io.get().then(...) 发送第一次
+        // io.get().then(...) 发送第二次
+        // io.get.abort()     取消哪一次? 并发情况复杂的业务，结果不明确。
+        this.api.abort = () => {
+            hasConsole && console.warn('`abort` method will be deleted later!')
+            for (let i=0, l=this._pendingList.length; i<l; i++) {
+                this._pendingList[i].abort()
+            }
         }
 
         this.initStorage()
