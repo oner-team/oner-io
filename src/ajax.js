@@ -35,6 +35,12 @@ const setHeaders = (xhr, options) => {
         header['X-Requested-With'] = 'XMLHttpRequest'
     }
 
+    // 如果POST方法，没有明确指定编码方式，默认urlencoded，
+    // TODO v3.x将去掉改处理！！！需要文档强调
+    if (options.method === 'POST' && !header['Content-Type']) {
+        header['Content-Type'] = 'application/x-www-form-urlencoded'
+    }
+
     extend(header, options.header)
 
     for (let key in header) {
@@ -179,7 +185,7 @@ export default function ajax(options) {
     }
 
     // 文档建议说 send方法如果不发送请求体数据 则null参数在某些浏览器上是必须的
-    xhr.send(data === NULL ? NULL : data)
+    xhr.send(options.method === GET ? NULL : data === NULL ? NULL : data)
 
     let originAbort = xhr.abort
 
