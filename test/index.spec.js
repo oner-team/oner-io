@@ -10,6 +10,7 @@ import './simple.spec'
 import './private-promise.spec'
 import './timeout-with-self-concurrent.spec'
 import './restful.spec'
+import './header-content-type-application-json.spec'
 
 
 

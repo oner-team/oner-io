@@ -172,8 +172,6 @@ app.all('/api/:test', function (req, res) {
 
             // return standard data structure
             case 'return-cookie':
-                console.log('aaa')
-                console.log(req.cookie);
                 res.json({
                     success: true,
                     content: {
@@ -216,7 +214,7 @@ app.all('/api/:test', function (req, res) {
 
             case 'post-retry-success':
 
-                console.log('post req.query._retryTime', req.query._retryTime, retryTime)
+                // console.log('post req.query._retryTime', req.query._retryTime, retryTime)
 
                 if (req.query._retryTime == '1') {
                     retryTime = 1;
@@ -239,7 +237,7 @@ app.all('/api/:test', function (req, res) {
 
             case 'retry-success':
 
-                console.log('req.query', req.query)
+                // console.log('req.query', req.query)
 
                 if (req.query._retryTime == '1') {
                     retryTime = 1;

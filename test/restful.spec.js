@@ -55,6 +55,10 @@ describe('restful', function () {
                 url: 'posts',
                 rest: true,
                 method: 'POST',
+                data: {
+                    name: 'io',
+                    rest: 'ok',
+                },
                 header: {
                     'Content-Type': 'application/json;charset=utf-8'
                 }
