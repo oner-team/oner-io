@@ -47,7 +47,7 @@ fit: function(response) {
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
 
-### v2.4.3
+### v2.4.3 / 2017-06-08
 
 * 修复`IE9`的一个问题。([@McLemore](https://github.com/McLemore) in [#47](https://github.com/jias/natty-fetch/issues/47))
 * 修复使用了`customRequest`的插件在发生错误时没有触发全局的`reject`的问题。
