@@ -39,7 +39,7 @@ const acceptToRequestHeader = {
 const setHeaders = (xhr, options) => {
     // IE下如果跨域 xhr对象是不允许设置自定义header的 也没有setRequestHeader方法
     if (!xhr.setRequestHeader) {
-        return
+        return {}
     }
 
     const header = {

@@ -47,9 +47,10 @@ export default class Request {
 
         // 创建请求实例requester
         if (config.customRequest) {
-            // 使用已有的request方法
-            this._requester = config.customRequest(vars, config, (response) => {
-                this.processResponse(response)
+            // 使用私有的request方法
+            this._requester = config.customRequest(vars, config, (isSuccess, response) => {
+              // 当isSuccess为false时，response的结构应该是 {message: 'xxx'}
+              isSuccess ? this.processResponse(response) : this.onError(response)
             })
         } else if (config.jsonp) {
             this._requester = this.jsonp()

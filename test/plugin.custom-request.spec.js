@@ -1,104 +1,129 @@
 "use strict";
 import {host} from '../config/host'
 
-describe.skip('plugin customRequest', function () {
-    this.timeout(1000*10);
-    it('customRequest', function (done) {
+describe('plugin customRequest', function () {
+    it('customRequest success', function (done) {
 
         let context = nattyFetch.context({
             urlPrefix: host,
             mock: false
         });
 
-        const {appendQueryString, extend, param} = nattyFetch._util;
-        let lwp = function (apiInstance) {
-            // 只有get/post才使用lwp
-            if (apiInstance.config.jsonp) {
-                return;
-            }
-            apiInstance.config.customRequest = function (vars, config, defer) {
-                let isPOST = config.method === 'POST';
 
-                let lwpOptions = {
-                    uri: isPOST ? config.url : appendQueryString(config.url, extend(vars.mark, vars.data, config.traditional)),
-                    method: config.method,
-                    headers: config.header,
-                    body: isPOST ? param(vars.data, config.traditional) : '',
-                    onSuccess: function (res) {
-                        if (res.statusCode == 200) {
-                            apiInstance.processResponse(vars, config, defer, JSON.parse(res.responseText));
-                        } else {
-                            defer.reject({
-                                statusCode: res.statusCode,
-                                message: res.statusText
-                            });
-                        }
-                    },
-                    onError: function (error) {
-                        defer.reject(error);
+        const fakeRequestWithSuccess = function () {
+
+          this.config.fit = function (response) {
+                const ret = {
+                    success: response.success
+                }
+                if (response.success) {
+                  ret.content = response.data
+                } else {
+                    ret.error = {
+                        message: response.message
                     }
-                };
-                dd.internal.request.httpOverLWP(lwpOptions);
+                }
+
+            return ret
+          }
+
+            this.config.customRequest = function (vars, config, process) {
+                console.log('vars', vars)
+              console.log('config', config)
+
+              process(true, {
+                success: true,
+                data: {
+                  id: '1'
+                }
+              })
             }
         }
 
         context.create({
-            foo: {
-                url: 'http://120.26.213.24:3000/api/xhr-success',
+            getSuccess: {
+                url: 'get-success',
                 method: 'POST',
                 data: {gg:'a'},
                 plugins: [
-                    lwp
-                ]
-            },
-            boo: {
-                url: 'http://120.26.213.24:3000/api/xhr-failed',
-                plugins: [
-                    lwp
-                ]
-            },
-            boo500: {
-                url: 'http://120.26.213.24:3000/api/500',
-                plugins: [
-                    lwp
-                ]
-            },
-            boo404: {
-                url: 'http://example404.com/',
-                plugins: [
-                    lwp
+                  fakeRequestWithSuccess
                 ]
             },
         });
 
-        context.api.foo({hh:'a'}).then(function (content) {
-            console.log('foo');
-            console.log(content);
-            done();
+        context.api.getSuccess({hh:'a'}).then(function (content) {
+            try {
+                expect(content.id).to.be('1')
+                done()
+            } catch(e) {
+              done(e);
+            }
         });
 
-        // context.api.boo().then(function (content) {
-        //
-        // })['catch'](function (error) {
-        //     console.log('boo');
-        //     console.log(error);
-        //     // done();
-        // });
-        //
-        // context.api.boo500().then(function (content) {
-        //
-        // })['catch'](function (error) {
-        //     console.log('500');
-        //     console.log(error);
-        //
-        // });
-        //
-        // context.api.boo404().then(function (content) {
-        //
-        // })['catch'](function (error) {
-        //     console.log('404');
-        //     console.log(error);
-        //
-        // });
     });
+
+  it('customRequest failed', function (done) {
+
+
+
+    let context = nattyFetch.context({
+      urlPrefix: host,
+      mock: false
+    });
+
+    context.on('reject', function (error) {
+      expect(error.message).to.be('fake message')
+    })
+
+
+    const fakeRequestWithFailed = function () {
+
+      this.config.fit = function (response) {
+        const ret = {
+          success: response.success
+        }
+        if (response.success) {
+          ret.content = response.data
+        } else {
+          ret.error = {
+            message: response.message
+          }
+        }
+
+        return ret
+      }
+
+      this.config.customRequest = function (vars, config, process) {
+        console.log('vars', vars)
+        console.log('config', config)
+
+        process(false, {
+          message: 'fake message'
+        })
+      }
+    }
+
+
+
+    context.create({
+      getFailed: {
+        url: 'get-failed',
+        plugins: [
+          fakeRequestWithFailed
+        ]
+      },
+    });
+
+    context.api.getFailed({hh:'a'}).then(function (content) {
+    //    can not go here
+    }, function (error) {
+        try{
+            expect(error.message).to.be('fake message')
+          done()
+        } catch(e) {
+          done(e);
+        }
+    });
+
+  });
 });

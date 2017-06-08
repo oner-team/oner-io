@@ -6,6 +6,7 @@ import './storage.spec'
 import './plugin.spec'
 import './plugin.soon.spec'
 import './plugin.loop.spec'
+import './plugin.custom-request.spec'
 import './simple.spec'
 import './private-promise.spec'
 import './timeout-with-self-concurrent.spec'
@@ -15,9 +16,6 @@ import './header-content-type-application-json.spec'
 
 
 
-
-
-// import './plugin.custom-request.spec'
 /*
 
 import io from 'io'
