@@ -50,7 +50,7 @@ fit: function(response) {
 ### v2.4.3 / 2017-06-08
 
 * 修复`IE9`的一个问题。([@McLemore](https://github.com/McLemore) in [#47](https://github.com/jias/natty-fetch/issues/47))
-* 修复使用了`customRequest`的插件在发生错误时没有触发全局的`reject`的问题。
+* 修复使用了`customRequest`的插件在发生错误时没有触发全局的`reject`的问题。([@lorrylockie](https://github.com/lorrylockie) in [#48](https://github.com/jias/natty-fetch/issues/48))
 
 ### v2.4.2
 
