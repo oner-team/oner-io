@@ -14,6 +14,10 @@ const insertScript = (url, options) => {
     script.src = url
     script.async = true
 
+    if (options.crossOrigin) {
+      script.crossorigin = true
+    }
+
     script.onerror = (e) => {
         win[options.callbackName] = NULL
         options.error(e)
@@ -37,7 +41,8 @@ const defaultOptions = {
     log: FALSE,
     flag: 'callback',
     callbackName: 'jsonp{id}',
-    traditional: FALSE
+    traditional: FALSE,
+    crossOrigin: FALSE
 }
 
 export default function jsonp(options) {

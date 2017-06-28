@@ -22,6 +22,9 @@ const config = {
     // {Array} eg: [TRUE, 'cb', 'j{id}']
     jsonp: FALSE,
 
+    // 是否在`jsonp`的`script`的标签上加`crossorigin`属性
+    jsonpCrossOrigin: FALSE,
+
     // 是否开启log信息
     log: FALSE,
 

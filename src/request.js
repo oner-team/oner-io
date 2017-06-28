@@ -181,6 +181,7 @@ export default class Request {
             urlStamp: config.urlStamp,
             flag: config.jsonpFlag,
             callbackName: config.jsonpCallbackName,
+            crossOrigin: config.jsonpCrossOrigin,
             success: response => {
                 this.processResponse(response)
             },

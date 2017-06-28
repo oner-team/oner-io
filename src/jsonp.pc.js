@@ -20,6 +20,10 @@ const insertScript = (url, options) => {
     script.src = url
     script.async = TRUE
 
+    if (options.crossOrigin) {
+      script.crossorigin = true
+    }
+
     // 绑定`error`事件
     if (IE8 && script.readyState) {
         script.onreadystatechange = () => {
@@ -61,7 +65,8 @@ const defaultOptions = {
     log: FALSE,
     flag: 'callback',
     callbackName: 'jsonp{id}',
-    traditional: FALSE
+    traditional: FALSE,
+    crossOrigin: FALSE
 }
 
 export default function jsonp(options) {
