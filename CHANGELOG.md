@@ -2,7 +2,7 @@
 
 ## Change Log
 
-### 3.x / coming soon
+### 3.x / 没时间
 
 * 开始支持`RESTFul API`
   - 当请求方法是`POST`, `PUT`, `PATCH`时，直接默认采用最佳实践，即`Content-Type`的默认值为`application/json;utf-8`，当然也通过配置`header`进行覆盖。
@@ -46,6 +46,25 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+### v2.4.5 / 2017-06-30
+
+* 全局和上下文`reject`事件可以获得接口调用时的参数了，方便把导致`reject`的错误参数记录到日志中。
+
+```
+// 全局
+nattyFetch.on('reject', function (error, config, vars) {
+  // `vars`对象是被`reject`的接口的参数数据
+})
+
+// 上下文
+context.on('reject', function (error, config, vars) {
+  // `vars`对象是被`reject`的接口的参数数据
+})
+```
+
+### v2.4.4 / 2017-06-29
+
+* 配置项目加入`jsonpCrossOrigin`参数。([@lorrylockie](https://github.com/lorrylockie) in [#50](https://github.com/jias/natty-fetch/issues/50))
 
 ### v2.4.3 / 2017-06-08
 

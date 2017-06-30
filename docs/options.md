@@ -9,6 +9,7 @@ Base options：
 * [data](#data)
 * [header](#header)
 * [jsonp](#jsonp)
+* [jsonpCrossOrigin](#jsonpcrossorigin)
 * [method](#method)
 * [mock](#mock)
 * [mockUrl](#mockurl)
@@ -180,6 +181,13 @@ export default context.api.Order
 * 类型：Boolean | Array
 * 默认：false
 * 示例：[true, 'cb', 'j{id}']
+
+### jsonpCrossOrigin
+
+用于实现`jsonp`的`script`标签是否要加上`crossorigin`属性。
+
+* 类型：Boolean
+* 默认：false
 
 ### method
 

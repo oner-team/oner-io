@@ -15,7 +15,7 @@ const insertScript = (url, options) => {
     script.async = true
 
     if (options.crossOrigin) {
-      script.crossorigin = true
+      script.crossOrigin = true
     }
 
     script.onerror = (e) => {

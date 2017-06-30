@@ -118,7 +118,9 @@ class API {
         vars.data = data
 
         // 根据`data`创建`storage`查询用的`key`
-        vars.queryString = isEmptyObject(data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(data))
+        if (this.api.storageUseable) {
+            vars.queryString = isEmptyObject(data) ? 'no-query-string' : JSON.stringify(sortPlainObjectKey(data))
+        }
 
         return vars
     }
@@ -146,8 +148,8 @@ class API {
             },
             onError: error => {
                 defer.reject(error)
-                event.fire('g.reject', [error, config])
-                event.fire(this.contextId + '.reject', [error, config])
+                event.fire('g.reject', [error, config, vars], config)
+                event.fire(this.contextId + '.reject', [error, config, vars], config)
             },
             onComplete: () => {
                 let indexToRemove

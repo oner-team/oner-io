@@ -175,9 +175,11 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
                 urlPrefix: host
             });
 
-            nattyFetch.on('reject', function (error, config) {
+            nattyFetch.on('reject', function (error, config, vars) {
                 try {
                     expect(error.code).to.be(1);
+                    expect(vars.data.foo).to.be('foo')
+                    expect(vars.data.name).to.be('name')
                     done();
                 } catch(e) {
                     done(e);
@@ -188,10 +190,17 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             context.create('order', {
                 create: {
                     url: 'api/return-error',
-                    method: 'POST'
+                    method: 'POST',
+                  data: {
+                        foo: 'foo'
+                  }
                 }
             });
-            context.api.order.create().then(function(data) {}, function () {});
+            context.api.order.create({
+              name: 'name'
+            }).then(function(data) {}).catch(function () {
+              console.log('r222')
+            });
         });
 
         it('check context `resolve`', function (done) {
