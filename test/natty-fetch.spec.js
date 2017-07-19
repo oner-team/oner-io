@@ -794,7 +794,7 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             expect(myContext.api.order.create.hasPending()).to.be(true);
         });
 
-      it.only('`GET` without mark data (TODO ADD SERVER CHECK)', function (done) {
+      it('mark data (TODO ADD SERVER CHECK)', function (done) {
         context.create('order', {
           create: {
             url: host + 'api/order-create',
