@@ -32,7 +32,7 @@ const insertScript = (url, options) => {
 const defaultOptions = {
     url: '',
     mark: {},
-    useMark: TRUE,
+    urlMark: TRUE,
     data: {},
     urlStamp: TRUE,
     success: noop,
@@ -73,7 +73,7 @@ export default function jsonp(options) {
     // 生成`url`
     let url = appendQueryString(
         options.url,
-        extend({[options.flag]: callbackName}, options.useMark ? options.mark : {}, options.data),
+        extend({[options.flag]: callbackName}, options.urlMark ? options.mark : {}, options.data),
         options.urlStamp,
         options.traditional
     )

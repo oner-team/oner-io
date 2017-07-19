@@ -794,6 +794,31 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
             expect(myContext.api.order.create.hasPending()).to.be(true);
         });
 
+      it.only('`GET` without mark data (TODO ADD SERVER CHECK)', function (done) {
+        context.create('order', {
+          create: {
+            url: host + 'api/order-create',
+            method: 'POST',
+            data: {
+                foo: 'foo'
+            },
+            urlMark: false,
+            urlStamp: false,
+          }
+        });
+
+        context.api.order.create().then(function (data) {
+          try {
+            expect(data.id).to.be(1);
+            done();
+          } catch(e) {
+            done(e);
+          }
+        }, function() {
+          // can not go here
+        });
+      });
+
         it('`GET` resolving after retry', function (done) {
             context.create('order', {
                 create: {

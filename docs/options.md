@@ -19,6 +19,7 @@ Base options：
 * [traditional](#traditional)
 * [url](#url)
 * [urlPrefix](#urlprefix)
+* [urlMark](#urlmark)
 * [urlStamp](#urlstamp)
 * [withCredentials](#withcredentials)
 
@@ -342,12 +343,22 @@ io.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 请求地址
 
+### urlMark
+
+是否在`url`上添加辅助开发的`queryString`标记，如`_api=xxx&_mock=false`
+
+* 类型：Boolean
+* 默认：true
+
+> 默认值为`true`，可以看到`url`上的`_api`的值就是接口定义时使用的方法名称或路径，方便把前端使用的接口名称和服务端的接口名称做快速关联，方便调试。
+
 ### urlPrefix
 
-请求地址前缀，如果url的值是"绝对路径"或"相对路径"，则不会自动添加该前缀。
+请求地址前缀，如果`url`的值是"绝对路径"或"相对路径"(而不是普通字符串)，则不会自动添加该前缀。
 
 * 类型：String
 * 默认：''(空字符串)
+
 
 ### urlStamp
 

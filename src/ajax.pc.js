@@ -189,7 +189,7 @@ const setEvents = (xhr, options, isCrossDomain) => {
 const defaultOptions = {
     url: '',
     mark: {},
-    useMark: TRUE,
+    urlMark: TRUE,
     method: GET,
     accept: '*',
     data: NULL,
@@ -234,7 +234,7 @@ export default function ajax(options) {
 
     xhr.open(options.method, appendQueryString(
         options.url,
-        extend({}, options.useMark ? options.mark : {}, options.method === GET ? options.data : {}),
+        extend({}, options.urlMark ? options.mark : {}, options.method === GET ? options.data : {}),
         options.urlStamp,
         options.traditional
     ))

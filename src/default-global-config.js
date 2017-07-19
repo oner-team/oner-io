@@ -68,7 +68,10 @@ const config = {
     // 全局`url`前缀
     urlPrefix: EMPTY,
 
-    // 是否在`url`上添加时间戳, 用于避免浏览器的304缓存
+    // 是否在`url`上添加辅助开发的标记，如`_api=xxx&_mock=false`
+    urlMark: true,
+
+    // 是否在`url`上添加时间戳，如`_stamp=xxx`，用于避免浏览器的304缓存
     urlStamp: TRUE,
 
     // 全局`url`后缀

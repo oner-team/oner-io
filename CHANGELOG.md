@@ -46,6 +46,12 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+### v2.4.6 / 2017-07-19
+
+* `mark`参数修改为[`urlMark`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#urlMark)参数
+
+> 曾经在`v2.2.0`时添加过`mark`参数
+
 ### v2.4.5 / 2017-06-30
 
 * 全局和上下文`reject`事件可以获得接口调用时的参数了，方便把导致`reject`的错误参数记录到日志中。
