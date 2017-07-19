@@ -48,7 +48,7 @@ fit: function(response) {
 
 ### v2.5.0 / 2017-07-19
 
-* `mark`参数修改为[`urlMark`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#urlMark)参数
+* `mark`参数修改为[`urlMark`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#urlmark)参数
 
 > 曾经在`v2.2.0`时添加过`mark`参数
 
