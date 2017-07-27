@@ -57,11 +57,11 @@ export function redo(fn) {
     }
 }
 
-const random = Math.random
-const floor = Math.floor
-export function makeRandom() {
-    return floor(random() * 9e9)
-}
+// const random = Math.random
+// const floor = Math.floor
+// export function makeRandom() {
+//     return floor(random() * 9e9)
+// }
 
 const absoluteUrlReg = /^(https?:)?\/\//
 export function isAbsoluteUrl(url) {
@@ -302,4 +302,16 @@ export function appendQueryString(url, obj, urlStamp, traditional) {
     } else {
         return url
     }
+}
+
+// 随机字符串字符集
+const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+
+// 创建随机字符串
+export function makeRandom(n) {
+  let str = ''
+  for (let i = 0; i < n; i++) {
+    str += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return str
 }

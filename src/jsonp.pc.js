@@ -73,7 +73,7 @@ export default function jsonp(options) {
 
     options = extend({}, defaultOptions, options)
 
-    const callbackName = options.callbackName = options.callbackName.replace(/\{id\}/, makeRandom())
+    const callbackName = options.callbackName = options.callbackName.replace(/\{id\}/, makeRandom(6))
 
     const originComplete = options.complete
 
