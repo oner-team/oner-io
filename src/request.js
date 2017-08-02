@@ -142,6 +142,7 @@ export default class Request {
             method: config.method,
             data: vars.data,
             header: config.header,
+            query: config.query,
             withCredentials: config.withCredentials,
             // 强制约定json
             accept: 'json',

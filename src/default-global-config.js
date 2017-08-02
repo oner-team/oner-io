@@ -54,6 +54,8 @@ const config = {
     // 默认不执行重试
     retry: 0,
 
+    query: {},
+
     // 使用已有的request方法
     customRequest: NULL,
 

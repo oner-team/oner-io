@@ -14,6 +14,7 @@ Base options：
 * [mock](#mock)
 * [mockUrl](#mockurl)
 * [mockUrlPrefix](#mockurlprefix)
+* [query](#query)
 * [rest](#rest)
 * [timeout](#timeout)
 * [traditional](#traditional)
@@ -220,6 +221,16 @@ mock模式开启时的请求地址前缀，如果mockUrl的值是"绝对路径"�
 
 * 类型：String
 * 默认：''(空字符串)
+
+
+### query
+
+追加到`url`上的`queryString`的值。
+
+> 如果是`GET`请求，会和`data`参数合并。
+
+* 类型：Object
+* 默认：{}
 
 
 ### rest

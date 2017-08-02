@@ -565,6 +565,12 @@ describe('RESTFul v__VERSION__ Unit Test', function() {
                 create: {
                     url: 'api/order-create',
                     method: 'POST',
+                    data: {
+                        foo: 'foo'
+                    },
+                    query: {
+                        token: 'boo'
+                    }
                     //traditional: true
                 }
             });

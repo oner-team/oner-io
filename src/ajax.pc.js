@@ -200,6 +200,7 @@ const defaultOptions = {
     error: noop,
     complete: noop,
     abort: noop,
+    query: {},
     log: FALSE,
     traditional: FALSE,
     // postDataFormat: 'FORM'
@@ -234,7 +235,7 @@ export default function ajax(options) {
 
     xhr.open(options.method, appendQueryString(
         options.url,
-        extend({}, options.urlMark ? options.mark : {}, options.method === GET ? options.data : {}),
+        extend({}, options.urlMark ? options.mark : {}, options.method === GET ? options.data : {}, options.query),
         options.urlStamp,
         options.traditional
     ))
