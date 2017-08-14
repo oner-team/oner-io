@@ -311,15 +311,17 @@ const context = (function () {
       }
 
       for (let path in APIs) {
-        storage.set(
-          hasNamespace ? namespace + '.' + path : path,
-          new API(
+        if (APIs.hasOwnProperty(path)) {
+          storage.set(
             hasNamespace ? namespace + '.' + path : path,
-            runAsFn(APIs[path]),
-            ctx._config,
-            contextId
-          ).api
-        )
+            new API(
+              hasNamespace ? namespace + '.' + path : path,
+              runAsFn(APIs[path]),
+              ctx._config,
+              contextId
+            ).api
+          )
+        }
       }
 
       ctx.api = storage.get()

@@ -34,11 +34,14 @@
     "document": false,
     "window": false,
     "Promise": false,
-    "nattyStorage": false,
+    "nattyFetch": false,
     "describe": false,
     "it": false,
     "expect": false,
     "beforeEach": false,
-    "afterEach": false
+    "afterEach": false,
+    "__AJAX__": false,
+    "__JSONP__": false,
+    "__FALLBACK__": false
   }
 }
