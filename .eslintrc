@@ -1,0 +1,44 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "rules": {
+    "arrow-parens": ["error", "as-needed"],
+    "no-trailing-spaces": ["off"],
+    "no-console": ["off"],
+    "no-return-assign": ["off"],
+    "no-param-reassign": ["off"],
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "ignore"
+    }],
+    "no-underscore-dangle": ["off"],
+    "object-curly-spacing": ["error", "never"],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "semi": ["error", "never"],
+    "max-len": ["error", 130, 2, {"ignoreComments": true}],
+    "no-unused-vars": ["error"],
+    "arrow-body-style": ["off"],
+    "import/no-extraneous-dependencies": ["off"]
+  },
+  "globals": {
+    "document": false,
+    "window": false,
+    "Promise": false,
+    "nattyStorage": false,
+    "describe": false,
+    "it": false,
+    "expect": false,
+    "beforeEach": false,
+    "afterEach": false
+  }
+}
