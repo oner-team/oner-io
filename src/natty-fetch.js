@@ -5,7 +5,7 @@ const {
   extend, runAsFn, isBoolean,
   isArray, isFunction, sortPlainObjectKey, isEmptyObject,
   isPlainObject, dummyPromise,
-  isString, NULL, TRUE, FALSE, hasConsole,
+  isString, NULL, TRUE, FALSE, hasConsole, makeRandom,
 } = util
 
 import Request from './request'
@@ -81,6 +81,7 @@ class API {
     // io.get().then(...) 发送第一次
     // io.get().then(...) 发送第二次
     // io.get.abort()   取消哪一次? 并发情况复杂的业务，结果不明确。
+    // 当前的解决方式是取消所有，不完美
     this.api.abort = () => {
       hasConsole && console.warn('`abort` method will be deleted later!')
       for (let i=0, l=this._pendingList.length; i<l; i++) {
@@ -108,6 +109,11 @@ class API {
         _api: this._path,
         _mock: config.mock,
       },
+      // 此api是定义接口时的多层级命名路径(如：'foo.bar.getList')，不是发起请求时的url地址
+      api: this._path,
+      mock: config.mock,
+      // 上下文id值，如果在调用nattyFetch.context方法时没有指定上下文的名称，默认采用c0，c1
+      contextId: this.contextId,
     }
 
     // `data`必须在请求发生时实时创建
@@ -270,73 +276,68 @@ class API {
   }
 }
 
-const context = (function () {
-  let count = 0
+const context = (contextId, options) => {
+  if (isString(contextId)) {
+    options = options || {}
+  } else {
+    options = contextId || {}
+    contextId = 'c' + makeRandom()
+  }
 
-  return function(contextId, options) {
+  const storage = nattyStorage({
+    type: 'variable',
+    key: contextId,
+  })
 
-    if (isString(contextId)) {
-      options = options || {}
-    } else {
-      options = contextId || {}
-      contextId = 'c' + count++
+  const ctx = {}
+
+  ctx.api = storage.get()
+
+  ctx._contextId = contextId
+
+  // 插件是不能覆盖的, 应该追加
+  let plugins = [].concat(runtimeGlobalConfig.plugins || [], options.plugins || [])
+
+  ctx._config = extend({}, runtimeGlobalConfig, options, {
+    plugins,
+  })
+
+  // 创建api
+  // @param namespace {String} optional
+  // @param APIs {Object} 该`namespace`下的`api`配置
+  ctx.create = function(namespace, APIs) {
+    let hasNamespace = arguments.length === 2 && isString(namespace)
+
+    if (!hasNamespace) {
+      APIs = namespace
     }
 
-    const storage = nattyStorage({
-      type: 'variable',
-      key: contextId,
-    })
-
-    const ctx = {}
+    for (let path in APIs) {
+      if (APIs.hasOwnProperty(path)) {
+        storage.set(
+          hasNamespace ? namespace + '.' + path : path,
+          new API(
+            hasNamespace ? namespace + '.' + path : path,
+            runAsFn(APIs[path]),
+            ctx._config,
+            contextId
+          ).api
+        )
+      }
+    }
 
     ctx.api = storage.get()
+  }
 
-    ctx._contextId = contextId
-
-    // 插件是不能覆盖的, 应该追加
-    let plugins = [].concat(runtimeGlobalConfig.plugins || [], options.plugins || [])
-
-    ctx._config = extend({}, runtimeGlobalConfig, options, {
-      plugins,
-    })
-
-    // 创建api
-    // @param namespace {String} optional
-    // @param APIs {Object} 该`namespace`下的`api`配置
-    ctx.create = function(namespace, APIs) {
-      let hasNamespace = arguments.length === 2 && isString(namespace)
-
-      if (!hasNamespace) {
-        APIs = namespace
-      }
-
-      for (let path in APIs) {
-        if (APIs.hasOwnProperty(path)) {
-          storage.set(
-            hasNamespace ? namespace + '.' + path : path,
-            new API(
-              hasNamespace ? namespace + '.' + path : path,
-              runAsFn(APIs[path]),
-              ctx._config,
-              contextId
-            ).api
-          )
-        }
-      }
-
-      ctx.api = storage.get()
-    }
-
-    // 绑定上下文事件
-    ctx.on = function(name, fn) {
-      if (!isFunction(fn)) return
-      event.on(ctx._contextId + '.' + name, fn)
-      return ctx
-    }
-
+  // 绑定上下文事件
+  ctx.on = function(name, fn) {
+    if (!isFunction(fn)) return
+    event.on(ctx._contextId + '.' + name, fn)
     return ctx
   }
-})()
+
+  return ctx
+}
 
 const nattyFetch = {}
 

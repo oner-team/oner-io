@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 import {host} from '../config/host'
 
 describe('plugin customRequest', function () {
@@ -6,25 +6,25 @@ describe('plugin customRequest', function () {
 
     let context = nattyFetch.context({
       urlPrefix: host,
-      mock: false
-    });
+      mock: false,
+    })
 
 
     const fakeRequestWithSuccess = function () {
 
       this.config.fit = function (response) {
         const ret = {
-          success: response.success
+          success: response.success,
         }
         if (response.success) {
           ret.content = response.data
         } else {
           ret.error = {
-            message: response.message
+            message: response.message,
           }
         }
 
-      return ret
+        return ret
       }
 
       this.config.customRequest = function (vars, config, process) {
@@ -32,10 +32,10 @@ describe('plugin customRequest', function () {
         console.log('config', config)
 
         process(true, {
-        success: true,
-        data: {
-          id: '1'
-        }
+          success: true,
+          data: {
+            id: '1',
+          },
         })
       }
     }
@@ -46,84 +46,84 @@ describe('plugin customRequest', function () {
         method: 'POST',
         data: {gg:'a'},
         plugins: [
-          fakeRequestWithSuccess
-        ]
+          fakeRequestWithSuccess,
+        ],
       },
-    });
+    })
 
     context.api.getSuccess({hh:'a'}).then(function (content) {
       try {
         expect(content.id).to.be('1')
         done()
       } catch(e) {
-        done(e);
+        done(e)
       }
-    });
+    })
 
-  });
+  })
 
   it('customRequest failed', function (done) {
 
 
 
-  let context = nattyFetch.context({
-    urlPrefix: host,
-    mock: false
-  });
+    let context = nattyFetch.context({
+      urlPrefix: host,
+      mock: false,
+    })
 
-  context.on('reject', function (error) {
-    expect(error.message).to.be('fake message')
-  })
+    context.on('reject', function (error) {
+      expect(error.message).to.be('fake message')
+    })
 
 
-  const fakeRequestWithFailed = function () {
+    const fakeRequestWithFailed = function () {
 
-    this.config.fit = function (response) {
-    const ret = {
-      success: response.success
-    }
-    if (response.success) {
-      ret.content = response.data
-    } else {
-      ret.error = {
-      message: response.message
+      this.config.fit = function (response) {
+        const ret = {
+          success: response.success,
+        }
+        if (response.success) {
+          ret.content = response.data
+        } else {
+          ret.error = {
+            message: response.message,
+          }
+        }
+
+        return ret
+      }
+
+      this.config.customRequest = function (vars, config, process) {
+        console.log('vars', vars)
+        console.log('config', config)
+
+        process(false, {
+          message: 'fake message',
+        })
       }
     }
 
-    return ret
-    }
 
-    this.config.customRequest = function (vars, config, process) {
-    console.log('vars', vars)
-    console.log('config', config)
 
-    process(false, {
-      message: 'fake message'
+    context.create({
+      getFailed: {
+        url: 'get-failed',
+        plugins: [
+          fakeRequestWithFailed,
+        ],
+      },
     })
-    }
-  }
 
+    context.api.getFailed({hh:'a'}).then(function (content) {
+      //  can not go here
+    }, function (error) {
+      try{
+        expect(error.message).to.be('fake message')
+        done()
+      } catch(e) {
+        done(e)
+      }
+    })
 
-
-  context.create({
-    getFailed: {
-    url: 'get-failed',
-    plugins: [
-      fakeRequestWithFailed
-    ]
-    },
-  });
-
-  context.api.getFailed({hh:'a'}).then(function (content) {
-  //  can not go here
-  }, function (error) {
-    try{
-      expect(error.message).to.be('fake message')
-      done()
-    } catch(e) {
-      done(e);
-    }
-  });
-
-  });
-});
+  })
+})

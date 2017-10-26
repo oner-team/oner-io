@@ -13,20 +13,20 @@ describe('restful', function () {
     let context = nattyFetch.context({
       urlPrefix: host + 'rest/:version/',
       data: {
-        ':version': 'v1'
-      }
-    });
+        ':version': 'v1',
+      },
+    })
 
     context.create('foo', {
       get: {
         url: 'posts/:id',
         rest: true,
-        method: 'GET'
+        method: 'GET',
         // header: {
         //   'Content-Type': 'application/json;charset=utf-8'
         // }
-      }
-    });
+      },
+    })
 
     context.api.foo.get({
       // rest参数
@@ -35,7 +35,7 @@ describe('restful', function () {
       ':name': 'foo',
       //
       foo: 'foo',
-      boo: 'boo'
+      boo: 'boo',
     }).then(() => {
       done()
     }, error => {
@@ -46,9 +46,9 @@ describe('restful', function () {
     let context = nattyFetch.context({
       urlPrefix: host + 'rest/:version/',
       data: {
-        ':version': 'v1'
+        ':version': 'v1',
       },
-    });
+    })
 
     context.create('foo', {
       get: {
@@ -60,16 +60,16 @@ describe('restful', function () {
           rest: 'ok',
         },
         header: {
-          'Content-Type': 'application/json;charset=utf-8'
-        }
-      }
-    });
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+      },
+    })
 
     context.api.foo.get({
       // 多余的rest参数应该被删掉
       ':name': 'foo',
       foo: 'foo',
-      boo: 'boo'
+      boo: 'boo',
     }).then(() => {
       done()
     }, error => {
@@ -80,9 +80,9 @@ describe('restful', function () {
     let context = nattyFetch.context({
       urlPrefix: host + 'rest/:version/',
       data: {
-        ':version': 'v1'
-      }
-    });
+        ':version': 'v1',
+      },
+    })
 
     context.create('foo', {
       get: {
@@ -90,17 +90,17 @@ describe('restful', function () {
         rest: true,
         method: 'PUT',
         header: {
-          'Content-Type': 'application/json;charset=utf-8'
-        }
-      }
-    });
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+      },
+    })
 
     context.api.foo.get({
       ':id': 2,
       // 多余的rest参数应该被删掉
       ':name': 'foo',
       foo: 'foo',
-      boo: 'boo'
+      boo: 'boo',
     }).then(() => {
       done()
     }, error => {
@@ -111,9 +111,9 @@ describe('restful', function () {
     let context = nattyFetch.context({
       urlPrefix: host + 'rest/:version/',
       data: {
-        ':version': 'v1'
-      }
-    });
+        ':version': 'v1',
+      },
+    })
 
     context.create('foo', {
       get: {
@@ -121,17 +121,17 @@ describe('restful', function () {
         rest: true,
         method: 'PATCH',
         header: {
-          'Content-Type': 'application/json;charset=utf-8'
-        }
-      }
-    });
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+      },
+    })
 
     context.api.foo.get({
       ':id': 2,
       // 多余的rest参数应该被删掉
       ':name': 'foo',
       foo: 'foo',
-      boo: 'boo'
+      boo: 'boo',
     }).then(() => {
       done()
     }, error => {
@@ -142,24 +142,24 @@ describe('restful', function () {
     let context = nattyFetch.context({
       urlPrefix: host + 'rest/:version/',
       data: {
-        ':version': 'v1'
+        ':version': 'v1',
       },
-      rest: true
-    });
+      rest: true,
+    })
 
     context.create('foo', {
       get: {
         url: 'posts/:id',
-        method: 'DELETE'
-      }
-    });
+        method: 'DELETE',
+      },
+    })
 
     context.api.foo.get({
       ':id': 2,
       // 多余的rest参数应该被删掉
       ':name': 'foo',
       foo: 'foo',
-      boo: 'boo'
+      boo: 'boo',
     }).then(() => {
       done()
     }, error => {

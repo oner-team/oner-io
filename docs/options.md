@@ -91,7 +91,7 @@ db.taxi.getNumber({
 数据结构预处理函数，接收完整的响应数据作为参数，只用于解决数据结构不一致的问题。
 
 * 类型：Function
-* 默认：function (response) { return response }
+* 默认：function (response, vars) { return response }
 
 `natty-fetch`接受的标准数据结构是
 

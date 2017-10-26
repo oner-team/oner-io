@@ -8,20 +8,20 @@ describe('plugin', function () {
     let context = nattyFetch.context({
       urlPrefix: host,
       plugins: [
-        nattyFetch.plugin.soon
-      ]
-    });
+        nattyFetch.plugin.soon,
+      ],
+    })
 
     context.create({
       foo: {
         url: host + 'api/return-success',
         plugins: [
-          nattyFetch.plugin.loop
-        ]
-      }
-    });
+          nattyFetch.plugin.loop,
+        ],
+      },
+    })
 
-    expect(context.api.foo.soon).to.be.a('function');
-    expect(context.api.foo.loop).to.be.a('function');
-  });
-});
+    expect(context.api.foo.soon).to.be.a('function')
+    expect(context.api.foo.loop).to.be.a('function')
+  })
+})

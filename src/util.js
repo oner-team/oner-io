@@ -308,10 +308,15 @@ export function appendQueryString(url, obj, urlStamp, traditional) {
 const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
 
 // 创建随机字符串
-export function makeRandom(n) {
+export function makeRandom(n = 6) {
   let str = ''
   for (let i = 0; i < n; i++) {
     str += chars.charAt(Math.floor(Math.random() * chars.length))
   }
+  return str
+}
+
+export function makeMessage(str, obj, log = false) {
+  log && hasConsole && console.log(str + '\n' + JSON.stringify(obj, null, 2))
   return str
 }

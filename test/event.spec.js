@@ -4,14 +4,14 @@ describe('./hooks', function(){
 
   describe('willFetch', function(){
 
-    this.timeout(1000*6);
+    this.timeout(1000*6)
 
     it('ajax willFetch call', function (done) {
       let context = nattyFetch.context({
         urlPrefix: host,
         willFetch() {
           done()
-        }
+        },
       })
       context.create({
         getApi: {
@@ -19,12 +19,12 @@ describe('./hooks', function(){
           fit(resp) {
             return {
               success: true,
-              content: resp
+              content: resp,
             }
-          }
-        }
+          },
+        },
       })
-      context.api.getApi().then((content) => {})
+      context.api.getApi().then(content => {})
     })
 
     it('jsonp willFetch call', function (done) {
@@ -32,7 +32,7 @@ describe('./hooks', function(){
         urlPrefix: host,
         willFetch() {
           done()
-        }
+        },
       })
       context.create({
         getApi: {
@@ -40,10 +40,10 @@ describe('./hooks', function(){
           jsonp: true,
           fit(resp) {
             return resp
-          }
-        }
+          },
+        },
       })
-      context.api.getApi().then((content) => {})
+      context.api.getApi().then(content => {})
     })
 
   })
@@ -52,7 +52,7 @@ describe('./hooks', function(){
 
     it('ajax success didFetch', function (done) {
       let context = nattyFetch.context({
-        urlPrefix: host
+        urlPrefix: host,
       })
       context.create({
         getApi: {
@@ -60,25 +60,25 @@ describe('./hooks', function(){
           fit(resp) {
             return {
               success: true,
-              content: resp
+              content: resp,
             }
           },
           didFetch(config) {
             //console.log(config)
             done()
-          }
-        }
+          },
+        },
       })
       context
         .api
         .getApi()
-        .then((content) => {
+        .then(content => {
         })
     })
 
     it('jsonp success didFetch long time', function (done) {
       let context = nattyFetch.context({
-        urlPrefix: host
+        urlPrefix: host,
       })
       context.create({
         getApi: {
@@ -88,25 +88,25 @@ describe('./hooks', function(){
           fit(resp) {
             return {
               success: true,
-              content: resp
+              content: resp,
             }
           },
           didFetch(config) {
             //console.log(config)
             done()
-          }
-        }
+          },
+        },
       })
       context
         .api
         .getApi()
-        .then((content) => {
+        .then(content => {
         })
     })
 
     it('ajax error didFetch', function (done) {
       let context = nattyFetch.context({
-        urlPrefix: host
+        urlPrefix: host,
       })
       context.create({
         getApi: {
@@ -117,14 +117,14 @@ describe('./hooks', function(){
           didFetch(config) {
             //console.log(config)
             done()
-          }
-        }
+          },
+        },
       })
       context
         .api
         .getApi()
-        .then((content) => {
-        }, (reason) => {
+        .then(content => {
+        }, reason => {
           //console.log(reason)
         })
     })
@@ -132,7 +132,7 @@ describe('./hooks', function(){
     it('jsonp error didFetch', function (done) {
       let context = nattyFetch.context({
         urlPrefix: host,
-        jsonp: true
+        jsonp: true,
       })
       context.create({
         getApi: {
@@ -143,14 +143,14 @@ describe('./hooks', function(){
           didFetch(config) {
             //console.log(config)
             done()
-          }
-        }
+          },
+        },
       })
       context
         .api
         .getApi()
-        .then((content) => {
-        }, (reason) => {
+        .then(content => {
+        }, reason => {
           //console.log(reason)
         })
     })
@@ -158,59 +158,59 @@ describe('./hooks', function(){
     it('ajax timeout should NOT fire `didFetch`', function (done) {
       let context = nattyFetch.context({
         urlPrefix: host,
-        timeout: 300
-      });
-      let count = 0;
+        timeout: 300,
+      })
+      let count = 0
       context.create({
         getApi: {
           url: 'api/timeout',
           didFetch() {
             // timeout时不应该调用didFetch
             count++
-          }
-        }
-      });
+          },
+        },
+      })
 
       context.api.getApi().then(function () {
 
       })['catch'](function () {
         try {
-          expect(count).to.be(0);
-          done();
+          expect(count).to.be(0)
+          done()
         } catch (e) {
-          done(e);
+          done(e)
         }
-      });
+      })
     })
 
     it('jsonp timeout should NOT fire `didFetch`', function (done) {
       let context = nattyFetch.context({
         urlPrefix: host,
         jsonp: true,
-        timeout: 300
-      });
+        timeout: 300,
+      })
 
-      let count = 0;
+      let count = 0
       context.create({
         getApi: {
           url: 'api/jsonp-timeout',
           didFetch() {
             // timeout时不应该调用didFetch
             count++
-          }
-        }
-      });
+          },
+        },
+      })
 
       context.api.getApi().then(function () {
 
       })['catch'](function () {
         try {
-          expect(count).to.be(0);
-          done();
+          expect(count).to.be(0)
+          done()
         } catch (e) {
-          done(e);
+          done(e)
         }
-      });
+      })
     })
 
   })

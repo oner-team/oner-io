@@ -46,6 +46,11 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+
+### v2.5.3 / 2017-10-26
+
+* 统一升级一下内置的错误提示，干掉了`success is false`字样，统一成`Request Error`和`Request Timeout`等。
+
 ### v2.5.0 / 2017-07-19
 
 * `mark`参数修改为[`urlMark`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#urlmark)参数

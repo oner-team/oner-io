@@ -80,40 +80,40 @@ describe('plugin loop', function () {
 
     let context = nattyFetch.context({
       urlPrefix: host,
-      mock: false
-    });
+      mock: false,
+    })
 
     context.create('taxi', {
       getDriverNum: {
         url: host + 'api/return-success',
         plugins: [
-          nattyFetch.plugin.loop
-        ]
-      }
-    });
+          nattyFetch.plugin.loop,
+        ],
+      },
+    })
 
-    let time = 0;
+    let time = 0
 
     // 开始轮询
     let stop = context.api.taxi.getDriverNum.loop({
       data: {},
-      duration: 200
+      duration: 200,
     }, function (data) {
       // 成功回掉
-      time++;
+      time++
     }, function (error) {
       // 失败回调
-    });
+    })
 
     setTimeout(function () {
-      expect(time).to.be.above(1);
+      expect(time).to.be.above(1)
       // 验证状态
-      expect(stop.looping).to.be(true);
+      expect(stop.looping).to.be(true)
       // 停止轮询
-      stop();
+      stop()
       // 验证状态
-      expect(stop.looping).to.be(false);
-      done();
-    }, 1000);
-  });
-});
+      expect(stop.looping).to.be(false)
+      done()
+    }, 1000)
+  })
+})

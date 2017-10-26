@@ -6,6 +6,8 @@ dist/
 test/bundle.js
 test/bundle.js.map
 ignore/
+config/shuxi-h.svg
+dist.html
 
 # Packages #
 ############

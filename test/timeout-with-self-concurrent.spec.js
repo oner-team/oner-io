@@ -13,15 +13,15 @@ describe('timeout with self concurrent', function () {
     this.timeout(1000*10)
     let context = nattyFetch.context({
       urlPrefix: host,
-      mock: false
-    });
+      mock: false,
+    })
 
     context.create('foo', {
       get: {
         url: host + 'api/return-with-delay',
-        timeout: 300
-      }
-    });
+        timeout: 300,
+      },
+    })
 
     let timeoutCount = 0
 

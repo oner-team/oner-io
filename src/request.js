@@ -1,4 +1,4 @@
-import {extend, NULL, TRUE, FALSE, isAbsoluteUrl, isRelativeUrl, EMPTY, makeRandom} from './util'
+import {extend, NULL, TRUE, FALSE, isAbsoluteUrl, isRelativeUrl, EMPTY, makeRandom, makeMessage} from './util'
 import ajax from './__AJAX__'
 import jsonp from './__JSONP__'
 
@@ -51,6 +51,8 @@ export default class Request {
       this._requester = this.ajax()
     }
 
+    vars.requester = this._requester
+
     // 超时处理
     if (0 !== config.timeout) {
       setTimeout(() => {
@@ -60,7 +62,11 @@ export default class Request {
 
           const error = {
             timeout: TRUE,
-            message: 'Timeout By ' + config.timeout + 'ms.',
+            message: makeMessage('Request Timeout', {
+              context: this.contextId,
+              api: `${vars.api}`,
+              timeout: config.timeout + 'ms',
+            }, config.log),
           }
 
           this.onError(error)
@@ -84,7 +90,7 @@ export default class Request {
       this.onSuccess(content)
     } else {
       const error = extend({
-        message: '`success` is false, ' + this._path,
+        message: 'Error in request: ' + this._path,
       }, response.error)
       // NOTE response是只读的对象!!!
       this.onError(error)
@@ -146,7 +152,12 @@ export default class Request {
         // 如果跨域使用了自定义的header，且服务端没有配置允许对应的header，此处status为0，目前无法处理。
         const error = {
           status,
-          message: `Error(status ${status}) in request for ${vars.mark._api}(${url})`,
+          message: makeMessage(`Request Error(Status: ${status})`, {
+            status: status,
+            context: this.contextId,
+            api: vars.api,
+            url: url,
+          }, config.log),
         }
         this.onError(error)
       },
@@ -181,7 +192,11 @@ export default class Request {
       },
       error: () => {
         const error = {
-          message: `Not accessable JSONP in request for ${vars.mark._api}(${url})`,
+          message: makeMessage('Request Error(Not Accessable JSONP)', {
+            context: this.contextId,
+            api: vars.api,
+            url: url,
+          }, config.log),
         }
         this.onError(error)
       },
