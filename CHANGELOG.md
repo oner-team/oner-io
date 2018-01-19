@@ -4,8 +4,6 @@
 
 ### 3.x / 没时间
 
-* 开始支持`RESTFul API`
-  - 当请求方法是`POST`, `PUT`, `PATCH`时，直接默认采用最佳实践，即`Content-Type`的默认值为`application/json;utf-8`，当然也通过配置`header`进行覆盖。
 * 从`v3.x`开始，`POST`请求的默认编码方式改为`application/json;utf-8`，如果需要使用`application/x-www-form-urlencoded;chartset=utf-8`编码，可以配置`header`的`Content-Type`值进行覆盖。
 * todo 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
 * todo `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。下面用一个具体的项目代码，对比一下`3.x`版本`fit`的变化：
