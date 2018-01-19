@@ -63,6 +63,7 @@ const setEvents = (xhr, options) => {
   xhr._finished = FALSE
 
   const readyStateChangeFn = () => {
+    console.log('xhr.status', xhr.status)
     if (xhr._finished) {
       return
     }

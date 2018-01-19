@@ -76,6 +76,9 @@ app.all('/api/:test', function (req, res) {
         })
         break
         // simple test
+      case '302':
+        res.redirect(302, 'http://localhost:8010/api/create')
+        break
       case '500':
         res.status(500).json({error: '500'})
         break

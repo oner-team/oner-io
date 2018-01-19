@@ -45,17 +45,6 @@ describe('use private `Promise` object', function () {
   })
 
 
-  it('origin Promise instance dose NOT have `finally` method', function () {
-    let fooFetch = nattyFetch.create({
-      urlPrefix: host,
-      url: 'api/order-create',
-      method: 'POST',
-    })
-
-    expect(fooFetch().finally).to.be(undefined)
-  })
-
-
   it('set RSVP Promise on context', function () {
     let context = nattyFetch.context({
       Promise: MyPromise,

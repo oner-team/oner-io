@@ -190,12 +190,12 @@ function _extend(receiver = {}, supplier = {}, deepCopy = FALSE) {
 const extend = redo(_extend)
 export {extend}
 
-export function likeArray(v) {
-  if (!v) {
-    return false
-  }
-  return typeof v.length === NUMBER
-}
+// export function likeArray(v) {
+//   if (!v) {
+//     return false
+//   }
+//   return typeof v.length === NUMBER
+// }
 
 /**
  *
@@ -204,7 +204,7 @@ export function likeArray(v) {
  */
 export function each(v, fn) {
   let i, l
-  if (likeArray(v)) {
+  if (isArray(v)) {
     for (i = 0, l = v.length; i < l; i++) {
       if (fn.call(v[i], v[i], i) === false) return
     }

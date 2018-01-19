@@ -571,6 +571,10 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
           query: {
             token: 'boo',
           },
+          fit(r, vars) {
+            console.log(vars.requester.getResponseHeader('Content-Type'))
+            return r
+          },
           //traditional: true
         },
       })
@@ -1326,5 +1330,8 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
       expect(dummyPromise.then()['catch']()).to.be(dummyPromise)
     })
   })
+
+
+
 
 })
