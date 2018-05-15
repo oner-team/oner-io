@@ -56,7 +56,6 @@ export function redo(fn) {
     return ret
   }
 }
-
 // const random = Math.random
 // const floor = Math.floor
 // export function makeRandom() {
@@ -186,9 +185,35 @@ function _extend(receiver = {}, supplier = {}, deepCopy = FALSE) {
   }
   return receiver
 }
-
-const extend = redo(_extend)
-export {extend}
+/**
+ * FormData对象合并
+ * @param  {FormData || Object} fd1
+ * @param  {FormData || Object} fd2
+ * @return {FormData} 合并后的FormData
+ */
+function _fdAssign(fd1, fd2) {
+  var formData = new FormData;
+  var loop = function(fd) {
+    if(fd.constructor === FormData) {
+      var iterator = fd.entries();
+      var s = iterator.next();
+      while(!s.done) {
+        formData.set(s.value[0], s.value[1]);
+        s = iterator.next();
+      };
+    }else {
+      for(var key in fd) {
+        formData.set(key, fd[key]);
+      }
+    }
+  };
+  loop(fd1);
+  loop(fd2);
+  return formData;
+}
+const extend = redo(_extend);
+const fdAssign = redo(_fdAssign);
+export {extend, fdAssign}
 
 // export function likeArray(v) {
 //   if (!v) {

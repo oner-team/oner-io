@@ -176,9 +176,11 @@ export default function ajax(options) {
   // 设置requestHeader
   const header = setHeaders(xhr, options)
 
-  let data
+  let data;
 
-  if (header['Content-Type'] && ~header['Content-Type'].indexOf('application/x-www-form-urlencoded')) {
+  if(options.data.constructor === FormData) {
+    data = options.data
+  }else if (header['Content-Type'] && ~header['Content-Type'].indexOf('application/x-www-form-urlencoded')) {
     data = param(options.data, options.traditional)
   } else {
     data = JSON.stringify(options.data)

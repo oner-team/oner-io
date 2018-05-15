@@ -252,7 +252,9 @@ export default function ajax(options) {
 
   let data
 
-  if (header['Content-Type'] && ~header['Content-Type'].indexOf('application/x-www-form-urlencoded')) {
+  if(options.data.constructor === FormData) {
+    data = options.data
+  }else if (header['Content-Type'] && ~header['Content-Type'].indexOf('application/x-www-form-urlencoded')) {
     data = param(options.data, options.traditional)
   } else {
     data = JSON.stringify(options.data)

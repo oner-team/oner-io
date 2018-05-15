@@ -2,7 +2,7 @@ import nattyStorage from 'natty-storage'
 import * as util from './util'
 
 const {
-  extend, runAsFn, isBoolean,
+  extend, fdAssign, runAsFn, isBoolean,
   isArray, isFunction, sortPlainObjectKey, isEmptyObject,
   isPlainObject, dummyPromise,
   isString, NULL, TRUE, FALSE, hasConsole, makeRandom,
@@ -54,7 +54,6 @@ class API {
           this._pendingList[0].abort()
         }
       }
-
       const vars = this.makeVars(data)
 
       if (this.api.storageUseable) {
@@ -118,7 +117,8 @@ class API {
 
     // `data`必须在请求发生时实时创建
     // 另外，将数据参数存在私有标记中, 方便API的`process`方法内部使用
-    data = extend({}, runAsFn(config.data), runAsFn(data))
+    data = ((data||{}).constructor === FormData || (config.data||{}).constructor === FormData) ? fdAssign(runAsFn(config.data), runAsFn(data))
+      : extend({}, runAsFn(config.data), runAsFn(data))
 
     // 承载请求参数数据
     vars.data = data
