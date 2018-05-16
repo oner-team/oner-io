@@ -191,7 +191,7 @@ function _extend(receiver = {}, supplier = {}, deepCopy = FALSE) {
  * @param  {FormData || Object} fd2
  * @return {FormData} 合并后的FormData
  */
-function _fdAssign(fd1, fd2) {
+function _fdAssign(fd1 = {}, fd2 = {}) {
   var formData = new FormData;
   var loop = function(fd) {
     if(fd.constructor === FormData) {
