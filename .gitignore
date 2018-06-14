@@ -2,7 +2,6 @@ node_modules/
 .deploy/
 design/
 .idea/
-dist/
 test/bundle.js
 test/bundle.js.map
 ignore/
