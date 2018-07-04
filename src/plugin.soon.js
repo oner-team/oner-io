@@ -19,6 +19,7 @@ export default function() {
     }
 
     // 再发起网络请求(内部会更新`storage`)
+    // api方法是请求的入口方法，不一定会发起网络请求，api方法内部，通过调用send方法来发起真正的网络请求
     this.send(vars).then(content => {
       successFn({
         fromStorage: FALSE,

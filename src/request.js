@@ -22,6 +22,7 @@ export default class Request {
   }
 
   // 发起网络请求 返回一个Promise实例
+  // 钩子事件发生的顺序：willFetch，didFetch，fit，process
   send({vars, onSuccess, onError, onComplete}) {
 
     this.vars = vars
