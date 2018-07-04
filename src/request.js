@@ -190,9 +190,9 @@ export default class Request {
       success: response => {
         this.processResponse(response)
       },
-      error: () => {
+      error: e => {
         const error = {
-          message: makeMessage('Request Error(Not Accessable JSONP)', {
+          message: makeMessage(`Request Error(Not Accessable JSONP)，${e}`, {
             context: this.contextId,
             api: vars.api,
             url: url,

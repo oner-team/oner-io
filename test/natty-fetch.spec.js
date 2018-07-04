@@ -1165,6 +1165,23 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
       expect(context.api.order.create.config.jsonp).to.be(true)
     })
 
+    it('jsonp response empty', function (done) {
+      context.create('order', {
+        create: {
+          url: host + 'api/empty.jsonp',
+        },
+      })
+
+      context.api.order.create().catch(function(data) {
+        try {
+          expect(data.message).to.contain('返回值错误')
+          done()
+        } catch (e) {
+          done(e)
+        }
+      })
+    })
+
     it('jsonp response.success is true', function (done) {
       context.create('order', {
         create: {

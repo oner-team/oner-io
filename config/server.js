@@ -280,6 +280,9 @@ app.all('/api/:test', function (req, res) {
         })
         break
 
+      case 'empty': 
+        res.jsonp()
+        break
       case 'return-stamp':
         res.json({
           success: true,

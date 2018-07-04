@@ -41,10 +41,18 @@ const insertScript = (url, options) => {
       }
     }
   } else {
-    script.onerror = e => {
+    script.onerror = () => {
       win[options.callbackName] = NULL
-      options.error(e)
+      options.error(`${url} 请求出错`)
       options.complete()
+    }
+    script.onload = () => {
+      setTimeout(() => {
+        if (win[options.callbackName] ) {
+          options.error(`'${url}' 返回值错误`)
+          options.complete()
+        }
+      }, 0)
     }
   }
 
