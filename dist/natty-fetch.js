@@ -423,9 +423,9 @@ var setHeaders = function (xhr, options) {
 
   // 如果POST方法，没有明确指定编码方式，默认urlencoded，
   // TODO v3.x将去掉改处理！！！需要文档强调
-  // if (options.method === 'POST' && !header['Content-Type']) {
-  //   header['Content-Type'] = 'application/x-www-form-urlencoded'
-  // }
+  if (options.method === 'POST' && !header['Content-Type']) {
+    header['Content-Type'] = 'application/x-www-form-urlencoded';
+  }
 
   extend$1(header, options.header);
 

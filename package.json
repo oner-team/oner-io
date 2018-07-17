@@ -1,9 +1,9 @@
 {
-  "name": "natty-fetch",
+  "name": "natty-fetch-fd",
   "version": "2.5.5",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
-  "repository": "https://github.com/Jias/natty-fetch.git",
-  "author": "fushan",
+  "repository": "https://github.com/shaojun427/natty-fetch-fd.git",
+  "author": "yanjun",
   "main": "dist/natty-fetch.js",
   "jsnext:main": "src/natty-fetch.js",
   "files": [
