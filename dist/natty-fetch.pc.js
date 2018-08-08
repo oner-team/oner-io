@@ -1,4 +1,4 @@
-/*! natty-fetch.pc.js v2.5.6 | MIT License | fushan | https://github.com/jias/natty-fetch */
+/*! natty-fetch.pc.js v2.5.7 | MIT License | fushan | https://github.com/jias/natty-fetch */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('natty-storage')) :
   typeof define === 'function' && define.amd ? define(['natty-storage'], factory) :
@@ -1615,7 +1615,7 @@ nattyFetch.create = function (options) {
 
 extend$$1(nattyFetch, {
   onlyForModern: !true, // eslint-disable-line
-  version: '2.5.6',
+  version: '2.5.7',
   _util: util,
   _event: event,
   _ajax: ajax,
