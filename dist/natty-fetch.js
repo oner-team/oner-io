@@ -1,4 +1,4 @@
-/*! natty-fetch.js v2.5.7 | MIT License | fushan | https://github.com/jias/natty-fetch */
+/*! natty-fetch.js v2.5.8 | MIT License | fushan | https://github.com/jias/natty-fetch */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('natty-storage')) :
   typeof define === 'function' && define.amd ? define(['natty-storage'], factory) :
@@ -839,6 +839,7 @@ Request.prototype.ajax = function ajax$1 () {
     urlMark: config.urlMark,
     log: config.log,
     url: url,
+    fd: config.fd,
     method: config.method,
     data: vars.data,
     header: config.header,
@@ -1514,7 +1515,7 @@ nattyFetch.create = function (options) {
 
 extend$$1(nattyFetch, {
   onlyForModern: !false, // eslint-disable-line
-  version: '2.5.7',
+  version: '2.5.8',
   _util: util,
   _event: event,
   _ajax: ajax,

@@ -138,6 +138,7 @@ export default class Request {
       urlMark: config.urlMark,
       log: config.log,
       url: url,
+      fd: config.fd,
       method: config.method,
       data: vars.data,
       header: config.header,
