@@ -1,4 +1,4 @@
-/*! natty-fetch.js v2.5.5 | MIT License | fushan | https://github.com/jias/natty-fetch */
+/*! natty-fetch.js v2.5.6 | MIT License | fushan | https://github.com/jias/natty-fetch */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('natty-storage')) :
   typeof define === 'function' && define.amd ? define(['natty-storage'], factory) :
@@ -423,7 +423,7 @@ var setHeaders = function (xhr, options) {
 
   // 如果POST方法，没有明确指定编码方式，默认urlencoded，
   // TODO v3.x将去掉改处理！！！需要文档强调
-  if (options.method === 'POST' && !header['Content-Type']) {
+  if (!options.fd && options.method === 'POST' && !header['Content-Type']) {
     header['Content-Type'] = 'application/x-www-form-urlencoded';
   }
 
@@ -1514,7 +1514,7 @@ nattyFetch.create = function (options) {
 
 extend$$1(nattyFetch, {
   onlyForModern: !false, // eslint-disable-line
-  version: '2.5.5',
+  version: '2.5.6',
   _util: util,
   _event: event,
   _ajax: ajax,
