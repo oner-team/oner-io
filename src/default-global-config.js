@@ -1,6 +1,8 @@
 import {noop, NULL, TRUE, FALSE, EMPTY, hasWindow} from './util'
 
 const config = {
+  // 是否异步，默认是，只针对ajax有效
+  async: TRUE,
 
   // 默认参数
   data: {},

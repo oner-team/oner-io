@@ -187,6 +187,7 @@ const setEvents = (xhr, options, isCrossDomain) => {
 }
 
 const defaultOptions = {
+  async: TRUE,
   url: '',
   mark: {},
   urlMark: TRUE,
@@ -238,7 +239,7 @@ export default function ajax(options) {
     extend({}, options.urlMark ? options.mark : {}, options.method === GET ? options.data : {}, options.query),
     options.urlStamp,
     options.traditional
-  ))
+  ), options.async)
 
   // NOTE 生产环境的Server端, `Access-Control-Allow-Origin`的值一定不要配置成`*`!!! 而且`Access-Control-Allow-Credentials`应该是true!!!
   // NOTE 如果Server端的`responseHeader`配置了`Access-Control-Allow-Origin`的值是通配符`*` 则前端`withCredentials`是不能使用true值的

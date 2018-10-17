@@ -44,6 +44,10 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+#### v2.5.7 / 2018-10-17
+
+* 钉钉容器中`ajax`默认不是异步，`natty-fetch`明确默认行为设置为异步，之前没有设置，使用浏览器的默认行为。
+
 ### v2.5.4 / 2018-01-19
 
 * 修复`GET`请求参数中包含`length`字段且值为数字时的解析错误。([@Edward67](https://github.com/Edward67) in [#59](https://github.com/jias/natty-fetch/issues/59))

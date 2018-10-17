@@ -133,6 +133,7 @@ export default class Request {
     const url = this.getFinalUrl()
 
     return ajax({
+      async: config.async,
       traditional: config.traditional,
       urlStamp: config.urlStamp,
       mark: vars.mark,
