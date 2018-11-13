@@ -39,6 +39,8 @@ Powerful options：
 * [storage](#storage)
 * [retry](#retry)
 
+FormData options：
+* [fd](#fd)
 
 ### data
 
@@ -46,6 +48,14 @@ Powerful options：
 
 * 类型：Object | Function
 * 默认：{}
+
+### fd
+
+是否开启FormData入参
+
+* 类型：Boolean
+* 默认：false
+<i style="color:red;">注意：仅限支持js FormData的浏览器</i>
 
 ##### 示例：固定参数 与 动态参数
 
