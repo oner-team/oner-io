@@ -2,7 +2,7 @@
   "name": "natty-fetch-fd",
   "version": "1.0.0",
   "description": "基于 natty-fetch，增加入参格式：FormData。",
-  "repository": "https://github.com/agro-brain/natty-fetch-fd.git",
+  "repository": "https://github.com/zsjjs/natty-fetch-fd.git",
   "author": "yanjun",
   "main": "dist/natty-fetch.js",
   "jsnext:main": "src/natty-fetch.js",
