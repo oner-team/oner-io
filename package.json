@@ -1,6 +1,6 @@
 {
   "name": "natty-fetch-fd",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "基于 natty-fetch，增加入参格式：FormData。",
   "repository": "https://github.com/zsjjs/natty-fetch-fd.git",
   "author": "yanjun",
