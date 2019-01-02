@@ -3,7 +3,7 @@ import ajax from './__AJAX__'
 import jsonp from './__JSONP__'
 
 export default class Request {
-  constructor(apiInstance) {
+  constructor(apiInstance, header) {
     const {_path, config, api, contextId} = apiInstance
 
     this._apiInstance = apiInstance
@@ -13,6 +13,7 @@ export default class Request {
 
     this._path = _path
     this.config = config
+    this.header = header
     this.storage = api.storage
     this.contextId = contextId
 
@@ -128,7 +129,7 @@ export default class Request {
   // 发起Ajax请求
   // @returns {Object} xhr对象实例
   ajax() {
-    const {config, vars} = this
+    const {config, vars, header} = this
 
     const url = this.getFinalUrl()
 
@@ -142,7 +143,7 @@ export default class Request {
       url: url,
       method: config.method,
       data: vars.data,
-      header: config.header,
+      header: header,
       query: config.query,
       withCredentials: config.withCredentials,
       // 强制约定json

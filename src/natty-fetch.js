@@ -40,8 +40,10 @@ class API {
 
     // `api`的实现
     // @param data {Object|Function}
+    // @param header {Object|Function} 请求`发送时`的header配置
     // @returns {Object} Promise Object
-    this.api = data => {
+    this.api = (data, header) => {
+      header = extend({}, config.header, header)
 
       // 处理列队中的请求
       if (this._pendingList.length) {
@@ -64,10 +66,10 @@ class API {
             resolve(result.value)
           })
         } else {
-          return config.retry === 0 ? this.send(vars) : this.sendWithRetry(vars)
+          return config.retry === 0 ? this.send(vars, header) : this.sendWithRetry(vars, header)
         }
       } else {
-        return config.retry === 0 ? this.send(vars) : this.sendWithRetry(vars)
+        return config.retry === 0 ? this.send(vars, header) : this.sendWithRetry(vars, header)
       }
     }
 
@@ -132,11 +134,11 @@ class API {
   }
 
   // 发送真正的网络请求
-  send(vars) {
+  send(vars, header) {
     const {config} = this
 
     // 每次请求都创建一个请求实例
-    const request = new Request(this)
+    const request = new Request(this, header)
 
     this._pendingList.push(request)
 
@@ -172,7 +174,7 @@ class API {
     return defer.promise
   }
 
-  sendWithRetry(vars) {
+  sendWithRetry(vars, header) {
     const {config} = this
 
     return new config.Promise((resolve, reject) => {
@@ -181,7 +183,7 @@ class API {
       const sendOneTime = () => {
         // 更新的重试次数
         vars.mark._retryTime = retryTime
-        this.send(vars).then(content => {
+        this.send(vars, header).then(content => {
           resolve(content)
         }, error => {
           if (retryTime === config.retry) {

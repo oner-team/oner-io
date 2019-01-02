@@ -44,6 +44,18 @@ fit: function(response) {
 
 > 经过复盘很多项目的实际使用情况，`1.x`和`2.x`版本的`fit`配置，虽然不是必选项，但使用率却是`100%`的，所以，从`3.x`开始，`fit`配置被设计成必选项，如果不配置，响应是无法完结(`resolve/reject`)的。
 
+### v2.6.0 / 2019-01-02
+
+* 接口添加第二个参数，允许动态设置`header`。不用再在`willFetch`中尝试啦！([@alex-mm](https://github.com/alex-mm) in [#69](https://github.com/jias/natty-fetch/issues/69))
+
+```js
+io.getXxx({
+  // 动态数据
+}, {
+  // 动态header配置
+}).then(fn)
+```
+
 #### v2.5.7 / 2018-10-17
 
 * 钉钉容器中`ajax`默认不是异步，`natty-fetch`明确默认行为设置为异步，之前没有设置，使用浏览器的默认行为。
