@@ -2,7 +2,17 @@
 
 [![npm version](https://img.shields.io/npm/v/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![download](https://img.shields.io/npm/dm/natty-fetch.svg?style=flat)](https://www.npmjs.com/package/natty-fetch) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/natty-fetch/master/LICENSE)
 
-A natty data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.
+## 定位
+
+🍔 很多人问起，`natty-fetch`是原生`fetch`的扩展吗？，或者`natty-fetch`和[`axios`](https://github.com/axios/axios)有什么区别？所以统一回答一下：
+
+`natty-fetch`的定位并不是另一个`ajax/jsonp`工具，而是多人协作时定义接口和使用接口的一套规范，特别是项目接口来至多个后台系统时。
+
+界面有名气的`ajax`工具，功能强大的有很多，如果只是找工具，轻量级的可以使用[`axios`](https://github.com/axios/axios)，重量级的可以使用[bluebird](http://bluebirdjs.com/docs/getting-started.html)。如果是希望找到团队多人协作的规范，使用`natty-fetch`！
+
+那么，知道了`natty-fetch`的定位，小伙伴们就可以理解，使用这套规范(多人协作时定义接口和使用接口的规范)，一定是会有一点点代价的，一定会比`axios`这种纯工具，在使用时，多出一点点配置，但非常值得！
+
+> 目前功能的缺失：文件上传功能，建议使用专业文件上传组件。
 
 > 🍻 开发者的体验至关重要！`natty`系列的小工具，在微小的技术点上追求极致的开发体验。如果对你有帮助，请考虑Star一下。
 

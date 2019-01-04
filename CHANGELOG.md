@@ -47,7 +47,6 @@ fit: function(response) {
 ### v2.6.0 / 2019-01-02
 
 * 接口添加第二个参数，允许动态设置`header`。
-* 修复：如果在`willFetch`中修改了`config`，修改只对本次请求生效。([@alex-mm](https://github.com/alex-mm) in [#69](https://github.com/jias/natty-fetch/issues/69))
 
 ```js
 io.getXxx({
@@ -56,6 +55,8 @@ io.getXxx({
   // 动态header配置
 }).then(fn)
 ```
+
+* 修复：如果在`willFetch`中修改了`config`，修改只对本次请求生效。([@alex-mm](https://github.com/alex-mm) in [#69](https://github.com/jias/natty-fetch/issues/69))
 
 #### v2.5.7 / 2018-10-17
 
