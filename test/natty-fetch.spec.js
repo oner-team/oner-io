@@ -199,7 +199,6 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
       context.api.order.create({
         name: 'name',
       }).then(function(data) {}).catch(function () {
-        console.log('r222')
       })
     })
 
@@ -572,7 +571,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             token: 'boo',
           },
           fit(r, vars) {
-            console.log(vars.requester.getResponseHeader('Content-Type'))
+            // console.log(vars.requester.getResponseHeader('Content-Type'))
             return r
           },
           //traditional: true
@@ -730,7 +729,8 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
             expect(vars.data.fixData).to.be(1)
             expect(vars.data.liveData).to.be(1)
             expect(vars.data.hookData).to.be(1)
-            console.log('vars', vars)
+            // console.log('vars', vars)
+            
             return response
           },
         },
@@ -929,7 +929,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('`POST` resolving after retry', function (done) {
-      console.log('~~~~~~~~~')
+      // console.log('~~~~~~~~~')
       const context = nattyFetch.context({
         urlPrefix: host,
         mock: false,
@@ -996,7 +996,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         },
       })
       context.api.order.create().then(function (content) {
-        console.log(content)
+        // console.log(content)
       }, function(error) {
 
       })
@@ -1193,7 +1193,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
           url: host + 'api/jsonp-order-create',
           jsonp: true,
           fit(r, vars) {
-            console.log('vars', vars)
+            // console.log('vars', vars)
             return r
           },
         },

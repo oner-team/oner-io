@@ -3,15 +3,11 @@ import ajax from './__AJAX__'
 import jsonp from './__JSONP__'
 
 export default class Request {
-  constructor(apiInstance, header) {
-    const {_path, config, api, contextId} = apiInstance
-
-    this._apiInstance = apiInstance
-
+  constructor({path, config, api, contextId, header}) {
     // 单次请求实例的id，用于从`api`实例的`_pendingList`中删除请求实例
-    this._rid = [contextId, _path, makeRandom(6)].join('-')
+    this._rid = [contextId, path, makeRandom(6)].join('-')
 
-    this._path = _path
+    this._path = path
     this.config = config
     this.header = header
     this.storage = api.storage

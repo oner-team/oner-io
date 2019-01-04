@@ -7,6 +7,9 @@ import {isNumber, noop, TRUE, FALSE, NULL} from './util'
 export default function() {
   const {api} = this
 
+  // options.data {Object} data 数据
+  // options.header {Object} header 请求头
+  // options.duration {Number} 间隔时间
   api.loop = (options, resolveFn = noop, rejectFn = noop) => {
     if (!options.duration || !isNumber(options.duration)) {
       throw new Error('Illegal `duration` value for `startLoop` method.')
@@ -22,7 +25,7 @@ export default function() {
 
     let sleepAndRequest = () => {
       stop.looping = TRUE
-      api(options.data).then(resolveFn, rejectFn)
+      api(options.data, options.header).then(resolveFn, rejectFn)
       loopTimer = setTimeout(() => {
         sleepAndRequest()
       }, options.duration)

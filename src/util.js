@@ -190,6 +190,11 @@ function _extend(receiver = {}, supplier = {}, deepCopy = FALSE) {
 const extend = redo(_extend)
 export {extend}
 
+// 深度拷贝
+export function deepCopy(supplier) {
+  return _extend({}, supplier, true)
+}
+
 // export function likeArray(v) {
 //   if (!v) {
 //     return false
