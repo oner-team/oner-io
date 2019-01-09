@@ -656,6 +656,8 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
       })
     })
 
+    
+
     it('fix data is object', function (done) {
       context.create('order', {
         create: {

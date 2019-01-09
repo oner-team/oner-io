@@ -152,7 +152,6 @@ const defaultOptions = {
 }
 
 export default function ajax(options) {
-
   options = extend({}, defaultOptions, options)
 
   // 是否跨域

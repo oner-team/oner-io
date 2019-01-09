@@ -45,7 +45,7 @@ class API {
     this.api = (data, header) => {
       const config = deepCopy(this.config)
 
-      header = extend({}, config.header, header)
+      extend(config.header, header)
 
       // 处理列队中的请求
       if (this._pendingList.length) {
@@ -68,10 +68,10 @@ class API {
             resolve(result.value)
           })
         } else {
-          return config.retry === 0 ? this.send(vars, config, header) : this.sendWithRetry(vars, config, header)
+          return config.retry === 0 ? this.send(vars, config) : this.sendWithRetry(vars, config)
         }
       } else {
-        return config.retry === 0 ? this.send(vars, config, header) : this.sendWithRetry(vars, config, header)
+        return config.retry === 0 ? this.send(vars, config) : this.sendWithRetry(vars, config)
       }
     }
 
@@ -136,14 +136,15 @@ class API {
   }
 
   // 发送真正的网络请求
-  send(vars, config, header) {
+  send(vars, config) {
+
+
     // 每次请求都创建一个请求实例
     const request = new Request({
       path: this._path, 
       config, 
       api: this.api, 
       contextId: this.contextId,
-      header,
     })
 
     this._pendingList.push(request)
@@ -181,14 +182,14 @@ class API {
   }
 
   // 重试
-  sendWithRetry(vars, config, header) {
+  sendWithRetry(vars, config) {
     return new config.Promise((resolve, reject) => {
 
       let retryTime = 0
       const sendOneTime = () => {
         // 更新的重试次数
         vars.mark._retryTime = retryTime
-        this.send(vars, config, header).then(content => {
+        this.send(vars, config).then(content => {
           resolve(content)
         }, error => {
           if (retryTime === config.retry) {

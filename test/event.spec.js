@@ -27,6 +27,35 @@ describe('./hooks', function(){
       context.api.getApi().then(content => {})
     })
 
+    it('extend config within willFetch', function (done) {
+      let context = nattyFetch.context({
+        urlPrefix: host,
+      })
+      context.create({
+        getApi: {
+          url: 'api/return-json',
+          willFetch(vars, config) {
+            if (vars.data.t === 1) {
+              // 跨域不允许自定义header，断定下发报错，同时也说明自定义header生效了
+              config.header.t = 1
+            }
+          },
+          fit(resp) {
+            return {
+              success: true,
+              content: resp,
+            }
+          },
+        },
+      })
+      context.api.getApi({
+        t: 1
+      }).then(content => {
+      }).catch(e => {
+        done()
+      })
+    })
+
     it('jsonp willFetch call', function (done) {
       let context = nattyFetch.context({
         urlPrefix: host,

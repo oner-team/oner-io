@@ -57,12 +57,6 @@ export function redo(fn) {
   }
 }
 
-// const random = Math.random
-// const floor = Math.floor
-// export function makeRandom() {
-//   return floor(random() * 9e9)
-// }
-
 const absoluteUrlReg = /^(https?:)?\/\//
 export function isAbsoluteUrl(url) {
   return !!url.match(absoluteUrlReg)

@@ -3,13 +3,12 @@ import ajax from './__AJAX__'
 import jsonp from './__JSONP__'
 
 export default class Request {
-  constructor({path, config, api, contextId, header}) {
+  constructor({path, config, api, contextId}) {
     // 单次请求实例的id，用于从`api`实例的`_pendingList`中删除请求实例
     this._rid = [contextId, path, makeRandom(6)].join('-')
 
     this._path = path
     this.config = config
-    this.header = header
     this.storage = api.storage
     this.contextId = contextId
 
@@ -29,7 +28,6 @@ export default class Request {
     this.onComplete = onComplete
 
     const {config} = this
-
     // 调用 willFetch 钩子
     config.willFetch(vars, config, 'remote')
 
@@ -125,7 +123,7 @@ export default class Request {
   // 发起Ajax请求
   // @returns {Object} xhr对象实例
   ajax() {
-    const {config, vars, header} = this
+    const {config, vars} = this
 
     const url = this.getFinalUrl()
 
@@ -139,7 +137,7 @@ export default class Request {
       url: url,
       method: config.method,
       data: vars.data,
-      header: header,
+      header: config.header,
       query: config.query,
       withCredentials: config.withCredentials,
       // 强制约定json
