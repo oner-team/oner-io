@@ -153,6 +153,24 @@ Request header field xxx is not allowed by Access-Control-Allow-Headers in prefl
 * 类型：Object
 * 默认：{}
 
+##### 示例
+
+传入 header，表单提交的数据以 JSON 格式传入后端
+
+```js
+context.create('Submit', {
+    create: {
+        url: 'api/submitForm',
+        method: 'POST',
+        data,
+        header: {
+            'Content-Type': 'application/json'
+        }
+    }
+});
+export default context.api.Submit
+```
+
 ### ignoreSelfConcurrent
 
 是否忽略接口自身的并发请求，即是否开启请求锁。
@@ -385,7 +403,23 @@ io.City.getSuggestion({key:'ab'}).then(...); // 响应
 请求执行前的回调函数。。接受两个参数`vars`和`config`。
 
 * 类型：Function
-* 默认：`function(){}`
+* 默认：`function(vars, config){}`
+
+##### 示例
+通过修改参数的引用，可完成在请求前的一些特殊处理。
+
+```js
+function willFetch(vars, config) {
+    // 通过 vars.data 可以更改传入的数据
+    // 通过 config.header 可以更改 header
+    // 通过 config.url 可以更改  url
+    vars.data.a = 1; // 修改发送请求参数中的 a 为1
+    config.url = 'http://www.taobao.com'; // 修改请求的 url 为淘宝
+    config.header['Content-Type'] = 'application/json'; // 修改 Content-Type
+    console.log(vars, config); // 可以查看还有哪些参数可以修改。
+}
+```
+
 
 ### withCredentials
 
