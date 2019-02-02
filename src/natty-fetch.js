@@ -116,7 +116,7 @@ class API {
       // 此api是定义接口时的多层级命名路径(如：'foo.bar.getList')，不是发起请求时的url地址
       api: this._path,
       mock: config.mock,
-      // 上下文id值，如果在调用nattyFetch.context方法时没有指定上下文的名称，默认采用c0，c1
+      // 上下文id值，如果在调用onerIO.context方法时没有指定上下文的名称，默认采用c0，c1
       contextId: this.contextId,
     }
 
@@ -347,15 +347,15 @@ const context = (contextId, options) => {
   return ctx
 }
 
-const nattyFetch = {}
+const onerIO = {}
 
 // 简易接口
 // @param options
-nattyFetch.create = function (options) {
-  return new API('nattyFetch', runAsFn(options), defaultGlobalConfig, 'global').api
+onerIO.create = function (options) {
+  return new API('onerIO', runAsFn(options), defaultGlobalConfig, 'global').api
 }
 
-extend(nattyFetch, {
+extend(onerIO, {
   onlyForModern: !__FALLBACK__, // eslint-disable-line
   version: '__VERSION__',
   _util: util,
@@ -392,6 +392,6 @@ extend(nattyFetch, {
 })
 
 // 内部直接将运行时的全局配置初始化到默认值
-nattyFetch.setGlobal(defaultGlobalConfig)
+onerIO.setGlobal(defaultGlobalConfig)
 
-export default nattyFetch
+export default onerIO

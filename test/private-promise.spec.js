@@ -34,7 +34,7 @@ describe('use private `Promise` object', function () {
   this.timeout(1000*10)
 
   it('MyPromise instance should have `finally` method', function () {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       urlPrefix: host,
       url: 'api/order-create',
       method: 'POST',
@@ -46,7 +46,7 @@ describe('use private `Promise` object', function () {
 
 
   it('set RSVP Promise on context', function () {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       Promise: MyPromise,
     })
 

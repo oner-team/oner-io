@@ -8,17 +8,17 @@ const _it = function(s, f) {
   f(noop)
 }
 
-describe('nattyFetch v__VERSION__ Unit Test', function() {
+describe('onerIO v__VERSION__ Unit Test', function() {
 
   describe('static',function() {
     it('version v__VERSION__', function() {
-      expect(nattyFetch.version).to.equal('__VERSION__')
+      expect(onerIO.version).to.equal('__VERSION__')
     })
   })
 
   describe('global setting',function() {
     this.timeout(1000*10)
-    let defaultGlobalConfig = nattyFetch.getGlobal()
+    let defaultGlobalConfig = onerIO.getGlobal()
     let defaultGlobalConfigProperties = [
       'data',
       'fit',
@@ -41,10 +41,10 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
       'traditional',
     ]
 
-    let emptyEvent = nattyFetch._event
+    let emptyEvent = onerIO._event
 
     let resetNattyDBGlobalConfig = function () {
-      nattyFetch.setGlobal(defaultGlobalConfig)
+      onerIO.setGlobal(defaultGlobalConfig)
     }
 
     beforeEach(function () {
@@ -54,40 +54,40 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     afterEach(function () {
       // 清理所有事件
       let i
-      for (i in nattyFetch._event) {
+      for (i in onerIO._event) {
         if (i.indexOf('_') === 0) {
-          delete nattyFetch._event[i]
+          delete onerIO._event[i]
         }
       }
     })
 
-    it('check default global config properties: `nattyFetch.getGlobal()`',function() {
+    it('check default global config properties: `onerIO.getGlobal()`',function() {
       defaultGlobalConfigProperties.forEach(function (property) {
         expect(defaultGlobalConfig).to.have.key(property)
       })
     })
 
-    it('check `nattyFetch.getGlobal("property")`', function () {
-      expect(nattyFetch.getGlobal('jsonp')).to.be(false)
+    it('check `onerIO.getGlobal("property")`', function () {
+      expect(onerIO.getGlobal('jsonp')).to.be(false)
     })
 
-    it('check `nattyFetch.setGlobal(obj)`', function () {
-      nattyFetch.setGlobal({
+    it('check `onerIO.setGlobal(obj)`', function () {
+      onerIO.setGlobal({
         data: {
           '_csrf_token': 1,
         },
       })
-      expect(nattyFetch.getGlobal('data')).to.eql({
+      expect(onerIO.getGlobal('data')).to.eql({
         '_csrf_token': 1,
       })
       // 还原
-      nattyFetch.setGlobal({data: {}})
+      onerIO.setGlobal({data: {}})
     })
 
     it('Context instance would inherit and extend the global config', function () {
       let urlPrefix = 'http://test.com/api'
       let urlSuffix = '.json'
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix,
         urlSuffix,
       })
@@ -104,12 +104,12 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     it('Context instance would inherit and extend the global config 2', function () {
       let urlPrefix = 'http://test.com/api'
       let urlSuffix = '.json'
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix,
         urlSuffix,
       })
 
-      let context = nattyFetch.context()
+      let context = onerIO.context()
 
       context.create('order', {
         create: {},
@@ -120,11 +120,11 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('catch error', function (done) {
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix: host,
       })
 
-      let context = new nattyFetch.context()
+      let context = new onerIO.context()
       context.create('order', {
         create: {
           url: 'api/order-create',
@@ -146,11 +146,11 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('check global `resolve`', function (done) {
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix: host,
       })
 
-      nattyFetch.on('resolve', function (data, config) {
+      onerIO.on('resolve', function (data, config) {
         try {
           expect(data.id).to.be(1)
           done()
@@ -159,7 +159,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         }
       })
 
-      let context = nattyFetch.context()
+      let context = onerIO.context()
       context.create('order', {
         create: {
           url: 'api/order-create',
@@ -171,11 +171,11 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('check global `reject`', function (done) {
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix: host,
       })
 
-      nattyFetch.on('reject', function (error, config, vars) {
+      onerIO.on('reject', function (error, config, vars) {
         try {
           expect(error.code).to.be(1)
           expect(vars.data.foo).to.be('foo')
@@ -186,7 +186,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
         }
       })
 
-      let context = nattyFetch.context()
+      let context = onerIO.context()
       context.create('order', {
         create: {
           url: 'api/return-error',
@@ -203,7 +203,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('check context `resolve`', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
 
@@ -229,7 +229,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('check context `reject`', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
 
@@ -253,16 +253,16 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     it('check both global and context `resolve`', function (done) {
       let globalResolve = false
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix: host,
       })
 
-      nattyFetch.on('resolve', function (content) {
+      onerIO.on('resolve', function (content) {
         //console.log(1, content);
         globalResolve = true
       })
 
-      let context = nattyFetch.context({})
+      let context = onerIO.context({})
 
       context.on('resolve', function (content) {
         //console.log(2, content);
@@ -286,17 +286,17 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     it('check both global and context `reject`', function (done) {
       let globalReject = false
-      nattyFetch.setGlobal({
+      onerIO.setGlobal({
         urlPrefix: host,
       })
 
-      nattyFetch.on('reject', function (error) {
+      onerIO.on('reject', function (error) {
         //console.log(1, error);
         globalReject = true
       })
 
 
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
 
@@ -327,7 +327,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     let context
 
     beforeEach('reset context', function () {
-      context = nattyFetch.context({
+      context = onerIO.context({
         urlPrefix: host,
         jsonp: true,
         mock: false,
@@ -368,7 +368,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     })
 
     it('`mock` value from global', function () {
-      let context = nattyFetch.context()
+      let context = onerIO.context()
       context.create('order', {
         pay: {
           // 这个mock等于全局mock值
@@ -415,7 +415,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     let context
 
     beforeEach('reset', function () {
-      context = nattyFetch.context('Test')
+      context = onerIO.context('Test')
     })
     // 当使用request参数时, 只有data, retry, ignoreSelfConcurrent起作用
     it('`request` config with success', function (done) {
@@ -543,7 +543,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
   describe('ajax', function() {
     // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-    //nattyFetch.setGlobal({
+    //onerIO.setGlobal({
     //  cache: false,
     //  traditional: true
     //});
@@ -552,7 +552,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     let context
 
     beforeEach('reset', function () {
-      context = nattyFetch.context('Test', {
+      context = onerIO.context('Test', {
         urlPrefix: host,
         mock: false,
       })
@@ -753,7 +753,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     it('skip process data when it is mocking ', function (done) {
 
-      // const context = nattyFetch.context({
+      // const context = onerIO.context({
       //   urlPrefix: host,
       //   mock: false
       // });
@@ -833,7 +833,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     it('pending status checking', function (done) {
 
-      const myContext = nattyFetch.context()
+      const myContext = onerIO.context()
       myContext.create('order', {
         create: {
           //log: true,
@@ -932,7 +932,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
     it('`POST` resolving after retry', function (done) {
       // console.log('~~~~~~~~~')
-      const context = nattyFetch.context({
+      const context = onerIO.context({
         urlPrefix: host,
         mock: false,
       })
@@ -1119,7 +1119,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
 
   describe('jsonp', function () {
     // NOTE 重要: 为了能够测试完整的场景, 默认已经全局关闭所有请求的浏览器缓存!!!  比如: ignoreSelfConcurrent
-    //nattyFetch.setGlobal({
+    //onerIO.setGlobal({
     //  cache: false
     //});
 
@@ -1127,7 +1127,7 @@ describe('nattyFetch v__VERSION__ Unit Test', function() {
     let context
 
     beforeEach('reset', function () {
-      context = nattyFetch.context({
+      context = onerIO.context({
         urlPrefix: host,
         mock: false,
       })

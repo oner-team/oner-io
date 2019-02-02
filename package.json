@@ -1,11 +1,11 @@
 {
-  "name": "natty-fetch",
-  "version": "2.6.0",
+  "name": "oner-io",
+  "version": "3.0.0",
   "description": "A natty semantic data-fetching tool for project that no longer needs to use jQuery/Zepto's Ajax.",
-  "repository": "https://github.com/Jias/natty-fetch.git",
-  "author": "fushan",
-  "main": "dist/natty-fetch.js",
-  "jsnext:main": "src/natty-fetch.js",
+  "repository": "https://github.com/oner-team/oner-io.git",
+  "author": "jias",
+  "main": "dist/oner-io.js",
+  "jsnext:main": "src/oner-io.js",
   "files": [
     "dist",
     "src",
@@ -15,6 +15,7 @@
     "LICENSE"
   ],
   "keywords": [
+    "oner-io",
     "natty-fetch",
     "data",
     "database",
@@ -69,6 +70,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "natty-storage": "^2.2.0"
+    "oner-io": "^3.0.0"
   }
 }

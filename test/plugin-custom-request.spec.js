@@ -4,7 +4,7 @@ import {host} from '../config/host'
 describe('plugin customRequest', function () {
   it('customRequest success', function (done) {
 
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -66,7 +66,7 @@ describe('plugin customRequest', function () {
 
 
 
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })

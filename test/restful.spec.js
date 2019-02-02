@@ -10,7 +10,7 @@ const _it = function(s, f) {
 describe('restful', function () {
 
   it('GET', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
@@ -43,7 +43,7 @@ describe('restful', function () {
   })
 
   it('POST', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
@@ -77,7 +77,7 @@ describe('restful', function () {
   })
 
   it('PUT', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
@@ -108,7 +108,7 @@ describe('restful', function () {
   })
 
   it('PATCH', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
@@ -139,7 +139,7 @@ describe('restful', function () {
   })
 
   it('DELETE', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',

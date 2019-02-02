@@ -34,7 +34,7 @@
     "document": false,
     "window": false,
     "Promise": false,
-    "nattyFetch": false,
+    "onerIO": false,
     "describe": false,
     "it": false,
     "expect": false,

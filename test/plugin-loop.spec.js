@@ -3,7 +3,7 @@ import {host} from '../config/host'
 describe('plugin loop', function () {
   // it('loop 2x', function (done) {
   //   this.timeout(1000*600);
-  //   let context = nattyFetch.context({
+  //   let context = onerIO.context({
   //     urlPrefix: host,
   //     mock: false
   //   });
@@ -12,7 +12,7 @@ describe('plugin loop', function () {
   //     getDriverNum: {
   //       url: host + 'api/return-success',
   //       plugins: [
-  //         nattyFetch.plugin.loop
+  //         onerIO.plugin.loop
   //       ]
   //     }
   //   });
@@ -78,7 +78,7 @@ describe('plugin loop', function () {
 
   it('loop', function (done) {
 
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -87,7 +87,7 @@ describe('plugin loop', function () {
       getDriverNum: {
         url: host + 'api/return-success',
         plugins: [
-          nattyFetch.plugin.loop,
+          onerIO.plugin.loop,
         ],
       },
     })

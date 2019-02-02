@@ -173,7 +173,7 @@ const setEvents = (xhr, options, isCrossDomain) => {
     // NOTE 直接调用`originAbort()`时 浏览器会报 `Illegal invocation` 错误
 
     // 非IE浏览器才会真正的调用原生`abort`
-    // https://github.com/jias/natty-fetch/issues/27
+    // https://github.com/jias/oner-io/issues/27
     if (!isIE) {
       originAbort.call(xhr)
     }

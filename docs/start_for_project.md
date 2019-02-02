@@ -1,8 +1,8 @@
 ## 使用概览-项目级
 
-这一节先总览一下在项目中使用`natty-fetch`的关键步骤，为简单说明，示例中只使用了最基本的配置，全部配置的文档可以参考[`配置选项(options)`](docs/options.md)。
+这一节先总览一下在项目中使用`oner-io`的关键步骤，为简单说明，示例中只使用了最基本的配置，全部配置的文档可以参考[`配置选项(options)`](docs/options.md)。
 
-在项目环境下使用`natty-fetch`，主要分为三个步骤：
+在项目环境下使用`oner-io`，主要分为三个步骤：
 
 * 定义全局配置(可选)：用于声明【整个项目】的全部接口的共享配置。
 * 定义接口模块，包含两个部分：
@@ -27,7 +27,7 @@
 如果把全局配置的代码找出来，应该是下面的样子：
 
 ```js
-nattyFetch.setGlobal({
+onerIO.setGlobal({
     // 配置整个项目所有接口的参数中都包含`__token`字段
     data: {
         __token: 'project_token_string'
@@ -42,7 +42,7 @@ nattyFetch.setGlobal({
 
 ```js
 // 先创建一个上下文对象，这里配置了该场景下的三个接口所共享的地址前缀`urlPrefix`。
-const context = nattyFetch.context({
+const context = onerIO.context({
     urlPrefix: '//example.com/cart/'
 });
 
@@ -72,7 +72,7 @@ context.create({
 export default context.api;
 ```
 
-`context.create()`方法的使用方式很灵活，上面的写法，每个接口都重复声明了`cart`名称空间，但并不是强制的。接口的方法名如何声明，决定了接口在业务场景下如何使用，详见`context.create()`方法的[灵活性](https://github.com/jias/natty-fetch/blob/master/docs/clear_api.md)。
+`context.create()`方法的使用方式很灵活，上面的写法，每个接口都重复声明了`cart`名称空间，但并不是强制的。接口的方法名如何声明，决定了接口在业务场景下如何使用，详见`context.create()`方法的[灵活性](https://github.com/jias/oner-io/blob/master/docs/clear_api.md)。
 
 #### 第三步，在业务场景中使用
 
@@ -113,4 +113,4 @@ io.cart.pay({
 
 简单吗？如此简单！但不仅如此！
 
-`nattyFetch`不是`fetch`接口的简单封装，而是承载了更多的[强大配置](options.md)和[使用约定](rules.md)。
+`onerIO`不是`fetch`接口的简单封装，而是承载了更多的[强大配置](options.md)和[使用约定](rules.md)。

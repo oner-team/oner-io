@@ -84,7 +84,7 @@ io.getXxx({
 
 ```
 // 全局
-nattyFetch.on('reject', function (error, config, vars) {
+onerIO.on('reject', function (error, config, vars) {
   // `vars`对象是被`reject`的接口的参数数据
 })
 
@@ -178,7 +178,7 @@ Case 1：希望`Promise`实例有`finally`方法：
 
 ```js
 const RSVP = require("rsvp");
-let fooFetch = nattyFetch.create({
+let fooFetch = onerIO.create({
     url: 'example.com/api/foo',
     Promise: RSVP.Promise // 用`RSVP.Promise`代替原生`Promise`
 });
@@ -194,13 +194,13 @@ Case 2：原生的`Promise`弱爆了，我要使用高配的[`bluebird`](https:/
 ```js
 const Promise = require("bluebird");
 
-// 全局启用(不影响`nattyFetch.create()`方法，因为这个方法是独立的)
-nattyFetch.setGlobal({
+// 全局启用(不影响`onerIO.create()`方法，因为这个方法是独立的)
+onerIO.setGlobal({
     Promise: Promise
 });
 
 // 上下文启用
-let context = nattyFetch.context({
+let context = onerIO.context({
     Promise: Promise
 });
 ```
@@ -214,8 +214,8 @@ let context = nattyFetch.context({
 ### v2.1.0 / 2016-07-17
 
 * 升级[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)的调用方法。这一点是和`v2.0.2`版本的主要变化。表现为：
-  - 添加`nattyFetch.create`方法。
-  - `nattyFetch`名称空间不再支持直接调用，因为没有接口实例就无法开启`ignoreSelfConcurrent`、`overrideSelfConcurrent`和`storage`等高级功能。
+  - 添加`onerIO.create`方法。
+  - `onerIO`名称空间不再支持直接调用，因为没有接口实例就无法开启`ignoreSelfConcurrent`、`overrideSelfConcurrent`和`storage`等高级功能。
 * `didFetch`在超时时不应该被调用。([#19](https://github.com/Jias/natty-fetch/issues/19))
 
 ### v2.0.2 / 2016-07-13
@@ -233,12 +233,12 @@ let context = nattyFetch.context({
 
 该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](docs/from_v1_to_v2.md)
 
-* 新的名称空间`nattyFetch`
+* 新的名称空间`onerIO`
 * 支持[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)调用 ([@eternalsky](https://github.com/eternalsky) in [#15](https://github.com/Jias/natty-fetch/issues/15))
 * 添加插件功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12))
 * 添加缓存功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12), [#13](https://github.com/Jias/natty-fetch/issues/13))
-* `NattyDB.Context`类变为`nattyFetch.context`静态方法
-* `NattyDB.onlyForHTML5`变为`nattyFetch.onlyForModern`
+* `NattyDB.Context`类变为`onerIO.context`静态方法
+* `NattyDB.onlyForHTML5`变为`onerIO.onlyForModern`
 * 删除了有歧义的`cache`配置，由`urlStamp`替代
 * 不再强制提取接口的名称空间，也不限制接口的名称空间层级数，解决众口难调的使用习惯。
 

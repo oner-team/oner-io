@@ -1,6 +1,6 @@
 import ExpectAction from './expect-action'
 import {host} from '../config/host'
-const {_ajax} = nattyFetch
+const {_ajax} = onerIO
 
 describe('./ajax', function () {
 
@@ -10,7 +10,7 @@ describe('./ajax', function () {
     })
   })
 
-  describe('browser detects：NOT used in nattyFetch', function () {
+  describe('browser detects：NOT used in onerIO', function () {
     let xhr = new XMLHttpRequest()
 
     let methods = ['loadstart', 'load', 'progress', 'error', 'timeout']
@@ -51,7 +51,7 @@ describe('./ajax', function () {
         },
         accept: 'json',
         success: function (res, xhr) {
-          expect(res).to.eql({tool: 'natty-fetch'})
+          expect(res).to.eql({tool: 'oner-io'})
           done()
         },
       })

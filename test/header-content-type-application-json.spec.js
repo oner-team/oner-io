@@ -7,7 +7,7 @@ describe('header', function(){
 
   it('post with application/json', function (done) {
 
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
     })
 
