@@ -71,26 +71,42 @@ export default class Request {
     }
   }
 
+  toResolve(content) {
+    const {config, vars} = this
+    content = config.process(content, vars)
+    this.onSuccess(content)
+  }
+
+  toReject(error) {
+    if (!error || error.message === undefined) {
+      throw new Error('the `message` in error is required !')
+    }
+    this.onError(error)
+  }
+
   // 处理结构化的响应数据
   processResponse(response) {
     const {config, vars} = this
     // 调用 didFetch 钩子函数
     config.didFetch(vars, config)
 
-    // 非标准格式数据的预处理
-    response = config.fit(response, vars)
+    const {fit} = config
+    fit.call(this, response, vars)
 
-    if (response.success) {
-      // 数据处理
-      const content = config.process(response.content, vars)
-      this.onSuccess(content)
-    } else {
-      const error = extend({
-        message: 'Error in request: ' + this._path,
-      }, response.error)
-      // NOTE response是只读的对象!!!
-      this.onError(error)
-    }
+    // 非标准格式数据的预处理
+    // response = config.fit(response, vars)
+
+    // if (response.success) {
+    //   // 数据处理
+    //   const content = config.process(response.content, vars)
+    //   this.onSuccess(content)
+    // } else {
+    //   const error = extend({
+    //     message: 'Error in request: ' + this._path,
+    //   }, response.error)
+    //   // NOTE response是只读的对象!!!
+    //   this.onError(error)
+    // }
   }
 
   // 获取正式接口的完整`url`
