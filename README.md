@@ -2,7 +2,9 @@
 
 [![npm version](https://img.shields.io/npm/v/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![download](https://img.shields.io/npm/dm/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/oner-io/master/LICENSE)
 
-## 新名字
+## v3.x 
+
+新名字`oner-io`，名称空间`onerIO`，还未发布！
 
 `oner-io`是这个工具的新名字(原名叫`natty-fetch`)，新名字意为着新起点，从此，该工具从原来的个人([jias](https://github.com/jias))维护，变为团队([oner-team](https://github.com/oner-team))维护。
 
