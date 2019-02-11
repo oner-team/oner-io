@@ -9,6 +9,13 @@ describe('header', function(){
 
     const context = onerIO.context({
       urlPrefix: host,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     context.create({

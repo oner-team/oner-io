@@ -13,18 +13,25 @@ describe('plugin customRequest', function () {
     const fakeRequestWithSuccess = function () {
 
       this.config.fit = function (response) {
-        const ret = {
-          success: response.success,
-        }
-        if (response.success) {
-          ret.content = response.data
-        } else {
-          ret.error = {
-            message: response.message,
-          }
-        }
+        // const ret = {
+        //   success: response.success,
+        // }
+        // if (response.success) {
+        //   ret.content = response.data
+        // } else {
+        //   ret.error = {
+        //     message: response.message,
+        //   }
+        // }
 
-        return ret
+        // return ret
+        if (response.success) {
+          this.toResolve(response.data)
+        } else {
+          this.toReject({
+            message: response.message
+          })
+        }
       }
 
       this.config.customRequest = function (vars, config, process) {
@@ -79,24 +86,31 @@ describe('plugin customRequest', function () {
     const fakeRequestWithFailed = function () {
 
       this.config.fit = function (response) {
-        const ret = {
-          success: response.success,
-        }
-        if (response.success) {
-          ret.content = response.data
-        } else {
-          ret.error = {
-            message: response.message,
-          }
-        }
+        // const ret = {
+        //   success: response.success,
+        // }
+        // if (response.success) {
+        //   ret.content = response.data
+        // } else {
+        //   ret.error = {
+        //     message: response.message,
+        //   }
+        // }
 
-        return ret
+        // return ret
+        if (response.success) {
+          this.toResolve(response.data)
+        } else {
+          this.toReject({
+            message: response.message
+          })
+        }
       }
 
       this.config.customRequest = function (vars, config, process) {
         console.log('vars', vars)
         console.log('config', config)
-
+        // 不走 fit 了
         process(false, {
           message: 'fake message',
         })

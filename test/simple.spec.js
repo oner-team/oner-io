@@ -14,6 +14,13 @@ describe('onerIO.create', function () {
       urlPrefix: host,
       url: 'api/order-create',
       method: 'POST',
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      }
       //traditional: true
     })
 
@@ -32,9 +39,16 @@ describe('onerIO.create', function () {
       url: host + 'api/order-create-non-standard',
       method: 'POST',
       fit: function (response) {
-        return {
-          success: !response.hasError,
-          content: response.content,
+        // return {
+        //   success: !response.hasError,
+        //   content: response.content,
+        // }
+        if (!response.hasError) {
+          this.toResolve(response.content)
+        } else {
+          this.toReject({
+            message: 'api failed !'
+          })
         }
       },
     })
@@ -54,6 +68,13 @@ describe('onerIO.create', function () {
     let fooFetch = onerIO.create({
       url: host + 'api/order-create',
       method: 'POST',
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
       process: function (content) {
         return {
           orderId: content.id,
@@ -95,7 +116,12 @@ describe('onerIO.create', function () {
       fit: function (response, vars) {
         expect(vars.data.liveData).to.be(1)
         expect(vars.data.hookData).to.be(1)
-        return response
+        // return response
+        if (response.success) {
+          this.toResolve(response.content)
+        } else {
+          this.toReject(response.error)
+        }
       },
     })
 
@@ -114,6 +140,13 @@ describe('onerIO.create', function () {
     let fooFetch = onerIO.create({
       mock: true,
       mockUrl: host + 'api/order-create',
+      fit: function(res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
       process: function (response) {
         if (this.mock) {
           return response
@@ -141,6 +174,13 @@ describe('onerIO.create', function () {
       url: host + 'api/order-create',
       method: 'POST',
       header: {foo: 'foo'}, // 跨域时, 自定义的`header`将被忽略
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function (data) {
@@ -163,6 +203,13 @@ describe('onerIO.create', function () {
       url: host + 'api/timeout',
       method: 'POST',
       timeout: 100,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function () {
@@ -182,6 +229,13 @@ describe('onerIO.create', function () {
       url: host + 'api/retry-success',
       method: 'GET',
       retry: 2,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function (data) {
@@ -204,6 +258,13 @@ describe('onerIO.create', function () {
       url: host + 'api/retry-success',
       method: 'GET',
       retry: 2,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
       data: function () {
         return {
           count: count++,
@@ -228,6 +289,13 @@ describe('onerIO.create', function () {
       url: host + 'api/retry-success',
       method: 'POST',
       retry: 2,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function (data) {
@@ -246,6 +314,13 @@ describe('onerIO.create', function () {
     let fooFetch = onerIO.create({
       url: host + 'api/return-error',
       retry: 1,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function (data) {
@@ -266,6 +341,13 @@ describe('onerIO.create', function () {
       cache: false,
       url: host + 'api/timeout', // 请求延迟返回的接口
       ignoreSelfConcurrent: true,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     fooFetch().then(function (data) {
@@ -301,6 +383,13 @@ describe('onerIO.create', function () {
       process: function(content, vars) {
         // vars不应该混淆
         expect(vars.data.d).to.be(2)
+      },
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
       },
     })
 
