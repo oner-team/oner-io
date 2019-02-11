@@ -18,7 +18,7 @@
 
 `oner-io`的定位并不是另一个`ajax/jsonp`工具，而是多人协作时定义接口和使用接口的一套规范，特别是项目接口来至多个后台系统时。
 
-界面有名气的`ajax`工具，功能强大的有很多，如果只是找工具，轻量级的可以使用[`axios`](https://github.com/axios/axios)，重量级的可以使用[bluebird](http://bluebirdjs.com/docs/getting-started.html)。如果是希望找到团队多人协作的规范，使用`oner-io`！
+业界有名气的`ajax`工具，功能强大的有很多，如果只是找工具，轻量级的可以使用[`axios`](https://github.com/axios/axios)，重量级的可以使用[bluebird](http://bluebirdjs.com/docs/getting-started.html)。如果是希望找到团队多人协作的规范，使用`oner-io`！
 
 那么，知道了`oner-io`的定位，小伙伴们就可以理解，使用这套规范(多人协作时定义接口和使用接口的规范)，一定是会有一点点代价的，一定会比`axios`这种纯工具，在使用时，多出一点点配置，但非常值得！
 
