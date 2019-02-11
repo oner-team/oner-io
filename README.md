@@ -57,17 +57,9 @@
 
 如果项目仅支持现代(`Modern`)浏览器，推荐使用`oner-io.min.js`。如果需要兼容到`IE8`，则必须使用`oner-io.pc.min.js`和`Promise Polyfill`。
 
-## v2.x docs
+## v3.x docs
 
-* [安装 (Installation)](docs/install.md)
-* [使用概览-项目级 (Start for Project)](docs/start_for_project.md)
-* [使用概览-组件级 (Start for Component)](docs/start_for_component.md)
-* [配置层级 (Option Levels)](docs/option_levels.md)
-* [配置选项 (Options)](docs/options.md)
-* [使用约定 (Rules)](docs/rules.md)
-* [创建清晰的接口层级 (Api)](docs/clear_api.md)
-* [共建 (Contribute)](docs/dev.md)
-* [常见问题 (QA)](docs/questions.md) old
+todo
 
 
 ## Compatibility
