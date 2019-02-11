@@ -2,7 +2,7 @@
  * rollup config
  *
  * @license MIT License
- * @author fushan (https://github.com/jias/oner-io)
+ * @author fushan (https://github.com/oner-team/oner-io)
  * @note `node`还不支持`import`
  */
 const rollup = require('rollup')
@@ -66,7 +66,7 @@ function buildOnerIO(isModern, isUgly) {
   return rollup.rollup({
     entry: entryMap[env],
     external: [
-      'natty-storage'
+      'oner-storage',
     ],
     plugins: (function(){
       return [
@@ -124,10 +124,10 @@ function buildOnerIO(isModern, isUgly) {
       dest: distFile,
       moduleName: 'onerIO',
       globals: {
-        'natty-storage': 'nattyStorage',
+        'oner-storage': 'onerStorage',
       },
       sourceMap: true,
-      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | fushan | https://github.com/jias/oner-io */',
+      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | dtwave oner-team | https://github.com/oner-team/oner-io */',
     })
   })
 }

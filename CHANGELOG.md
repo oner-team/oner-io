@@ -5,7 +5,7 @@
 ### 3.x / 没时间
 
 * 从`v3.x`开始，`POST`请求的默认编码方式改为`application/json;utf-8`，如果需要使用`application/x-www-form-urlencoded;chartset=utf-8`编码，可以配置`header`的`Content-Type`值进行覆盖。
-* todo 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/26))
+* todo 生命周期中所有回调函数中的`this`添加了`abort()`方法。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/oner-team/oner-io/issues/26))
 * todo `fit`的使用进一步简化，之前版本是在`fit`中返回约定结构的对象，现在升级为`api`调用，代码本身就很达意，减少额外思考。下面用一个具体的项目代码，对比一下`3.x`版本`fit`的变化：
 
 `1.x` 和`2.x`版本的`fit`，对后端数据进行适配。
@@ -56,7 +56,7 @@ io.getXxx({
 }).then(fn)
 ```
 
-* 修复：如果在`willFetch`中修改了`config`，修改只对本次请求生效。([@alex-mm](https://github.com/alex-mm) in [#69](https://github.com/jias/natty-fetch/issues/69))
+* 修复：如果在`willFetch`中修改了`config`，修改只对本次请求生效。([@alex-mm](https://github.com/alex-mm) in [#69](https://github.com/oner-team/oner-io/issues/69))
 
 #### v2.5.7 / 2018-10-17
 
@@ -64,7 +64,7 @@ io.getXxx({
 
 ### v2.5.4 / 2018-01-19
 
-* 修复`GET`请求参数中包含`length`字段且值为数字时的解析错误。([@Edward67](https://github.com/Edward67) in [#59](https://github.com/jias/natty-fetch/issues/59))
+* 修复`GET`请求参数中包含`length`字段且值为数字时的解析错误。([@Edward67](https://github.com/Edward67) in [#59](https://github.com/oner-team/oner-io/issues/59))
 * 新版`Chrome`的`Promise`实例已经有`finally`方法了，这一点没必要做差异测试了，删除对应的单测`case`。
 
 
@@ -74,7 +74,7 @@ io.getXxx({
 
 ### v2.5.0 / 2017-07-19
 
-* `mark`参数修改为[`urlMark`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#urlmark)参数
+* `mark`参数修改为[`urlMark`](https://github.com/oner-team/oner-io/blob/master/docs/options.md#urlmark)参数
 
 > 曾经在`v2.2.0`时添加过`mark`参数
 
@@ -96,12 +96,12 @@ context.on('reject', function (error, config, vars) {
 
 ### v2.4.4 / 2017-06-29
 
-* 配置项目加入`jsonpCrossOrigin`参数。([@lorrylockie](https://github.com/lorrylockie) in [#50](https://github.com/jias/natty-fetch/issues/50))
+* 配置项目加入`jsonpCrossOrigin`参数。([@lorrylockie](https://github.com/lorrylockie) in [#50](https://github.com/oner-team/oner-io/issues/50))
 
 ### v2.4.3 / 2017-06-08
 
-* 修复`IE9`的一个问题。([@McLemore](https://github.com/McLemore) in [#47](https://github.com/jias/natty-fetch/issues/47))
-* 修复使用了`customRequest`的插件在发生错误时没有触发全局的`reject`的问题。([@lorrylockie](https://github.com/lorrylockie) in [#48](https://github.com/jias/natty-fetch/issues/48))
+* 修复`IE9`的一个问题。([@McLemore](https://github.com/McLemore) in [#47](https://github.com/oner-team/oner-io/issues/47))
+* 修复使用了`customRequest`的插件在发生错误时没有触发全局的`reject`的问题。([@lorrylockie](https://github.com/lorrylockie) in [#48](https://github.com/oner-team/oner-io/issues/48))
 
 ### v2.4.2
 
@@ -109,12 +109,12 @@ context.on('reject', function (error, config, vars) {
 
 ### v2.4.0, v2.4.1 / 2017-04-11
 
-* 支持[`RESTFul API`](https://github.com/jias/natty-fetch/blob/master/docs/options.md#rest)。
+* 支持[`RESTFul API`](https://github.com/oner-team/oner-io/blob/master/docs/options.md#rest)。
 * 警告性升级：natty-fetch定义的接口，发出请求后，如果调用了abort接口，内部会有`warning`。
 
 ### v2.3.0 / 2017-04-07
 
-* 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/jias/natty-fetch/issues/38))
+* 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/oner-team/oner-io/issues/38))
 * 删除了单测中针对`xhr`对象`status`的值的测试。
 * [`natty-storage`](https://github.com/jias/natty-storage)升级到`v2.x`
 * 针对自定义`customRequest`的插件的简化。
@@ -123,11 +123,11 @@ context.on('reject', function (error, config, vars) {
 
 ### v2.2.3 / 2017-01-17
 
-* 合并来自[LiangZugeng](https://github.com/LiangZugeng)的[PR](https://github.com/jias/natty-fetch/pull/39)。
+* 合并来自[LiangZugeng](https://github.com/LiangZugeng)的[PR](https://github.com/oner-team/oner-io/pull/39)。
 
 ### v2.2.2 / 2016-12-27
 
-* 合并来自[tommytroylin](https://github.com/tommytroylin)的[PR](https://github.com/jias/natty-fetch/pull/36)。
+* 合并来自[tommytroylin](https://github.com/tommytroylin)的[PR](https://github.com/oner-team/oner-io/pull/36)。
 
 ### v2.2.1 / 2016-12-13
 
@@ -150,8 +150,8 @@ context.create({
 
 * 修复`IE`下，跨域时调用`abort`没有生效的问题。`v2.1.3`引入的问题。
 *  `webpack+babel`组合切换到了`rollup+buble`组合。无论是开发构建还是生产构建，都更快更小。
-* 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
-* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息(`_stamp`除外，另见`urlStamp`配置)。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/jias/natty-fetch/issues/30))
+* 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/oner-team/oner-io/issues/30))
+* 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息(`_stamp`除外，另见`urlStamp`配置)。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/oner-team/oner-io/issues/30))
 * `urlStamp`添加字符串类型的值(上个版本只允许布尔值)，如果配置了字符串值，则默认的`_stamp`将被替换为该字符串值。
 * 发布文件的变动，删除了`node`版本(即`natty-fetch.node.js`和`natty-fetch.pc.node.js`)。`natty-fetch`采用`umd`方式打包，已不再需要独立的`node`版本。
 * 修复`traditional:false`不生效的问题。
@@ -168,11 +168,11 @@ context.create({
 
 ### v2.1.3 / 2016-09-27
 
-*  修复`IE`下调用`abort`后读取`xhr`对象属性导致的[c00c023f](http://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f)异常。([@eternalsky](https://github.com/eternalsky) in [#27](https://github.com/jias/natty-fetch/issues/27))
+*  修复`IE`下调用`abort`后读取`xhr`对象属性导致的[c00c023f](http://stackoverflow.com/questions/7287706/ie-9-javascript-error-c00c023f)异常。([@eternalsky](https://github.com/eternalsky) in [#27](https://github.com/oner-team/oner-io/issues/27))
 
 ### v2.1.2 / 2016-07-27
 
-*  支持传入非原生的`Promise`对象，满足特殊场景的需求。([@eternalsky](https://github.com/eternalsky) in [#21](https://github.com/jias/natty-fetch/issues/21))
+*  支持传入非原生的`Promise`对象，满足特殊场景的需求。([@eternalsky](https://github.com/eternalsky) in [#21](https://github.com/oner-team/oner-io/issues/21))
 
 Case 1：希望`Promise`实例有`finally`方法：
 
@@ -209,14 +209,14 @@ let context = onerIO.context({
 
 ### v2.1.1 / 2016-07-17
 
-* 补充内部缺失的全局`reject`回调。([@xuguogang](https://github.com/xuguogang) in [#18](https://github.com/Jias/natty-fetch/issues/18))
+* 补充内部缺失的全局`reject`回调。([@xuguogang](https://github.com/xuguogang) in [#18](https://github.com/oner-team/oner-io/issues/18))
 
 ### v2.1.0 / 2016-07-17
 
-* 升级[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)的调用方法。这一点是和`v2.0.2`版本的主要变化。表现为：
+* 升级[简易方式](https://github.com/oner-team/oner-io/blob/master/docs/start_for_component.md)的调用方法。这一点是和`v2.0.2`版本的主要变化。表现为：
   - 添加`onerIO.create`方法。
   - `onerIO`名称空间不再支持直接调用，因为没有接口实例就无法开启`ignoreSelfConcurrent`、`overrideSelfConcurrent`和`storage`等高级功能。
-* `didFetch`在超时时不应该被调用。([#19](https://github.com/Jias/natty-fetch/issues/19))
+* `didFetch`在超时时不应该被调用。([#19](https://github.com/oner-team/oner-io/issues/19))
 
 ### v2.0.2 / 2016-07-13
 
@@ -234,9 +234,9 @@ let context = onerIO.context({
 该版本是非向后兼容的版本，从`v1.x.x`升级到`v2.x.x`，请参考[v1到v2升级指南](docs/from_v1_to_v2.md)
 
 * 新的名称空间`onerIO`
-* 支持[简易方式](https://github.com/Jias/natty-fetch/blob/master/docs/start_for_component.md)调用 ([@eternalsky](https://github.com/eternalsky) in [#15](https://github.com/Jias/natty-fetch/issues/15))
-* 添加插件功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12))
-* 添加缓存功能 ([@yize](https://github.com/yize) in [#12](https://github.com/Jias/natty-fetch/issues/12), [#13](https://github.com/Jias/natty-fetch/issues/13))
+* 支持[简易方式](https://github.com/oner-team/oner-io/blob/master/docs/start_for_component.md)调用 ([@eternalsky](https://github.com/eternalsky) in [#15](https://github.com/oner-team/oner-io/issues/15))
+* 添加插件功能 ([@yize](https://github.com/yize) in [#12](https://github.com/oner-team/oner-io/issues/12))
+* 添加缓存功能 ([@yize](https://github.com/yize) in [#12](https://github.com/oner-team/oner-io/issues/12), [#13](https://github.com/oner-team/oner-io/issues/13))
 * `NattyDB.Context`类变为`onerIO.context`静态方法
 * `NattyDB.onlyForHTML5`变为`onerIO.onlyForModern`
 * 删除了有歧义的`cache`配置，由`urlStamp`替代

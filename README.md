@@ -67,13 +67,6 @@
 * [共建 (Contribute)](docs/dev.md)
 * [常见问题 (QA)](docs/questions.md) old
 
-## v1.x to v2.x
-
-* [从1.x升级到2.x](docs/from_v1_to_v2.md)
-
-## v1.x docs
-
-`v1.0.2`之前的名称空间为`NattyDB`，对应的文档请移步[这里](https://github.com/Jias/oner-io/tree/v1.0.2)。
 
 ## Compatibility
 
@@ -83,7 +76,7 @@
 ## Get help
 
 * 钉钉账号：拂山
-* 微信账号：gnosaij
+* 微信账号：加拂山的微信(gnosaij)，备注一下`oner`，会被拉到`oner`工具群。
 
 ## Dev && Build
 

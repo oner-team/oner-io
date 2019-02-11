@@ -43,12 +43,12 @@ describe('onerIO v__VERSION__ Unit Test', function() {
 
     let emptyEvent = onerIO._event
 
-    let resetNattyDBGlobalConfig = function () {
+    let resetOnerIOGlobalConfig = function () {
       onerIO.setGlobal(defaultGlobalConfig)
     }
 
     beforeEach(function () {
-      resetNattyDBGlobalConfig()
+      resetOnerIOGlobalConfig()
     })
 
     afterEach(function () {

@@ -70,6 +70,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "oner-io": "^3.0.0"
+    "oner-storage": "^3.0.0"
   }
 }

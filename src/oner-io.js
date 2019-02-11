@@ -1,4 +1,4 @@
-import nattyStorage from 'natty-storage'
+import onerStorage from 'oner-storage'
 import * as util from './util'
 
 const {
@@ -249,7 +249,7 @@ class API {
     this.api.storageUseable = isPlainObject(config.storage)
       && (config.method === 'GET' || config.jsonp)
       && (
-        nattyStorage.supportStorage
+        onerStorage.supportStorage
         && (
           ['localStorage', 'sessionStorage'].indexOf(config.storage.type) > -1
           || config.storage.type === 'variable'
@@ -273,7 +273,7 @@ class API {
       // `key`和`tag`的选择原则:
       // `key`只选用相对稳定的值, 减少因为`key`的改变而增加的残留缓存
       // 经常变化的值用于`tag`, 如一个接口在开发过程中可能使用方式不一样, 会在`jsonp`和`get`之间切换。
-      this.api.storage = nattyStorage(extend({}, config.storage, {
+      this.api.storage = onerStorage(extend({}, config.storage, {
         tag: [
           config.storage.tag,
           config.jsonp ? 'jsonp' : config.method,
@@ -292,7 +292,7 @@ const context = (contextId, options) => {
     contextId = 'c' + makeRandom()
   }
 
-  const storage = nattyStorage({
+  const storage = onerStorage({
     type: 'variable',
     key: contextId,
   })
