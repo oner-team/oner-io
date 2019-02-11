@@ -9,7 +9,7 @@ const _it = function(s, f) {
 
 describe('plugin soon', function () {
   it('`soon` method with `storage` is open', function (done) {
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -30,7 +30,7 @@ describe('plugin soon', function () {
           }
         },
         plugins: [
-          nattyFetch.plugin.soon,
+          onerIO.plugin.soon,
         ],
       },
     })
@@ -77,7 +77,7 @@ describe('plugin soon', function () {
 
   it('`soon` method with `storage` is closed', function (done) {
 
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -96,7 +96,7 @@ describe('plugin soon', function () {
           }
         },
         plugins: [
-          nattyFetch.plugin.soon,
+          onerIO.plugin.soon,
         ],
       },
     })

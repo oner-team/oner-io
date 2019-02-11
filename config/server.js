@@ -2,7 +2,7 @@
  * express config
  *
  * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
+ * @author jias (https://github.com/jias/oner-io)
  */
 var express = require('express')
 var app = express()
@@ -124,7 +124,7 @@ app.all('/api/:test', function (req, res) {
         res.send('window.__test__ = 1;')
         break
       case 'return-json':
-        res.json({tool: 'natty-fetch'})
+        res.json({tool: 'oner-io'})
         break
       case 'return-html':
         res.send('<div>html</div>')

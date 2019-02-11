@@ -1,4 +1,4 @@
-import './natty-fetch.spec'
+import './oner-io.spec'
 import './util.spec'
 import './ajax.spec'
 import './event.spec'

@@ -5,10 +5,10 @@ describe('plugin', function () {
 
   it('options.plugins should been merged, NOT overrided.', function () {
 
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       plugins: [
-        nattyFetch.plugin.soon,
+        onerIO.plugin.soon,
       ],
     })
 
@@ -16,7 +16,7 @@ describe('plugin', function () {
       foo: {
         url: host + 'api/return-success',
         plugins: [
-          nattyFetch.plugin.loop,
+          onerIO.plugin.loop,
         ],
       },
     })

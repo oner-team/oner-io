@@ -5,12 +5,12 @@ let xit = function(ignore, fn) {
 }
 xit.xonly = xit
 
-describe('nattyFetch.create', function () {
+describe('onerIO.create', function () {
 
   this.timeout(1000*4)
 
   it('play with standard data structure', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       urlPrefix: host,
       url: 'api/order-create',
       method: 'POST',
@@ -28,7 +28,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('play with non-standard data structure by `fit`', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/order-create-non-standard',
       method: 'POST',
       fit: function (response) {
@@ -51,7 +51,7 @@ describe('nattyFetch.create', function () {
 
   it('process data', function (done) {
 
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/order-create',
       method: 'POST',
       process: function (content) {
@@ -73,7 +73,7 @@ describe('nattyFetch.create', function () {
 
   // 固定参数和动态参数 在process和fix方法中都可以正确获取到
   it('`vars.data` in process or fix method', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/order-create',
       method: 'POST',
       data: {
@@ -111,7 +111,7 @@ describe('nattyFetch.create', function () {
 
 
   it('skip process data when it is mocking ', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       mock: true,
       mockUrl: host + 'api/order-create',
       process: function (response) {
@@ -136,7 +136,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('error by requesting cross-domain with custom header', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       //log: true,
       url: host + 'api/order-create',
       method: 'POST',
@@ -158,7 +158,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('error by timeout', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       //log: true,
       url: host + 'api/timeout',
       method: 'POST',
@@ -178,7 +178,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('`GET` resolving after retry', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/retry-success',
       method: 'GET',
       retry: 2,
@@ -200,7 +200,7 @@ describe('nattyFetch.create', function () {
 
     let count = 0
 
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/retry-success',
       method: 'GET',
       retry: 2,
@@ -224,7 +224,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('`POST` resolving after retry', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/retry-success',
       method: 'POST',
       retry: 2,
@@ -243,7 +243,7 @@ describe('nattyFetch.create', function () {
   })
 
   it('rejecting after retry', function (done) {
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/return-error',
       retry: 1,
     })
@@ -262,7 +262,7 @@ describe('nattyFetch.create', function () {
 
   // 简单请求的`ignoreSelfConcurrent`不会起作用, 连发两次请求，第二次依然有效
   it('`ignoreSeftConcurrent` should work', function (done) {
-    const fooFetch = nattyFetch.create({
+    const fooFetch = onerIO.create({
       cache: false,
       url: host + 'api/timeout', // 请求延迟返回的接口
       ignoreSelfConcurrent: true,
@@ -292,7 +292,7 @@ describe('nattyFetch.create', function () {
   it('`overrideSeftConcurrent` should work (XHR)', function (done) {
 
     // 第一次请求, 不应该有响应
-    let fooFetch = nattyFetch.create({
+    let fooFetch = onerIO.create({
       url: host + 'api/timeout', // 请求延迟返回的接口
       data: {
         d: 0,

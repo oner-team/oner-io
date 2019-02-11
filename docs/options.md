@@ -1,6 +1,6 @@
 ## 配置选项
 
-`natty-fetch`中【任何】层级的配置都可以传入以下参数。
+`oner-io`中【任何】层级的配置都可以传入以下参数。
 
 ### Outline
 
@@ -93,7 +93,7 @@ db.taxi.getNumber({
 * 类型：Function
 * 默认：function (response, vars) { return response }
 
-`natty-fetch`接受的标准数据结构是
+`oner-io`接受的标准数据结构是
 
 ```js
 // 正确
@@ -120,7 +120,7 @@ db.taxi.getNumber({
 }
 ```
 
-这时候需要用`fit`来适配，转换成`natty-fetch`约定的数据结构返回。
+这时候需要用`fit`来适配，转换成`oner-io`约定的数据结构返回。
 
 ```js
 fit: function (response) {
@@ -217,7 +217,7 @@ export default context.api.Order
 * 默认：'GET'
 * 可选：'GET'、'POST'
 
-> 如果浏览器是`IE8/9`，则`natty-fetch`内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
+> 如果浏览器是`IE8/9`，则`oner-io`内部使用的是`XDomainRequest`对象，以便支持跨域功能，但`XDomainRequest`对象仅支持`GET`和`POST`两个方法。
 
 ### mock
 
@@ -339,7 +339,7 @@ io.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 ### process
 
-请求成功时的数据处理函数，该函数接收到的参数是[数据结构约定](https://github.com/jias/natty-fetch/blob/master/docs/rules.md)中`content`的值。
+请求成功时的数据处理函数，该函数接收到的参数是[数据结构约定](https://github.com/jias/oner-io/blob/master/docs/rules.md)中`content`的值。
 
 * 类型：Function
 * 默认：function (content) {return content}
@@ -423,7 +423,7 @@ function willFetch(vars, config) {
 
 ### withCredentials
 
-是否发送`cookie`，`natty-fetch`内部已经通过判断`url`是否跨域来自动设置该值，所以不建议手动设置。
+是否发送`cookie`，`oner-io`内部已经通过判断`url`是否跨域来自动设置该值，所以不建议手动设置。
 
 * 类型：Boolean
 * 默认：通过判断`url`是否跨域来自动设置该值，跨域时为`false`
@@ -436,8 +436,8 @@ function willFetch(vars, config) {
 * 类型：Array
 * 默认：[]
 * 可用值：
-  - nattyFetch.plugin.soon
-  - nattyFetch.plugin.loop
+  - onerIO.plugin.soon
+  - onerIO.plugin.loop
 
 ##### `soon`
 
@@ -449,7 +449,7 @@ context.create('Order', {
         url: '...',
         storage: true,
         plugins: [
-            nattyFetch.plugin.soon
+            onerIO.plugin.soon
         ]
     }
 });
@@ -485,7 +485,7 @@ context.create('driver', {
     getDistance: {
         url: '...',
         plugins: [
-            nattyFetch.plugin.loop
+            onerIO.plugin.loop
         ]
     }
 });
@@ -520,10 +520,10 @@ stopHandler.looping; // true or false
 * 类型：Boolean | Object
 * 默认：false
 
-`natty-fetch`的缓存功能由`natty-storage`提供，`storage`配置可参考`natty-storage`的[文档](https://github.com/Jias/natty-storage)。有两点需要注意：
+`oner-io`的缓存功能由`natty-storage`提供，`storage`配置可参考`natty-storage`的[文档](https://github.com/Jias/natty-storage)。有两点需要注意：
 
 1. 当`type`指定为`localStorage`时，必须同时配置`key`值！
-2. `async`配置在此处无效，`natty-fetch`内部强制为`true`值！
+2. `async`配置在此处无效，`oner-io`内部强制为`true`值！
 
 > 💣💣💣 当使用`localStorage`作为缓存方式时，需要慎重选择`key`值。`key`值代表一份缓存数据的引用地址，开启`storage`功能前，一定要选好一个可长期使用的`key`值，且`key`值是不应该经常变化的。
 > 

@@ -7,7 +7,7 @@
  * There are more options than you see here, these are just the ones that are*   set internally. See the website for more info.
  *
  * @license MIT License
- * @author jias (https://github.com/jias/natty-fetch)
+ * @author jias (https://github.com/jias/oner-io)
  */
 module.exports = {
   "ui": {

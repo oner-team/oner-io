@@ -14,7 +14,7 @@ describe('storage', function () {
   it('query string is same: localStorage', function (done) {
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -67,7 +67,7 @@ describe('storage', function () {
   it('query string is same: sessionStorage', function (done) {
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -116,7 +116,7 @@ describe('storage', function () {
   it('query string is same: variable', function (done) {
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -164,7 +164,7 @@ describe('storage', function () {
 
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -214,7 +214,7 @@ describe('storage', function () {
   it('query string is different', function (done) {
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })
@@ -258,7 +258,7 @@ describe('storage', function () {
   it('no query string', function (done) {
 
     // localStorage.clear();
-    const context = nattyFetch.context({
+    const context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })

@@ -11,7 +11,7 @@ describe('timeout with self concurrent', function () {
 
   it('timeout with self concurrent', function (done) {
     this.timeout(1000*10)
-    let context = nattyFetch.context({
+    let context = onerIO.context({
       urlPrefix: host,
       mock: false,
     })

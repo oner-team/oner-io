@@ -92,8 +92,8 @@ const config = {
 
   // 插件，已内置两种
   // plugins: [
-  //   nattyFetch.plugin.loop
-  //   nattyFetch.plugin.soon
+  //   onerIO.plugin.loop
+  //   onerIO.plugin.soon
   // ]
   plugins: FALSE,
 }

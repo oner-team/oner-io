@@ -2,7 +2,7 @@
  * rollup config
  *
  * @license MIT License
- * @author fushan (https://github.com/jias/natty-fetch)
+ * @author fushan (https://github.com/oner-team/oner-io)
  * @note `node`还不支持`import`
  */
 const rollup = require('rollup')
@@ -20,8 +20,8 @@ const {
 } = argv
 
 const entryMap = {
-  dev: 'src/natty-fetch.js',
-  prod: 'src/natty-fetch.js',
+  dev: 'src/oner-io.js',
+  prod: 'src/oner-io.js',
   test: 'test/index.spec.js',
 }
 
@@ -34,17 +34,17 @@ const formatMap = {
 // 构建，同时构建压缩和非压缩两个版本
 // 注意，目前dev和prod的构建内容一模一样，没有dev环境的log信息
 if (env === 'dev' || env === 'prod') {
-  buildNattyFetch(true, false).then(function () {
-    console.log('`natty-fetch.js` was builded.\n')
-    return buildNattyFetch(true, true)
+  buildOnerIO(true, false).then(function () {
+    console.log('`oner-io.js` was builded.\n')
+    return buildOnerIO(true, true)
   }).then(function () {
-    console.log('`natty-fetch.min.js` was builded.\n')
-    return buildNattyFetch(false, false)
+    console.log('`oner-io.min.js` was builded.\n')
+    return buildOnerIO(false, false)
   }).then(function () {
-    console.log('`natty-fetch.pc.js` was builded.\n')
-    return buildNattyFetch(false, true)
+    console.log('`oner-io.pc.js` was builded.\n')
+    return buildOnerIO(false, true)
   }).then(function () {
-    console.log('`natty-fetch.pc.min.js` was builded.\n')
+    console.log('`oner-io.pc.min.js` was builded.\n')
   })
 }
 
@@ -57,16 +57,16 @@ else if (env === 'test') {
 
 
 /**
- * 构建`natty-fetch`
+ * 构建`oner-io`
  * @param isModern {Boolean} 是否是`Morder Browser`版本，如果是false，最低兼容到`IE8`
  * @param isUgly {Boolean} 是否压缩
  * @returns {Object} Promise instance
  */
-function buildNattyFetch(isModern, isUgly) {
+function buildOnerIO(isModern, isUgly) {
   return rollup.rollup({
     entry: entryMap[env],
     external: [
-      'natty-storage'
+      'oner-storage',
     ],
     plugins: (function(){
       return [
@@ -99,7 +99,7 @@ function buildNattyFetch(isModern, isUgly) {
 
               // type = 'comment1': begin with '//'
               // type = 'comment2': begin with '/*'
-              return (type === 'comment2' && value.indexOf('! natty-fetch') === 0)
+              return (type === 'comment2' && value.indexOf('! oner-io') === 0)
             }
           }
         }) : null,
@@ -111,7 +111,7 @@ function buildNattyFetch(isModern, isUgly) {
   }).then(function (bundle) {
 
     const distFile = [
-      'dist/natty-fetch',
+      'dist/oner-io',
       isModern ? '' : '.pc',
       isUgly ? '.min' : '',
       '.js'
@@ -122,12 +122,12 @@ function buildNattyFetch(isModern, isUgly) {
     return bundle.write({
       format: formatMap[env],
       dest: distFile,
-      moduleName: 'nattyFetch',
+      moduleName: 'onerIO',
       globals: {
-        'natty-storage': 'nattyStorage',
+        'oner-storage': 'onerStorage',
       },
       sourceMap: true,
-      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | fushan | https://github.com/jias/natty-fetch */',
+      banner: '/*! ' + distFile.substr(5) + ' v' + pkg.version + ' | MIT License | dtwave oner-team | https://github.com/oner-team/oner-io */',
     })
   })
 }

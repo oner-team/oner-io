@@ -2,7 +2,7 @@ const {
   appendQueryString, isAbsoluteUrl, isNumber,
   param, decodeParam, isIE, isCrossDomain,
   sortPlainObjectKey,
-} = nattyFetch._util
+} = onerIO._util
 
 describe('./util', function () {
   describe('param', function () {

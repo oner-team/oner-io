@@ -7,7 +7,7 @@ describe('./hooks', function(){
     this.timeout(1000*6)
 
     it('ajax willFetch call', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
         willFetch() {
           done()
@@ -28,7 +28,7 @@ describe('./hooks', function(){
     })
 
     it('extend config within willFetch', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
       context.create({
@@ -57,7 +57,7 @@ describe('./hooks', function(){
     })
 
     it('jsonp willFetch call', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
         willFetch() {
           done()
@@ -80,7 +80,7 @@ describe('./hooks', function(){
   describe('didFetch', function(){
 
     it('ajax success didFetch', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
       context.create({
@@ -106,7 +106,7 @@ describe('./hooks', function(){
     })
 
     it('jsonp success didFetch long time', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
       context.create({
@@ -134,7 +134,7 @@ describe('./hooks', function(){
     })
 
     it('ajax error didFetch', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
       })
       context.create({
@@ -159,7 +159,7 @@ describe('./hooks', function(){
     })
 
     it('jsonp error didFetch', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
         jsonp: true,
       })
@@ -185,7 +185,7 @@ describe('./hooks', function(){
     })
 
     it('ajax timeout should NOT fire `didFetch`', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
         timeout: 300,
       })
@@ -213,7 +213,7 @@ describe('./hooks', function(){
     })
 
     it('jsonp timeout should NOT fire `didFetch`', function (done) {
-      let context = nattyFetch.context({
+      let context = onerIO.context({
         urlPrefix: host,
         jsonp: true,
         timeout: 300,

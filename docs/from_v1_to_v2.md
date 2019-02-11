@@ -10,7 +10,7 @@ npm install natty-storage --save
 
 #### 2. 切换名称空间
 
-所有的`NattyDB`切换成`nattyFetch`
+所有的`NattyDB`切换成`onerIO`
 
 #### 3. 升级创建上下文对象的方法
 
@@ -23,7 +23,7 @@ let context = new NattyDB.Context(options);
 `v2.x`中通过调用静态方法实现
 
 ```js
-let context = nattyFetch.context(options);
+let context = onerIO.context(options);
 ```
 
 #### 4. 升级接口模块的输出值
@@ -41,7 +41,7 @@ module.exports = context;
 `v2.x`，将`上下文对象`的`api`属性作为接口模块的输出值
 
 ```js
-let context = nattyFetch.context(options);
+let context = onerIO.context(options);
 
 // 省略的代码
 
@@ -146,7 +146,7 @@ context.create('driver', {
     getDistance: {
         url: '//example.com/getDriverDistance.do',
         plugins: [
-            nattyFetch.plugin.loop
+            onerIO.plugin.loop
         ]
     }
 });
