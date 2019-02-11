@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![download](https://img.shields.io/npm/dm/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/oner-io/master/LICENSE)
 
-## v3.x 
+## v3.x（新名字，还未发布） 
 
 新名字`oner-io`，名称空间`onerIO`，还未发布！
 
