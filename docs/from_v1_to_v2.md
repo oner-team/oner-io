@@ -1,9 +1,9 @@
 ## 从`v1.x`升级到`v2.x`
 
-#### 1. 添加`natty-storage`依赖
+#### 1. 添加`oner-storage`依赖
 
 ```shell
-npm install natty-storage --save
+npm install oner-storage --save
 ```
 
 > 团队内部项目升级请见内部群公告
