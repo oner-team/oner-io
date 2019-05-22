@@ -11,7 +11,11 @@ const config = {
   didFetch: noop,
 
   // 预处理回调
-  fit: noop,
+  fit: function (response) {
+    this.toReject({
+      message: 'onerIO config `fit` method is required !'
+    })
+  },
 
   // 自定义header, 只针对非跨域的ajax有效, 跨域时将忽略自定义header
   header: {},

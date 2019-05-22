@@ -164,6 +164,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
         create: {
           url: 'api/order-create',
           method: 'POST',
+          fit: function(response) {
+            this.toResolve(response.content)
+          }
         },
       })
 
@@ -194,6 +197,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           data: {
             foo: 'foo',
           },
+          fit: function (response) {
+            this.toReject(response.error)
+          }
         },
       })
       context.api.order.create({
@@ -205,6 +211,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
     it('check context `resolve`', function (done) {
       let context = onerIO.context({
         urlPrefix: host,
+        fit: function (response) {
+          this.toResolve(response.content)
+        }
       })
 
       context.on('resolve', function (data, config) {
@@ -231,6 +240,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
     it('check context `reject`', function (done) {
       let context = onerIO.context({
         urlPrefix: host,
+        fit: function (response) {
+          this.toReject(response.error)
+        }
       })
 
       context.on('reject', function (error, config) {
@@ -262,7 +274,11 @@ describe('onerIO v__VERSION__ Unit Test', function() {
         globalResolve = true
       })
 
-      let context = onerIO.context({})
+      let context = onerIO.context({
+        fit: function (response) {
+          this.toResolve(response.content)
+        }
+      })
 
       context.on('resolve', function (content) {
         //console.log(2, content);
@@ -298,6 +314,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
 
       let context = onerIO.context({
         urlPrefix: host,
+        fit: function (response) {
+          this.toReject(response.error)
+        }
       })
 
       context.on('reject', function (error, config) {
@@ -555,6 +574,13 @@ describe('onerIO v__VERSION__ Unit Test', function() {
       context = onerIO.context('Test', {
         urlPrefix: host,
         mock: false,
+        fit: function(res) {
+          if (res.success) {
+            this.toResolve(res.content)
+          } else {
+            this.toReject(res.error)
+          }
+        }
       })
     })
 
@@ -570,10 +596,10 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           query: {
             token: 'boo',
           },
-          fit(r, vars) {
-            // console.log(vars.requester.getResponseHeader('Content-Type'))
-            return r
-          },
+          // fit(response) {
+          //   this.toResolve(response.content)
+          //   // console.log(vars.requester.getResponseHeader('Content-Type'))
+          // },
           //traditional: true
         },
       })
@@ -596,7 +622,7 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           method: 'POST',
           fit(response, vars) {
             expect(vars.requester.status).to.be(200)
-            return response
+            this.toResolve(response.content)
           },
         },
       })
@@ -617,9 +643,12 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           url: host + 'api/order-create-non-standard',
           method: 'POST',
           fit: function (response) {
-            return {
-              success: !response.hasError,
-              content: response.content,
+            if (response.hasError) {
+              this.toReject({
+                message: 'api failed'
+              })
+            } else {
+              this.toResolve(response.content)
             }
           },
         },
@@ -639,9 +668,9 @@ describe('onerIO v__VERSION__ Unit Test', function() {
         create: {
           url: host + 'api/order-create',
           method: 'POST',
-          process: function (response) {
+          process: function (content) {
             return {
-              orderId: response.id,
+              orderId: content.id,
             }
           },
         },
@@ -684,7 +713,11 @@ describe('onerIO v__VERSION__ Unit Test', function() {
             expect(vars.data.fixData).to.be(1)
             expect(vars.data.liveData).to.be(1)
             expect(vars.data.hookData).to.be(1)
-            return response
+            if (response.success) {
+              this.toResolve(response.content)
+            } else {
+              this.toReject(response.error)
+            }
           },
         },
       })
@@ -732,8 +765,11 @@ describe('onerIO v__VERSION__ Unit Test', function() {
             expect(vars.data.liveData).to.be(1)
             expect(vars.data.hookData).to.be(1)
             // console.log('vars', vars)
-            
-            return response
+            if (response.success) {
+              this.toResolve(response.content)
+            } else {
+              this.toReject(response.error)
+            }
           },
         },
       })
@@ -792,7 +828,8 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           timeout: 100,
           fit(r) {
             expect().fail('状态码404不应该执行到这里')
-            return r
+            // return r
+            this.toReject(r)
           },
         },
       })
@@ -833,7 +870,11 @@ describe('onerIO v__VERSION__ Unit Test', function() {
 
     it('pending status checking', function (done) {
 
-      const myContext = onerIO.context()
+      const myContext = onerIO.context({
+        fit: function (res) {
+          this.toResolve(res.content)
+        }
+      })
       myContext.create('order', {
         create: {
           //log: true,
@@ -935,6 +976,13 @@ describe('onerIO v__VERSION__ Unit Test', function() {
       const context = onerIO.context({
         urlPrefix: host,
         mock: false,
+        fit: function(res) {
+          if (res.success) {
+            this.toResolve(res.content)
+          } else {
+            this.toReject(res.error)
+          }
+        }
       })
 
       context.create('order', {
@@ -1130,6 +1178,13 @@ describe('onerIO v__VERSION__ Unit Test', function() {
       context = onerIO.context({
         urlPrefix: host,
         mock: false,
+        fit: function (res) {
+          if (res.success) {
+            this.toResolve(res.content)
+          } else {
+            this.toReject(res.error)
+          }
+        }
       })
     })
 
@@ -1196,7 +1251,7 @@ describe('onerIO v__VERSION__ Unit Test', function() {
           jsonp: true,
           fit(r, vars) {
             // console.log('vars', vars)
-            return r
+            this.toResolve(r.content)
           },
         },
       })

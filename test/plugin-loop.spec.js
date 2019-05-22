@@ -81,6 +81,13 @@ describe('plugin loop', function () {
     let context = onerIO.context({
       urlPrefix: host,
       mock: false,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      }
     })
 
     context.create('taxi', {

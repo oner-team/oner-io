@@ -11,9 +11,10 @@
 `1.x` 和`2.x`版本的`fit`，对后端数据进行适配。
 
 ```
+// 下面的demo假设后端数据以`success`键表示业务逻辑的成功与否
 fit: function (response) {
     const fitted = {} // 3.x 开始，这行可以删掉了
-    if (response.status !== 0) {
+    if (response.success) {
         fitted.success = true // 3.x 开始，这行可以删掉了
         fitted.content = response.data || {} // 3.x 开始，不需要记住`content`约定  
     } else {
@@ -30,8 +31,9 @@ fit: function (response) {
 用`3.x`版本的`fit`，实现同样的适配逻辑，简化了很多。
 
 ```
+// 下面的demo假设后端数据以`success`键表示业务逻辑的成功与否
 fit: function(response) {
-    if (response.status !== 0) {
+    if (response.success) {
         this.toResolve(response.data || {})
     } else {
         this.toReject({
@@ -60,7 +62,7 @@ io.getXxx({
 
 #### v2.5.7 / 2018-10-17
 
-* 钉钉容器中`ajax`默认不是异步，`natty-fetch`明确默认行为设置为异步，之前没有设置，使用浏览器的默认行为。
+* 钉钉容器中`ajax`默认不是异步，`oner-io`明确默认行为设置为异步，之前没有设置，使用浏览器的默认行为。
 
 ### v2.5.4 / 2018-01-19
 
@@ -110,13 +112,13 @@ context.on('reject', function (error, config, vars) {
 ### v2.4.0, v2.4.1 / 2017-04-11
 
 * 支持[`RESTFul API`](https://github.com/oner-team/oner-io/blob/master/docs/options.md#rest)。
-* 警告性升级：natty-fetch定义的接口，发出请求后，如果调用了abort接口，内部会有`warning`。
+* 警告性升级：oner-io定义的接口，发出请求后，如果调用了abort接口，内部会有`warning`。
 
 ### v2.3.0 / 2017-04-07
 
 * 修复设置了`timeout`的接口在并发时下被自动取消的问题。([@ peng2e](https://github.com/peng2e) in [#38](https://github.com/oner-team/oner-io/issues/38))
 * 删除了单测中针对`xhr`对象`status`的值的测试。
-* [`natty-storage`](https://github.com/jias/natty-storage)升级到`v2.x`
+* [`oner-storage`](https://github.com/jias/oner-storage)升级到`v2.x`
 * 针对自定义`customRequest`的插件的简化。
 * 破坏性升级：删除了`postDataFormat`选项。如果需要`json`编码，配置`Content-Type`为`application/json`。如果需要`urlencoded`编码，配置`Content-Type`为`application/x-www-form-urlencoded`即可。内部不在针对`POST`请求做内置默认处理，为添加`RESTFul API`支持做好准备。
 
@@ -153,7 +155,7 @@ context.create({
 * 跨域时不再强制屏蔽自定义的`header`。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/oner-team/oner-io/issues/30))
 * 添加`mark`参数，默认为`true`，会在请求的`url`中追加标记信息(接口名称，`retry`次数等)，方便识别。当设置为`false`时，`url`中没有标记信息(`_stamp`除外，另见`urlStamp`配置)。([@pfdgithub](https://github.com/pfdgithub) in [#30](https://github.com/oner-team/oner-io/issues/30))
 * `urlStamp`添加字符串类型的值(上个版本只允许布尔值)，如果配置了字符串值，则默认的`_stamp`将被替换为该字符串值。
-* 发布文件的变动，删除了`node`版本(即`natty-fetch.node.js`和`natty-fetch.pc.node.js`)。`natty-fetch`采用`umd`方式打包，已不再需要独立的`node`版本。
+* 发布文件的变动，删除了`node`版本(即`oner-io.node.js`和`oner-io.pc.node.js`)。`oner-io`采用`umd`方式打包，已不再需要独立的`node`版本。
 * 修复`traditional:false`不生效的问题。
 
 
@@ -161,7 +163,7 @@ context.create({
 
 以下数据供参考，如果`rollup+buble`组合用在其他大型`js`项目上，可以更给力地减少文件体积。两个数字分别是`Bundle Size`和`Gzipped Size`。
 
-||bundle use|natty-fetch.min.js|natty-fetch.pc.min.js||
+||bundle use|oner-io.min.js|oner-io.pc.min.js||
 |---|---|---|---|---|
 |v2.1.3|webpack+babel|14.8KB, 6.5KB|15.5KB, 6.8KB||
 |v2.2.0|rollup+buble|13.2KB, 5.19KB|13.7KB, 5.38KB|smaller|
@@ -227,7 +229,7 @@ let context = onerIO.context({
 * 升级：[`loop`](docs/options.md#loop)插件
 * 增强：当`storage`的`type`设置为`localStorage`时，强制检测是否同时设置了`key`值。
 * 修复：当`storage`的`type`设置为`variable`时，缓存没有启用。
-* 同步：[`natty-storage`](https://github.com/Jias/natty-storage)升级到[`v1.1.1`](https://github.com/Jias/natty-storage/blob/master/CHANGELOG.md)
+* 同步：[`oner-storage`](https://github.com/Jias/oner-storage)升级到[`v1.1.1`](https://github.com/Jias/oner-storage/blob/master/CHANGELOG.md)
 
 ### v2.0.0 / 2016-06-24
 

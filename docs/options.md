@@ -180,7 +180,7 @@ export default context.api.Submit
 
 ##### 示例
 
-假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在natty-fetch中，只需要一个参数即可开启请求锁。
+假设有一个创建订单的按钮，点击即发起请求，最理想的情况，这个"创建订单"的请求必定要做客户端的请求锁，来避免相同的信息被意外地创建了多份订单。在oner-io中，只需要一个参数即可开启请求锁。
 
 ```js
 context.create('Order', {
@@ -520,7 +520,7 @@ stopHandler.looping; // true or false
 * 类型：Boolean | Object
 * 默认：false
 
-`oner-io`的缓存功能由`natty-storage`提供，`storage`配置可参考`natty-storage`的[文档](https://github.com/Jias/natty-storage)。有两点需要注意：
+`oner-io`的缓存功能由`oner-storage`提供，`storage`配置可参考`oner-storage`的[文档](https://github.com/Jias/oner-storage)。有两点需要注意：
 
 1. 当`type`指定为`localStorage`时，必须同时配置`key`值！
 2. `async`配置在此处无效，`oner-io`内部强制为`true`值！

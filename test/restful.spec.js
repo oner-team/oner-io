@@ -15,6 +15,13 @@ describe('restful', function () {
       data: {
         ':version': 'v1',
       },
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     context.create('foo', {
@@ -47,6 +54,13 @@ describe('restful', function () {
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
+      },
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
       },
     })
 
@@ -82,6 +96,13 @@ describe('restful', function () {
       data: {
         ':version': 'v1',
       },
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     context.create('foo', {
@@ -112,6 +133,13 @@ describe('restful', function () {
       urlPrefix: host + 'rest/:version/',
       data: {
         ':version': 'v1',
+      },
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
       },
     })
 
@@ -145,6 +173,13 @@ describe('restful', function () {
         ':version': 'v1',
       },
       rest: true,
+      fit: function (res) {
+        if (res.success) {
+          this.toResolve(res.content)
+        } else {
+          this.toReject(res.error)
+        }
+      },
     })
 
     context.create('foo', {
