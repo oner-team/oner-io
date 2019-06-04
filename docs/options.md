@@ -6,6 +6,7 @@
 
 Base options：
 
+* [delay](#delay)
 * [data](#data)
 * [header](#header)
 * [jsonp](#jsonp)
@@ -39,6 +40,12 @@ Powerful options：
 * [storage](#storage)
 * [retry](#retry)
 
+### delay
+
+延迟请求请求发送
+
+* 类型：Number
+* 默认：0
 
 ### data
 

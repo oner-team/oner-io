@@ -96,6 +96,8 @@ const config = {
   //   nattyFetch.plugin.soon
   // ]
   plugins: FALSE,
+  // 延时发送请求
+  delay: 0,
 }
 
 export default config

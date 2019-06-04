@@ -150,8 +150,7 @@ class API {
     this._pendingList.push(request)
 
     const defer = new Defer(config.Promise)
-
-    request.send({
+    const sendOptions = {
       vars,
       onSuccess: content => {
         if (this.api.storageUseable) {
@@ -176,7 +175,17 @@ class API {
         }
         indexToRemove !== undefined && this._pendingList.splice(indexToRemove, 1)
       },
-    })
+    }
+    if (config.delay) {
+      if (!isNumber(config.delay)) {
+        throw new Error('Illegal `delay` value ,`delay` must be a number')
+      }
+      setTimeout(() => {
+        request.send(sendOptions)
+      }, config.delay)
+    } else {
+      request.send(sendOptions)
+    }
 
     return defer.promise
   }
