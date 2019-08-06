@@ -1,18 +1,9 @@
 ## Installation
 
-The fastest way to get started is to serve JavaScript from the CDN
-
-```html
-<!-- storage tool for oner-io -->
-<script src="https://npmcdn.com/oner-storage@1.0.0/dist/oner-storage.min.js"></script>
-<!-- core for oner-io -->
-<script src="https://npmcdn.com/oner-io@2.1.2/dist/oner-io.min.js"></script>
-```
-
-Also, it's as easy as npm.
+使用`npm`安装`oner-io`
 
 ```
-npm install oner-storage oner-io --save
+npm install oner-io --save
 ```
 
 如果需要支持非现代(Modern)的浏览器，请继续安装下面的`polyfill`。
