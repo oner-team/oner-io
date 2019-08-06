@@ -2,11 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![download](https://img.shields.io/npm/dm/oner-io.svg?style=flat)](https://www.npmjs.com/package/oner-io) [![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/jias/oner-io/master/LICENSE)
 
-## v3.x（新名字，还未发布） 
+## v3.x
 
-新名字`oner-io`，名称空间`onerIO`，还未发布！
+新名字`oner-io`，名称空间`onerIO`
 
-`oner-io`是这个工具的新名字(原名叫`natty-fetch`)，新名字意为着新起点，从此，该工具从原来的个人([jias](https://github.com/jias))维护，变为团队([oner-team](https://github.com/oner-team))维护。
+`oner-io`是这个工具的新名字(原名叫`natty-fetch`)，新名字意为着新起点，从此，该工具从原来的个人([jias](https://github.com/jias))维护，变为数澜科技前端团队([oner-team](https://github.com/oner-team))维护。
 
 - `oner-io`从`v3.0.0`开始发布(还未发布)，就是`natty-fetch@3.0.0`的计划，有破坏性升级，当然也更好用了。
 - 🍉 原`natty-fetch`的一切内容都在当前仓库的[`natty-fetch`](https://github.com/oner-team/oner-io/tree/natty-fetch)分支中。
