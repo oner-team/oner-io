@@ -6,6 +6,7 @@
 
 Base options：
 
+* [async](#async)
 * [data](#data)
 * [header](#header)
 * [jsonp](#jsonp)
@@ -39,6 +40,13 @@ Powerful options：
 * [storage](#storage)
 * [retry](#retry)
 
+
+### async
+
+是否是异步请求，默认是异步，只针对`ajax`有效
+
+* 类型：Boolean
+* 默认：true
 
 ### data
 
