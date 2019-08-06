@@ -339,7 +339,7 @@ io.City.getSuggestion({key:'ab'}).then(...); // 响应
 
 ### process
 
-请求成功时的数据处理函数，该函数接收到的参数是[数据结构约定](https://github.com/jias/oner-io/blob/master/docs/rules.md)中`content`的值。
+请求成功时的数据处理函数，该函数接收到的参数是[数据结构约定](https://github.com/oner-team/oner-io/blob/master/docs/rules.md)中`content`的值。
 
 * 类型：Function
 * 默认：function (content) {return content}
@@ -520,7 +520,7 @@ stopHandler.looping; // true or false
 * 类型：Boolean | Object
 * 默认：false
 
-`oner-io`的缓存功能由`oner-storage`提供，`storage`配置可参考`oner-storage`的[文档](https://github.com/Jias/oner-storage)。有两点需要注意：
+`oner-io`的缓存功能由`oner-storage`提供，`storage`配置可参考`oner-storage`的[文档](https://github.com/oner-team/oner-storage)。有两点需要注意：
 
 1. 当`type`指定为`localStorage`时，必须同时配置`key`值！
 2. `async`配置在此处无效，`oner-io`内部强制为`true`值！
