@@ -7,16 +7,16 @@
 ```js
 // A系统的数据结构
 {
-    "success": true,
+    "success": false,
     "data": {...},
-    ...
+    "error": {message: 'xxxx'}
 }
 
 // B系统的数据结构
 {
     "hasError": false,
     "content": {...},
-    ...
+    "errorMessage": 'xxxxx'
 }
 ```
 
@@ -31,11 +31,11 @@ const onerIO = require('oner-io');
 onerIO.setGlobal({
     // A系统的数据结构适配函数
     fit: function (response) {
-        return {
-            success: response.success,
-            content: response.data, // 适配点
-            ...
-        };
+        if (response.success) {
+            this.toResolve(response.data);
+        } else {
+            this.toReject(response.error);
+        }
     }
 });
 
@@ -46,12 +46,12 @@ systemAContext.create('Foo', {...});
 // 创建适用于B系统的DB上下文
 const systemBContext = onerIO.context({
     // B系统的数据结构适配函数
-    fit: function () {
-        return {
-            success: !response.hasError, // 适配点
-            content: response.content,
-            ...
-        };
+    fit: function (response) {
+        if (response.hasError) {
+            this.toReject({message: response.errorMessage});
+        } else {
+            this.toResolve(response.content);
+        }
     }
 });
 // 使用B系统的上下文创建DB
@@ -68,22 +68,22 @@ const onerIO = require('oner-io');
 // 适用于A系统的DB上下文
 const systemAContext = onerIO.context({
     fit: function () {
-        return {
-            success: response.success,
-            content: response.data, // 适配点
-            ...
-        };
+        if (response.success) {
+            this.toResolve(response.data);
+        } else {
+            this.toReject(response.error);
+        }
     }
 });
 
 // 适用于B系统的DB上下文
 const systemBContext = onerIO.context({
     fit: function () {
-        return {
-            success: !response.hasError, // 适配点
-            content: response.content,
-            ...
-        };
+        if (response.hasError) {
+            this.toReject({message: response.errorMessage});
+        } else {
+            this.toResolve(response.content);
+        }
     }
 });
 

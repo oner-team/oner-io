@@ -96,23 +96,21 @@ db.taxi.getNumber({
 
 ### fit
 
-数据结构预处理函数，接收完整的响应数据作为参数，只用于解决数据结构不一致的问题。
+> 重要提示： 从`3.x`开始，`fit`配置被设计成`必选项`，如果不配置，响应是无法完结(`resolve/reject`)的。
+
+数据结构预处理函数，接收完整的响应数据作为参数，通过`this.toResolve/this.toReject`方法决定成功和失败返回的数据结构。[这里查看3.x和2.x的变化比较](https://github.com/oner-team/oner-io/blob/master/CHANGELOG.md)
 
 * 类型：Function
-* 默认：function (response, vars) { return response }
+* 默认：function(){}
 
-`oner-io`接受的标准数据结构是
+3.x 开始，`oner-io`的标准数据结构只限制`error`必须拥有`message`字段
 
 ```js
-// 正确
+// 失败
 {
-    success: true,
-    content: {}
-}
-// 错误
-{
-    success: false,
-    error: {}
+    error: {
+        message: 'xxx', // message 是唯一的约定
+    }
 }
 ```
 
@@ -123,7 +121,7 @@ db.taxi.getNumber({
 ```js
 {
     hasError: false, // or true
-    content: {},
+    data: {},
     error: 'some message'
 }
 ```
@@ -132,18 +130,13 @@ db.taxi.getNumber({
 
 ```js
 fit: function (response) {
-    let ret = {
-        success: !response.hasError
-    };
-    
-    if (ret.success) {
-        ret.content = response.content;
+    if (response.hasError) {
+        this.toResolve(response.data);
     } else {
-        ret.error = {
-            message: response.error;
-        }
+        this.toReject({
+            message: response.error
+        });
     }
-    return ret;
 }
 ```
 
